@@ -24,9 +24,8 @@ function Home() {
 
 
   return (
-    <Container className='mt-[12vh] '>
-          
-        <Tabs size='md' variant='enclosed'>
+    <Container className='mt-[12vh]'>
+       <Tabs size='md' variant='enclosed'>
   <TabList>
     <Tab>Login</Tab>
     <Tab>Signup</Tab>
