@@ -18,6 +18,7 @@ const ChatState=(props)=>{
 
 
      const accessChat =async (userId)=>{
+        console.log(userId);
         let token =localStorage.getItem('token');
         const response=await fetch(`http://localhost:7000/api/chat/accessChat?userTwo=${userId}`,
         {

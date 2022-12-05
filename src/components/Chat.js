@@ -20,10 +20,8 @@ export default function Chat() {
        const {user,chatroom}=context;
 
        
-       console.log(chatroom)
         useEffect(() => {
           const connectUser=()=>{
-            console.log("hey");
             if(chatroom.users){ 
               socket = io(ENDPOINT);
               socket.emit("setup",user);
@@ -34,38 +32,31 @@ export default function Chat() {
         },[chatroom])
 
 
-         const fetchMessage =async ()=>{
-            if(!chatroom.users) return ;  
-            let token =localStorage.getItem('token');
-            const response=await fetch(`http://localhost:7000/api/chat/fetchMessages?chatId=${chatroom._id}`,
-            {
-              method:'GET',
-              mode:"cors" ,
-              headers: {
-                'Content-Type':'application/json',
-                'auth-token':token
-              },
-            }) 
-              let data=await response.json();
-              setmessages(data);
-              socket.emit('join chat',chatroom._id);
-         }
 
           useEffect(() => {
+            
+            const fetchMessage =async ()=>{
+              if(!chatroom.users) return ;
+               console.log(chatroom);  
+              let token =localStorage.getItem('token');
+              const response=await fetch(`http://localhost:7000/api/chat/fetchMessages?Id=${chatroom._id}`,
+              {
+                method:'GET',
+                mode:"cors" ,
+                headers: {
+                  'Content-Type':'application/json',
+                  'auth-token':token
+                },
+              }) 
+                let data=await response.json();
+                setmessages(data);
+                socket.emit('join chat',chatroom._id);
+              }
              fetchMessage();
              selectedChatCompare=chatroom;
           }, [chatroom])
       
-     
-      // useEffect(() => {
-      //   socket.on('message recieved',(message)=>{
-      //         if(!selectedChatCompare||selectedChatCompare._id!==chatroom._id){
-      //               //give notification
-      //         }else{
 
-      //         }
-      //    })
-      // },[chatroom]);
     
     
 
@@ -84,15 +75,31 @@ export default function Chat() {
                   }) 
 
                   const data=await response.json();
-                  socket.emit("new message",data);
-                  setmessages([...messages,data]);
+                  socket.emit("new_message",data);
+                  console.log("sending",messages.length);
+                  let updatedMessages=messages;
+                  updatedMessages.push(data);
+                  console.log("sending",updatedMessages.length);
+                  setmessages(updatedMessages);
                   setnewMessage("");
                 }
         }
 
 
-        
-        
+        useEffect(() => {
+          if(!socket) return ;
+          socket.on('message_recieved',(message)=>{
+                if(!selectedChatCompare||selectedChatCompare._id!==chatroom._id){
+                      //give notification
+                }else{
+                  console.log("receiving",messages.length);
+                   let updatedMessages=messages;
+                   updatedMessages.push(message);
+                   console.log("receiving",updatedMessages.length);
+                   setmessages(updatedMessages);
+                }
+           })
+        },[chatroom]); 
 
        
        

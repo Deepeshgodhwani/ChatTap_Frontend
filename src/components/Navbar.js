@@ -1,7 +1,7 @@
 import React from 'react'
 import { useContext } from 'react';
 import { useHistory } from 'react-router-dom'
-import UserContext from '../context/user/ChatContext';
+
 import {
   Drawer,
   DrawerBody,
@@ -15,10 +15,11 @@ import {
 } from '@chakra-ui/react'
 import { useState } from 'react';
 import { useEffect } from 'react';
+import ChatContext from '../context/user/ChatContext';
 
 export default function Navbar() {
      let history=useHistory();
-     const context = useContext(UserContext);
+     const context = useContext(ChatContext);
      const {accessChat}=context; 
      const { isOpen, onOpen, onClose } = useDisclosure()
      const btnRef = React.useRef()
