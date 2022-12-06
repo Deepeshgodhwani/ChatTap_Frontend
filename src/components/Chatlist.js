@@ -2,10 +2,8 @@ import React from 'react'
 import { useContext } from 'react';
 import { useEffect,useState } from 'react'
 import chatContext from '../context/user/ChatContext';
-import {
-  Modal,ModalOverlay,ModalContent,ModalHeader,ModalFooter,
-  ModalBody,ModalCloseButton,useDisclosure,FormControl,FormLabel,
-  Input,Button,} from '@chakra-ui/react'
+
+import GroupCreation from './GroupCreation';
 
 export default function Chatlist() {
 
@@ -13,11 +11,7 @@ export default function Chatlist() {
   const {accessChat}=context; 
    const [chats, setchats] = useState([]);
    const [logUser, setlogUser] = useState("");
-   const { isOpen, onOpen, onClose } = useDisclosure()
-   const initialRef = React.useRef(null)
-   const finalRef = React.useRef(null)
-   const [search, setsearch] = useState("")
-   const [users, setusers] = useState([]);
+ 
      
        const getChats=async()=>{
            let token =localStorage.getItem('token');
@@ -72,72 +66,14 @@ export default function Chatlist() {
         }
       }
 
-
-      const onChange =async(e)=>{
-        setsearch(e.target.value); 
-       let token =localStorage.getItem('token');
-       const response=await fetch(`http://localhost:7000/api/chat/searchUser?search=${e.target.value}`,
-       {
-         method:'GET',
-         mode:"cors" ,
-         headers: {
-           'Content-Type':'application/json',
-           'auth-token':token
-         },
-       })
-
-       let userrs= await response.json();
-       setusers(userrs);
-       if(!e.target.value){
-         setusers([]);
-       }
       
-    }
-
-     
-
-      
-  return (
-    <div className='bg-white rounded-[5px] w-[33%] h-[100%] p-[10px] flex flex-col space-y-2'>
+return (
+    <div className='bg-[rgb(36,36,36)] text-white rounded-[5px] w-[25%] h-[100%] p-[10px] flex flex-col space-y-2'>
     <div className='flex justify-between '>
         <p className='text-[24px]'>My Chats</p>
-        <p onClick={onOpen} className=' border-blue-900 cursor-pointer bg-slate-200 rounded-[5px] px-2 pt-1 font-semibold'>New Group Chat</p>
-        <Modal
-    initialFocusRef={initialRef}
-    finalFocusRef={finalRef}
-    isOpen={isOpen}
-    onClose={onClose}
-  >
-    <ModalOverlay />
-    <ModalContent>
-      <ModalHeader>Create your account</ModalHeader>
-      <ModalCloseButton />
-      <ModalBody pb={6}>
-        <FormControl>
-          <FormLabel>Chat name</FormLabel>
-          <Input ref={initialRef} placeholder='Chat name' />
-        </FormControl>
-
-        <FormControl mt={4}>
-          <FormLabel>Users</FormLabel>
-          <Input onChange={onChange} value={search} placeholder='Type here...' />
-        </FormControl>
-        <div>{users.map((user)=>{
-          return(<div key={user._id}><p>{user.name}</p></div>)
-        })}</div>
-      </ModalBody>
-
-      <ModalFooter>
-        <Button colorScheme='blue' mr={3}>
-          Create
-        </Button>
-        <Button onClick={onClose}>Cancel</Button>
-      </ModalFooter>
-    </ModalContent>
-     </Modal>
-        
+        <GroupCreation />
     </div>
-    <div className=' h-[78vh] py-4 px-1 flex space-y-2 flex-col bg-slate-100'>
+    <div className=' h-[78vh] py-4 px-1 flex space-y-2 flex-col'>
        {chats.map((element)=>{
             if(element.latestMessage){
                   if(element.isGroupChat){

@@ -10,7 +10,6 @@ import {
   DrawerContent,
   DrawerCloseButton,
   useDisclosure,
-  Button,
   Input,
 } from '@chakra-ui/react'
 import { useState } from 'react';
@@ -71,11 +70,9 @@ export default function Navbar() {
 
   return (
     
-    <nav className='flex px-6 py-2  justify-between bg-white '>
+    <nav className='flex flex-col  px-6 py-2 text-white   bg-[rgb(27,27,27)] '>
          <p className='font-semibold'>{user.name} </p>
-         <Button ref={btnRef} colorScheme='teal' onClick={onOpen}>
-        Search
-      </Button>
+         <i onClick={onOpen} class="fa-solid fa-magnifying-glass"></i>
       <Drawer
         isOpen={isOpen}
         placement='left'
@@ -101,10 +98,9 @@ export default function Navbar() {
 
         </DrawerContent>
        </Drawer>
- 
-         <p className='font-semibold text-2xl'>Talk-A-Tive</p>
+         <p className='font-semibold text-2xl'></p>
          <img alt='' onClick={logout}   src={user.avtar}
-             className='object-cover rounded-[50%]  cursor-pointer h-[100%] w-[30px]'></img>
+             className='object-cover rounded-full  cursor-pointer w-14'></img>
     </nav>
   )
 }

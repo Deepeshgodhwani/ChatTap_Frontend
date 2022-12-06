@@ -106,14 +106,14 @@ export default function Chat() {
   return (
     <>
     {chatroom.users?
-      <div className="bg-white py-2  px-2 w-[70%]" >
+      <div className="bg-[rgb(27,27,27)] text-white  py-2  px-2 w-[70%]" >
         <div className='flex  flex-col  h-[77vh] space-y-2 overflow-y-scroll '>
            <ScrollableChat messages={messages} user={user}/> 
         </div>
             <FormControl onKeyDown={sendMessage}>
                <input className='border-[1px] border-black w-[90%] rounded-md py-1 px-2' type="text" onChange={(e)=>{setnewMessage(e.target.value)}} value={newMessage} ></input>
             </FormControl>
-      </div>:<div className='w-[60%] bg-white text-xl font-bold flex justify-center items-center'>
+      </div>:<div className='w-[60%] bg-[rgb(27,27,27)] text-white text-xl font-bold flex justify-center items-center'>
          <p>Do chats</p>
         </div>}
   </>
