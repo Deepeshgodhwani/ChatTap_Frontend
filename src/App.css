@@ -1,3 +1,11 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+
+.chatBox{
+    scrollbar-width: none;
+    
+}
+

@@ -1,4 +1,4 @@
-import React, { useState,useContext } from 'react'
+import React, { useState,useContext} from 'react'
 import {
     Modal,ModalOverlay,ModalContent,ModalHeader,ModalFooter,
     ModalBody,ModalCloseButton,useDisclosure,FormControl,FormLabel,
@@ -14,13 +14,14 @@ function GroupCreation() {
     const [search, setsearch] = useState("")
     const [users, setusers] = useState([]);
     const context = useContext(ChatContext);
-    const {user}=context;
+    const {setchatroom}=context;
     const [selectedUsers, setselectedUsers] = useState([]);
-    const [seletecUsersId, setseletecUsersId] = useState([]);
+    const [selectedUsersId, setselectedUsersId] = useState([]);
+    const [chatName, setchatName] = useState("");
 
 
     const onChange =async(e)=>{
-        setsearch(e.target.value); 
+       setsearch(e.target.value); 
        let token =localStorage.getItem('token');
        const response=await fetch(`http://localhost:7000/api/chat/searchUser?search=${e.target.value}`,
        {
@@ -49,13 +50,59 @@ function GroupCreation() {
         if(isExist) return ;
 
         setselectedUsers([...selectedUsers,selectedUser]);
-        setseletecUsersId([...seletecUsersId,selectedUser._id]); 
+        setselectedUsersId([...selectedUsersId,selectedUser._id]); 
+        setsearch("");
+        setusers([]);
     }
 
-    const removeUser =()=>{
+    const removeUser =(user)=>{
+        setselectedUsers(selectedUsers.filter((User)=>{
+            return User._id!==user._id;
+        }))
+
+        setselectedUsersId(selectedUsersId.filter((User)=>{
+          return User!==user._id;
+        }))
+    }
+
+
+    const createNoty =async (Id)=>{
+         let token =localStorage.getItem('token');
+         const response=await fetch(`http://localhost:7000/api/chat/message`,
+         {
+                    method:'POST',
+                    mode:"cors" ,
+                    headers: {
+                      'Content-Type':'application/json',
+                      'auth-token':token
+                    },
+                    body:JSON.stringify({noty:true,content:"created Group",chatId:Id})
+          }) 
           
+          const data=await response.json();
+          console.log(data);
     }
 
+   const createGroup =async ()=>{
+      let token =localStorage.getItem('token');
+      const response=await fetch('http://localhost:7000/api/chat/createGroup',
+      {
+        method:'POST',
+        mode:"cors" ,
+        headers: {
+          'Content-Type':'application/json',
+          'auth-token':token
+        },
+        body:JSON.stringify({chatName,selectedUsersId})
+      })
+
+      let data=await response.json();
+      createNoty(data._id);
+      setselectedUsers([]);
+      setselectedUsersId([]);
+      setchatName("");
+      setchatroom(data);
+   }
     
       
   return (
@@ -74,7 +121,7 @@ function GroupCreation() {
       <ModalBody pb={6}>
         <FormControl>
           <FormLabel>Chat name</FormLabel>
-          <Input ref={initialRef} placeholder='Chat name' />
+          <Input onChange={(e)=>{setchatName(e.target.value)}} value={chatName} ref={initialRef} placeholder='Chat name' />
         </FormControl>
         <div className='flex flex-wrap space-x-1 my-2'>{selectedUsers.map((user)=>{
           return(<div className='px-2 py-1 space-x-1 justify-between items-center flex  rounded-lg text-xs text-white 
@@ -90,7 +137,7 @@ function GroupCreation() {
       </ModalBody>
 
       <ModalFooter>
-        <Button  colorScheme='blue' mr={3}>
+        <Button onClick={createGroup}  colorScheme='blue' mr={3}>
           Create
         </Button>
         <Button onClick={onClose}>Cancel</Button>

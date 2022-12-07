@@ -1,16 +1,18 @@
 import React from 'react'
 import ScrollableFeed from 'react-scrollable-feed'
 
+import "../App.css"
+
 const ScrollableChat = (props) => {
     const {messages,user}=props;
-    console.log(messages);
   return (
-    <ScrollableFeed className=''>
+    <ScrollableFeed className="chatBox flex flex-col py-2   px-2 overflow-y-scroll space-y-2" >
           {messages && messages.map((message,i)=>{
                 return (
-                    <div className={`flex`}  key={message._id}>
-                       <span className={` px-2 py-1 text-white rounded-lg ${message.sender._id===user._id?"bg-green-500":"bg-blue-500"}
-                         ${message.sender._id===user._id?"ml-[80%]":"bg-blue-500"}  `}>
+                    <div className={`flex
+                    ${message.sender._id===user._id?"justify-end":""}   `}  key={message._id}>
+                       <span className={` px-2 py-1  rounded-lg ${message.sender._id===user._id?"bg-[rgb(38,141,97)]":"bg-[rgb(53,55,59)]"}
+                          `}>
                         {message.content}
                         </span>     
                     </div>

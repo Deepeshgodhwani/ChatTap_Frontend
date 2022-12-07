@@ -70,9 +70,9 @@ export default function Navbar() {
 
   return (
     
-    <nav className='flex flex-col  px-6 py-2 text-white   bg-[rgb(27,27,27)] '>
+    <nav className='flex flex-col  px-6 py-2 text-white  bg-[rgb(27,27,27)] '>
          <p className='font-semibold'>{user.name} </p>
-         <i onClick={onOpen} class="fa-solid fa-magnifying-glass"></i>
+         <i onClick={onOpen} className="fa-solid fa-magnifying-glass"></i>
       <Drawer
         isOpen={isOpen}
         placement='left'

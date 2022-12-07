@@ -18,7 +18,6 @@ const ChatState=(props)=>{
 
 
      const accessChat =async (userId)=>{
-        console.log(userId);
         let token =localStorage.getItem('token');
         const response=await fetch(`http://localhost:7000/api/chat/accessChat?userTwo=${userId}`,
         {
@@ -33,10 +32,26 @@ const ChatState=(props)=>{
         let data =await response.json();
         setchatroom(data);
      }
+
+     const accessGroupChat=async (chatId)=>{
+        let token =localStorage.getItem('token');
+        const response=await fetch(`http://localhost:7000/api/chat/accessGroupChat?chatId=${chatId}`,
+        {
+          method:'GET',
+          mode:"cors" ,
+          headers: {
+            'Content-Type':'application/json',
+             'auth-token':token
+          },
+        }) 
+        
+        let data =await response.json();
+        setchatroom(data);
+     }
      
 
     return(
-        <UserContext.Provider value={{user,accessChat,chatroom}} >
+        <UserContext.Provider value={{user,accessChat,chatroom,accessGroupChat,setchatroom}} >
             {props.children}
         </UserContext.Provider>
     )

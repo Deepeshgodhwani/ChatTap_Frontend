@@ -8,7 +8,7 @@ import GroupCreation from './GroupCreation';
 export default function Chatlist() {
 
   const context = useContext(chatContext);
-  const {accessChat}=context; 
+  const {accessChat,accessGroupChat}=context; 
    const [chats, setchats] = useState([]);
    const [logUser, setlogUser] = useState("");
  
@@ -75,23 +75,25 @@ return (
     </div>
     <div className=' h-[78vh] py-4 px-1 flex space-y-2 flex-col'>
        {chats.map((element)=>{
-            if(element.latestMessage){
                   if(element.isGroupChat){
-                    return(<div key={element._id} className='flex cursor-pointer bg-[rgb(86,160,215)]  px-1 py-2 justify-center  rounded-lg text-white space-x-2'>
+                    return(<div key={element._id} onClick={()=>{accessGroupChat(element._id)}} className='flex cursor-pointer bg-[rgb(86,160,215)]  px-1 py-2 justify-center  rounded-lg text-white space-x-2'>
                             <p>{element.chatname}</p>
                     </div>)
                   }else{
-                    return (
-                      <div onClick={(()=>{accessChat(checkUserId(element.latestMessage.sender,element))})}   className='flex cursor-pointer bg-[rgb(86,160,215)] px-1 py-2 justify-center  rounded-lg text-white space-x-2' key={element._id}>
+                    if(element.latestMessage){
+
+                      return (
+                        <div onClick={(()=>{accessChat(checkUserId(element.latestMessage.sender,element))})}   className='flex cursor-pointer bg-[rgb(86,160,215)] px-1 py-2 justify-center  rounded-lg text-white space-x-2' key={element._id}>
                           <p>
                             {checkUser(element.latestMessage.sender,element)}
                             </p>
                       </div>
                   )
+                }else{
+                  return (<div></div>)
+                }
               }    
-          }else{
-            return (<div key=""></div>)
-          }
+          
        })}
     </div>
 </div> 
