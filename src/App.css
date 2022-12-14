@@ -4,8 +4,25 @@
 
 
 
-.chatBox{
-    scrollbar-width: none;
-    
+
+
+@layer components {
+    .check{
+        @apply border-2 border-yellow-500
+    }
+    .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+    }
+}   
+
+.chatBox::-webkit-scrollbar{
+    display: none;
 }
+
+.chatBox{
+    scrollbar-width: none;   
+}
+
+
+
 

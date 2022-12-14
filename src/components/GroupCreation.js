@@ -4,6 +4,8 @@ import {
     ModalBody,ModalCloseButton,useDisclosure,FormControl,FormLabel,
     Input,Button,} from '@chakra-ui/react'
 import ChatContext from '../context/user/ChatContext'
+import createGroupLogo from '../images/createGroup.png';
+
 
 
 
@@ -14,7 +16,7 @@ function GroupCreation() {
     const [search, setsearch] = useState("")
     const [users, setusers] = useState([]);
     const context = useContext(ChatContext);
-    const {setchatroom}=context;
+    const {setchatroom,setrecentChats,recentChats}=context;
     const [selectedUsers, setselectedUsers] = useState([]);
     const [selectedUsersId, setselectedUsersId] = useState([]);
     const [chatName, setchatName] = useState("");
@@ -76,7 +78,7 @@ function GroupCreation() {
                       'Content-Type':'application/json',
                       'auth-token':token
                     },
-                    body:JSON.stringify({noty:true,content:"created Group",chatId:Id})
+                    body:JSON.stringify({noty:true,content:`created group "${chatName}"`,chatId:Id})
           }) 
           
           const data=await response.json();
@@ -97,17 +99,21 @@ function GroupCreation() {
       })
 
       let data=await response.json();
+      setrecentChats([...recentChats,data]);
       createNoty(data._id);
       setselectedUsers([]);
       setselectedUsersId([]);
       setchatName("");
       setchatroom(data);
+      onClose();
+
    }
     
       
   return (
     <div>
-        <p onClick={onOpen} className=' border-blue-900 cursor-pointer rounded-[5px] px-2 pt-1 font-semibold'>New Group Chat</p>
+        {/* <p  className=' border-blue-900 cursor-pointer rounded-[5px] px-2 pt-1 font-semibold'>New Group Chat</p> */}
+        <img onClick={onOpen} alt='' className='w-20 cursor-pointer' src={createGroupLogo}></img>
         <Modal
     initialFocusRef={initialRef}
     finalFocusRef={finalRef}

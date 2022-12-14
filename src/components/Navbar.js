@@ -1,7 +1,8 @@
 import React from "react";
 import { useContext } from "react";
 import { useHistory } from "react-router-dom";
-
+import logo from "../images/meetme.png";
+import GroupCreation from './GroupCreation';
 import {
   Drawer,
   DrawerBody,
@@ -19,7 +20,7 @@ import ChatContext from "../context/user/ChatContext";
 export default function Navbar() {
   let history = useHistory();
   const context = useContext(ChatContext);
-  const { accessChat } = context;
+  const { accessChat , setchatroom } = context;
   const { isOpen, onOpen, onClose } = useDisclosure();
   const btnRef = React.useRef();
   const [search, setsearch] = useState("");
@@ -29,6 +30,7 @@ export default function Navbar() {
   const logout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    setchatroom({});
     history.push("/");
   };
 
@@ -65,9 +67,10 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="flex flex-col  px-6 py-2 text-white  bg-[rgb(27,27,27)] ">
-      <p className="font-semibold">{user.name} </p>
-      <i onClick={onOpen} className="fa-solid fa-magnifying-glass"></i>
+    <nav className="flex flex-col items-center justify-between  w-20 px-6 py-10 text-white  bg-[rgb(27,27,27)] ">
+      <img alt="" className="w-20" src={logo}></img>
+      <div className="space-y-4">
+      <i onClick={onOpen} className="text-[rgb(111,111,111)] ml-2 text-lg cursor-pointer fa-solid fa-magnifying-glass"></i>
       <Drawer
         isOpen={isOpen}
         placement="left"
@@ -91,11 +94,12 @@ export default function Navbar() {
                   <div
                     onClick={() => {
                       accessChat(user._id);
+                      onClose();
                     }}
                     className="flex cursor-pointer  items-center space-x-2"
                     key={user._id}
                   >
-                    <img className="w-10" alt="" src={user.avtar}></img>
+                    <img className="w-12 rounded-full h-12" alt="" src={user.avtar}></img>
                     <p>{user.name}</p>
                   </div>
                 );
@@ -104,13 +108,18 @@ export default function Navbar() {
           </DrawerBody>
         </DrawerContent>
       </Drawer>
+      <GroupCreation />
+      </div>
+      <div className="flex flex-col space-y-3">
+      <i className=" text-[rgb(111,111,111)] ml-2 text-xl cursor-pointer fa-regular fa-bell"></i>
       <p className="font-semibold text-2xl"></p>
       <img
         alt=""
         onClick={logout}
         src={user.avtar}
-        className="object-cover rounded-full  cursor-pointer w-14"
-      ></img>
+        className="object-cover rounded-full  cursor-pointer h-9  w-14"
+        ></img>
+        </div>
     </nav>
   );
 }

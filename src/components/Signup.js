@@ -8,9 +8,11 @@ function Signup() {
 
   let history=useHistory();
 
-const [credentials, setcredentials] = useState({name:"",email:"",password:"",confPassword:"",avtar:""})
+const [credentials, setcredentials] = useState({name:"",email:"",password:"",confPassword:""});
+
 const toast = useToast();
 
+  
 
   const formHandler=  async (e)=>{
     
@@ -25,22 +27,32 @@ const toast = useToast();
           })
       }
 
+      // if((avatar) && (avatar.type==="image/jpeg"||avatar.type==="image/png")){
+      //   const formData= new FormData();
+      //   console.log(avatar);
+      //   formData.append("file",avatar);
+      //   formData.append("upload_preset","chat_app");
+      //   formData.append("cloud_name","dynjwlpl3");   
+      //   const response= await fetch("https://api.cloudinary.com/v1_1/dynjwlpl3/image/upload",{
+      //     method:"POST",
+      //     body:formData
+      //   })
+      //   let pic= await response.json();
+      //   setavatar(pic.url.toString());
+      // }            
+
       const response=await fetch("http://localhost:7000/api/auth/createUser",{
           method:"POST",
           mode:"cors" ,
           headers: {
             'Content-Type':'application/json',
           },
-          body: JSON.stringify({
-            name:credentials.name,
-            email:credentials.email,
-            password:credentials.password,
-            avtart:credentials.avtar}) 
+          body:JSON.stringify({name:credentials.name,email:credentials.email,password:credentials.password})
       })
 
       let data=await response.json();
-      setcredentials({name:"",email:"",password:"",confPassword:"",avtar:""});
-      if(!data.error){
+      setcredentials({name:"",email:"",password:"",confPassword:""});
+      if(!data.error ){
           localStorage.setItem('token',data.authToken);
           const User=await fetch("http://localhost:7000/api/auth/getUser",{
             method:"GET",
@@ -53,7 +65,9 @@ const toast = useToast();
 
           let user=await User.json();
           localStorage.setItem('user',JSON.stringify(user));
-          history.push('/chat');
+          if(user){
+            history.push('/chat');
+          }
       }else{
         toast({
           title: 'Error',
@@ -65,9 +79,12 @@ const toast = useToast();
       }
   }
 
-    const onChange=(e)=>{    
+    const onChange=(e)=>{ 
       setcredentials({...credentials ,[e.target.name]:e.target.value});
     }
+    
+  
+    // console.log(avatar);
 
   return (
     <form onSubmit={formHandler}>
@@ -80,8 +97,6 @@ const toast = useToast();
       <input onChange={onChange} name="password" value={credentials.password} className='border-2 p-[5px] outline-none rounded-[5px] ml-2' type="password" placeholder="Enter Password" required></input>
       <h2 className='text-base font-bold'>Confirm Password *</h2>
       <input onChange={onChange} name="confPassword" value={credentials.confPassword} className='border-2 p-[5px] outline-none rounded-[5px] ml-2' type= "password" placeholder="Confirm Password" required></input>
-      <h2 className='text-base font-bold'>Upload your Picture *</h2>
-      <input onChange={onChange} name="avtar" value={credentials.avtar} className='border-2 p-[5px] outline-none rounded-[5px] ml-2' type="file" placeholder="No file chosen"></input>
       <input  type="submit" value="Login" className='text-white bg-blue-600 p-[5px] rounded-[5px]'></input>
    </div>
  </form>
