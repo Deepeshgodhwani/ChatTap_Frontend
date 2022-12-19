@@ -76,9 +76,6 @@ export default function Chatlist() {
       }
 
 
-   
-
-  
 
       
 return (
@@ -89,7 +86,7 @@ return (
     <input className='border-none w-full outline-none text-white rounded-md px-4 pl-8 py-2 bg-[rgb(53,55,59)]' placeholder='Search..' type="text" name="search"></input>
     </div>
     <div className=' h-[78vh] py-4  flex space-y-2 flex-col'>
-       {recentChats && recentChats.map((element)=>{
+       {recentChats.length && recentChats.map((element)=>{
                   if(element.isGroupChat){
                     return(<div key={element._id} onClick={()=>{chatroom._id!==element._id&&accessGroupChat(element._id)}} 
                     className='flex cursor-pointer border-b-[1px] border-[rgb(42,42,42)]   px-1 py-2   rounded-lg text-white space-x-2'>
@@ -102,15 +99,15 @@ return (
                             </p>
                             <p className='text-xs text-[rgb(146,145,148)]'>Thursday</p>
                               </div>
-                            <p className='text-[rgb(146,145,148)] text-sm'>{element.latestMessage.content.length>21?element.
-                            latestMessage.content.slice(0,21)+"...":element.latestMessage.content}</p>
+                            <p className='text-[rgb(146,145,148)] text-sm'>{element.latestMessage.content.length>21?element
+                            .latestMessage.content.slice(0,21)+"...":element.latestMessage.content}</p>
                           </div>
                             
                     </div>)
                   }else{
                     if(element.latestMessage){
                       return (
-                        <div onClick={(()=>{accessChat(checkUserId(element.latestMessage.sender,element))})} 
+                        <div  onClick={(()=>{accessChat(checkUserId(element.latestMessage.sender,element))})} 
                           className='flex cursor-pointer border-b-[1px] border-[rgb(42,42,42)]  px-1 py-2   rounded-lg text-white space-x-2' key={element._id}>
                           <img alt='' className='w-12 h-12 rounded-[50%]' src={checkUserAvtar(element.latestMessage.sender,element)}></img>
                           <div>
@@ -125,7 +122,7 @@ return (
                       </div>
                   )
                 }else{
-                  return (<div></div>)
+                  return (<div key={""}></div>)
                 }
               }    
           

@@ -1,6 +1,5 @@
 import React from "react";
 import { useContext } from "react";
-import { useHistory } from "react-router-dom";
 import logo from "../images/meetme.png";
 import GroupCreation from './GroupCreation';
 import {
@@ -13,36 +12,20 @@ import {
   useDisclosure,
   Input,
 } from "@chakra-ui/react";
+
 import { useState } from "react";
-import { useEffect } from "react";
+
 import ChatContext from "../context/user/ChatContext";
+import Profile from "./Profile";
 
 export default function Navbar() {
-  let history = useHistory();
   const context = useContext(ChatContext);
-  const { accessChat , setchatroom } = context;
+  const { accessChat } = context;
   const { isOpen, onOpen, onClose } = useDisclosure();
   const btnRef = React.useRef();
   const [search, setsearch] = useState("");
   const [users, setusers] = useState([]);
-  const [user, setuser] = useState("");
-
-  const logout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    setchatroom({});
-    history.push("/");
-  };
-
-  const setUser = () => {
-    let logUser = JSON.parse(localStorage.getItem("user"));
-    setuser(logUser);
-  };
-
-  useEffect(() => {
-    setUser();
-    // eslint-disable-next-line
-  }, []);
+ 
 
   const onChange = async (e) => {
     setsearch(e.target.value);
@@ -113,12 +96,7 @@ export default function Navbar() {
       <div className="flex flex-col space-y-3">
       <i className=" text-[rgb(111,111,111)] ml-2 text-xl cursor-pointer fa-regular fa-bell"></i>
       <p className="font-semibold text-2xl"></p>
-      <img
-        alt=""
-        onClick={logout}
-        src={user.avtar}
-        className="object-cover rounded-full  cursor-pointer h-9  w-14"
-        ></img>
+        <Profile />
         </div>
     </nav>
   );

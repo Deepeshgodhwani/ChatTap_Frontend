@@ -13,6 +13,19 @@
     .scrollbar-hide::-webkit-scrollbar {
         display: none;
     }
+
+    .inputFile::-webkit-file-upload-button{
+       visibility: hidden;
+    }
+
+    .inputFile::before{
+        content:"Select a picture";
+        color: white;
+        margin-top: 50px;
+        margin-left: 20px;
+    }
+
+
 }   
 
 .chatBox::-webkit-scrollbar{

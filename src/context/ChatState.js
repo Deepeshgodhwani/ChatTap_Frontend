@@ -7,6 +7,11 @@ const ChatState=(props)=>{
      const [logUser, setlogUser] = useState({})
      const [chatroom, setchatroom] = useState({});
      const [recentChats, setrecentChats] = useState([])
+     const [groupPic, setgroupPic] = useState("");
+    //  const [userPic, setuserPic] = useState("")
+     const [groupName, setgroupName] = useState("");
+
+
 
      const getUser=()=>{
         let userInfo=JSON.parse(localStorage.getItem('user'));
@@ -31,6 +36,7 @@ const ChatState=(props)=>{
         })
         
         let data =await response.json();
+
         setchatroom(data);
      }
 
@@ -47,6 +53,8 @@ const ChatState=(props)=>{
         }) 
         
         let data =await response.json();
+        setgroupPic(data.profilePic);
+        setgroupName(data.chatname);
         setchatroom(data);
      }
 
@@ -70,7 +78,7 @@ const ChatState=(props)=>{
 
     return(
         <UserContext.Provider value={{setrecentChats,recentChats,fetchRecentChats,logUser
-        ,accessChat,chatroom,accessGroupChat,setchatroom}} >
+        ,accessChat,chatroom,accessGroupChat,setchatroom,setgroupPic,groupPic,setgroupName,groupName}} >
             {props.children}
         </UserContext.Provider>
     )

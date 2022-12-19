@@ -12,9 +12,8 @@ var socket;
 var selectedChatCompare;
 
 
-
-
 export default function SingleChat(props) {
+     const {toggleProfileView}=props;
        const [messages, setmessages] = useState([]);
        const [newMessage, setnewMessage] = useState("");
        const context = useContext(ChatContext);
@@ -26,19 +25,18 @@ export default function SingleChat(props) {
 
   // To estaiblish connection //
 
-       
         useEffect(() => {
           const connectUser=()=>{
-            props.toggleProfileView(false);
+            toggleProfileView(false);
             if(chatroom.users){ 
               socket = io(ENDPOINT);
               socket.emit("setup",logUser);
               chatroom.users[0]._id===logUser._id?setsecondUser(chatroom.users[1]):setsecondUser(chatroom.users[0]);
-              // socket.on("connection",()=>setSocketConnected(true));
             }
+            
           }
           connectUser();
-        },[chatroom])
+        },[chatroom,logUser])
 
   //To join room //
 
@@ -64,14 +62,12 @@ export default function SingleChat(props) {
              fetchMessage();
              selectedChatCompare=chatroom;
           }, [chatroom])
-      
 
     
   // To send message //
-    
-
        const sendMessage =async (e)=>{
-             if(e.key==="Enter"&& newMessage){
+         if(e.key==="Enter" && newMessage){
+               console.log(newMessage);
                 let token =localStorage.getItem('token');
                 const response=await fetch(`http://localhost:7000/api/chat/message`,
                   {
@@ -87,10 +83,7 @@ export default function SingleChat(props) {
                   const data=await response.json();
                   socket.emit("new_message",data);
                   console.log("sending",messages.length);
-                  let updatedMessages=messages;
-                  updatedMessages.push(data);
-                  console.log("sending",updatedMessages.length);
-                  setmessages(updatedMessages);
+                  setmessages([...messages,data]);
                   setnewMessage("");
                 }
         }
@@ -103,14 +96,12 @@ export default function SingleChat(props) {
                 if(!selectedChatCompare||selectedChatCompare._id!==message.chatId._id){
                       //give notification
                 }else{
-                   let updatedMessages=messages;
-                   updatedMessages.push(message);
-                   setmessages(updatedMessages);
+                  setmessages([...messages,message]); 
+                  console.log(messages.length);
                 }
            })
-        },[chatroom]); 
+        },[chatroom,messages]); 
 
-       
        
   return (
     <>

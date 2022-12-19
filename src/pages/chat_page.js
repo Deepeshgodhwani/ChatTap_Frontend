@@ -3,7 +3,7 @@ import Chatlist from '../components/Chatlist'
 import Chat from '../components/Chat';
 import Navbar from '../components/Navbar';
 import { useHistory } from 'react-router-dom';
-import Profile from '../components/Profile';
+import Profile from '../components/Details';
 import ChatContext from '../context/user/ChatContext';
 import { useContext } from 'react';
 

@@ -14,26 +14,27 @@ var selectedChatCompare;
 
 function GroupChat(props) {
   const context = useContext(ChatContext);
-  const {chatroom,logUser}=context;
+  const {toggleProfileView}=props;
+  const {chatroom,logUser,groupPic}=context;
   const [loading, setloading] = useState(false);
   const [messages, setmessages] = useState([])
   const [newMessage, setnewMessage] = useState("");
+  
 
  
   // To estaiblish connection //
 
   useEffect(() => {
     const connectUser=()=>{
-      // console.log(props);
       if(chatroom.users){ 
-        props.toggleProfileView(false);
+        toggleProfileView(false);
         socket = io(ENDPOINT);
         socket.emit("setup",logUser);
         // socket.on("connection",()=>setSocketConnected(true));
       }
     }
     connectUser();
-  },[chatroom])
+  },[chatroom,logUser])
 
   //To join room //
 
@@ -99,12 +100,12 @@ function GroupChat(props) {
              setmessages(updatedMessages);
           }
      })
-  },[chatroom]); 
+  },[chatroom,messages]); 
 
   return (
     <div className="bg-[rgb(27,27,27)] text-white w-[70%]" >
     <div className='flex items-center h-16 border-[1px] border-[rgb(42,42,42)] py-3 space-x-4 px-4 bg-[rgb(36,36,36)] '>
-      <img onClick={()=>{props.toggleProfileView(true)}} alt='' className='w-10 cursor-pointer rounded-full' src={chatroom.profilePic}></img>
+      <img onClick={()=>{props.toggleProfileView(true)}} alt='' className='w-10 h-10   cursor-pointer rounded-full' src={groupPic}></img>
       <p className="cursor-pointer" onClick={()=>{props.toggleProfileView(true)}}>{chatroom.chatname}</p>
     </div>
     <div className={`chatBox py-2 px-4  h-[77vh]`}>
