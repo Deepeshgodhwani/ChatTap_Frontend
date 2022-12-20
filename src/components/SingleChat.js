@@ -20,7 +20,7 @@ export default function SingleChat(props) {
        const [secondUser, setsecondUser] = useState({});
        const [loading, setloading] = useState(false);
       //  const [SocketConnected, setSocketConnected] = useState(false);
-       const {logUser,chatroom}=context;
+       const {logUser,chatroom,recentChats,setrecentChats}=context;
 
 
   // To estaiblish connection //
@@ -82,11 +82,21 @@ export default function SingleChat(props) {
 
                   const data=await response.json();
                   socket.emit("new_message",data);
-                  console.log("sending",messages.length);
                   setmessages([...messages,data]);
+                  let updatedChat;
+                  let chats=recentChats;
+                  chats=chats.filter((Chat)=>{
+                       if(Chat._id===chatroom._id){
+                         Chat.latestMessage=data;
+                         updatedChat=Chat;
+                        }
+                      return Chat._id!==chatroom._id;
+                  });
                   setnewMessage("");
-                }
-        }
+                  setrecentChats([updatedChat,...chats]);
+              }
+              }
+                  
 
   // To receive message //
  
@@ -99,8 +109,24 @@ export default function SingleChat(props) {
                   setmessages([...messages,message]); 
                   console.log(messages.length);
                 }
+               
+                console.log(message);
+
+                let updatedChat;
+                let chats=recentChats;
+                chats=chats.filter((Chat)=>{
+                       if(Chat._id===message.chatId._id){
+                         Chat.latestMessage=message;
+                         updatedChat=Chat;
+                        }
+                      return Chat._id!==message.chatId._id;
+                 });
+                setnewMessage("");
+                setrecentChats([updatedChat,...chats]);
+
+
            })
-        },[chatroom,messages]); 
+        },[chatroom,messages,recentChats]); 
 
        
   return (

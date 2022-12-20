@@ -5,6 +5,7 @@ import {
     Input,Button,} from '@chakra-ui/react'
 import ChatContext from '../context/user/ChatContext'
 import createGroupLogo from '../images/createGroup.png';
+import cameraLogo from '../images/camera.png';
 
 
 
@@ -121,14 +122,17 @@ function GroupCreation() {
     onClose={onClose}
   >
     <ModalOverlay />
-    <ModalContent>
-      <ModalHeader>Create your account</ModalHeader>
+    <ModalContent   bg={"rgb(36,36,36)"} color={"white"}>
+      <ModalHeader>New group</ModalHeader>
       <ModalCloseButton />
       <ModalBody pb={6}>
-        <FormControl>
-          <FormLabel>Chat name</FormLabel>
-          <Input onChange={(e)=>{setchatName(e.target.value)}} value={chatName} ref={initialRef} placeholder='Chat name' />
-        </FormControl>
+        <div className='flex flex-col gap-y-2 items-center'>
+          <div className='relative w-40  rounded-full'>
+          <img alt='' className='w-40' src='https://cdn6.aptoide.com/imgs/1/2/2/1221bc0bdd2354b42b293317ff2adbcf_icon.png'></img>
+           <div className='absolute opacity-40 top-0 bg-black w-40 h-40 rounded-full'><img alt='' className='w-12 ' src={cameraLogo}></img></div>
+          </div>
+          <input className='w-52 outline-none bg-transparent px-1 border-[rgb(46,121,95)] border-b-2' onChange={(e)=>{setchatName(e.target.value)}} value={chatName} ref={initialRef} placeholder='Chat name' /> 
+        </div>
         <div className='flex flex-wrap space-x-1 my-2'>{selectedUsers.map((user)=>{
           return(<div className='px-2 py-1 space-x-1 justify-between items-center flex  rounded-lg text-xs text-white 
           bg-[rgb(255,108,55)]' key={user._id}><p>{user.name}</p><i onClick={(e)=>{removeUser(user)}} className=" cursor-pointer fa-solid fa-xmark"></i></div>)

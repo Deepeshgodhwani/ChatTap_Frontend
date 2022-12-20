@@ -61,7 +61,7 @@ export default function Navbar() {
         finalFocusRef={btnRef}
       >
         <DrawerOverlay />
-        <DrawerContent>
+        <DrawerContent bg={"rgb(36,36,36)"} color={"white"}>
           <DrawerCloseButton />
           <DrawerHeader>Search for Chat</DrawerHeader>
 

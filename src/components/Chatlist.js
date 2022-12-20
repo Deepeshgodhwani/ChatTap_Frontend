@@ -85,7 +85,7 @@ return (
     <i className="fa-solid absolute top-3 left-2   fa-magnifying-glass"></i>
     <input className='border-none w-full outline-none text-white rounded-md px-4 pl-8 py-2 bg-[rgb(53,55,59)]' placeholder='Search..' type="text" name="search"></input>
     </div>
-    <div className=' h-[78vh] py-4  flex space-y-2 flex-col'>
+    <div className=' h-[78vh] py-4 overflow-y-scroll chatBox  flex space-y-2 flex-col'>
        {recentChats.length && recentChats.map((element)=>{
                   if(element.isGroupChat){
                     return(<div key={element._id} onClick={()=>{chatroom._id!==element._id&&accessGroupChat(element._id)}} 
