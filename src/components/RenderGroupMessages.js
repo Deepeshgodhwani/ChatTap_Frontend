@@ -17,7 +17,7 @@ function RenderGroupMessages(props) {
     <ScrollableFeed className="chatBox flex flex-col py-2  px-2 overflow-y-scroll space-y-3">
       {messages &&
         messages.map((message, i) => {
-          if (message.noty) {
+          if (message.noty){
             return (
               <div key={message._id} className="flex  justify-center">
                 <span className="bg-[rgb(36,36,36)] px-3 py-1 rounded-xl text-sm">

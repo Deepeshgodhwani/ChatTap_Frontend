@@ -17,7 +17,7 @@ function GroupCreation() {
     const [search, setsearch] = useState("")
     const [users, setusers] = useState([]);
     const context = useContext(ChatContext);
-    const {setchatroom,setrecentChats,recentChats}=context;
+    const {setchatroom,setrecentChats,recentChats,createNoty,socket}=context;
     const [selectedUsers, setselectedUsers] = useState([]);
     const [selectedUsersId, setselectedUsersId] = useState([]);
     const [chatName, setchatName] = useState("");
@@ -69,22 +69,7 @@ function GroupCreation() {
     }
 
 
-    const createNoty =async (Id)=>{
-         let token =localStorage.getItem('token');
-         const response=await fetch(`http://localhost:7000/api/chat/message`,
-         {
-                    method:'POST',
-                    mode:"cors" ,
-                    headers: {
-                      'Content-Type':'application/json',
-                      'auth-token':token
-                    },
-                    body:JSON.stringify({noty:true,content:`created group "${chatName}"`,chatId:Id})
-          }) 
-          
-          const data=await response.json();
-          console.log(data);
-    }
+    
 
    const createGroup =async ()=>{
       let token =localStorage.getItem('token');
@@ -100,14 +85,16 @@ function GroupCreation() {
       })
 
       let data=await response.json();
-      setrecentChats([...recentChats,data]);
-      createNoty(data._id);
+      let message="created group "+data.chatname;
+      let latestMessage=await createNoty(data._id,message);
+      data.latestMessage=latestMessage;
+      setchatroom(data);
+      socket.emit("group_created",data);
+      setrecentChats([data,...recentChats]);
       setselectedUsers([]);
       setselectedUsersId([]);
       setchatName("");
-      setchatroom(data);
       onClose();
-
    }
     
       

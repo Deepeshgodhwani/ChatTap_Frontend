@@ -80,7 +80,8 @@ function Details(props) {
           {Profile.isGroupChat&&<p className='text-[rgb(97,97,97)] text-sm font-semibold'>Group • {groupMembers.length} members</p>}
           </div>
         </div>
-        {Profile.isGroupChat&& <GroupMembers Profile={Profile} groupMembers={groupMembers} setgroupMembers={setgroupMembers}/>
+        {Profile.isGroupChat&& <GroupMembers Profile={Profile} groupMembers={groupMembers}
+         setgroupMembers={setgroupMembers}/>
         }
         </div>
     </div>

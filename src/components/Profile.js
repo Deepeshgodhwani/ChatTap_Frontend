@@ -50,7 +50,7 @@ function Profile() {
         alt=""
         onClick={onOpen}
         src={user.avtar}
-        className="object-cover rounded-full  cursor-pointer h-9  w-14"
+        className=" rounded-lg  cursor-pointer h-10 w-10"
         ></img>
       <Drawer
         isOpen={isOpen}

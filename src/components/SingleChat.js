@@ -3,12 +3,11 @@ import { useContext } from 'react';
 
 
 import ChatContext from '../context/user/ChatContext';
-import io from "socket.io-client";
+
 import { FormControl } from '@chakra-ui/react';
 import ScrollableChat from './ScrollableChat';
 import Loading from './Loading';
-const ENDPOINT="http://localhost:4000";
-var socket;
+
 var selectedChatCompare;
 
 
@@ -19,8 +18,7 @@ export default function SingleChat(props) {
        const context = useContext(ChatContext);
        const [secondUser, setsecondUser] = useState({});
        const [loading, setloading] = useState(false);
-      //  const [SocketConnected, setSocketConnected] = useState(false);
-       const {logUser,chatroom,recentChats,setrecentChats}=context;
+       const {logUser,chatroom,recentChats,setrecentChats,socket}=context;
 
 
   // To estaiblish connection //
@@ -29,8 +27,6 @@ export default function SingleChat(props) {
           const connectUser=()=>{
             toggleProfileView(false);
             if(chatroom.users){ 
-              socket = io(ENDPOINT);
-              socket.emit("setup",logUser);
               chatroom.users[0]._id===logUser._id?setsecondUser(chatroom.users[1]):setsecondUser(chatroom.users[0]);
             }
             
@@ -67,7 +63,6 @@ export default function SingleChat(props) {
   // To send message //
        const sendMessage =async (e)=>{
          if(e.key==="Enter" && newMessage){
-               console.log(newMessage);
                 let token =localStorage.getItem('token');
                 const response=await fetch(`http://localhost:7000/api/chat/message`,
                   {
@@ -86,10 +81,10 @@ export default function SingleChat(props) {
                   let updatedChat;
                   let chats=recentChats;
                   chats=chats.filter((Chat)=>{
-                       if(Chat._id===chatroom._id){
+                  if(Chat._id===chatroom._id){
                          Chat.latestMessage=data;
                          updatedChat=Chat;
-                        }
+                  }
                       return Chat._id!==chatroom._id;
                   });
                   setnewMessage("");
@@ -107,24 +102,8 @@ export default function SingleChat(props) {
                       //give notification
                 }else{
                   setmessages([...messages,message]); 
-                  console.log(messages.length);
                 }
-               
-                console.log(message);
-
-                let updatedChat;
-                let chats=recentChats;
-                chats=chats.filter((Chat)=>{
-                       if(Chat._id===message.chatId._id){
-                         Chat.latestMessage=message;
-                         updatedChat=Chat;
-                        }
-                      return Chat._id!==message.chatId._id;
-                 });
                 setnewMessage("");
-                setrecentChats([updatedChat,...chats]);
-
-
            })
         },[chatroom,messages,recentChats]); 
 
@@ -133,9 +112,12 @@ export default function SingleChat(props) {
     <>
     
       <div className="bg-[rgb(27,27,27)]  text-white w-[70%]" >
-        <div className='flex items-center border-[1px] border-[rgb(42,42,42)]  h-16 py-3 space-x-4 px-4 bg-[rgb(36,36,36)] '>
+        <div className='flex items-center justify-between border-[1px] border-[rgb(42,42,42)]  h-16 py-3 space-x-4 px-10 bg-[rgb(36,36,36)] '>
+          <div className='flex space-x-4 items-center ' >
           <img onClick={()=>{props.toggleProfileView(true)}} alt='' className='w-10 h-10 cursor-pointer rounded-full' src={secondUser.avtar}></img>
-          <p className='cursor-pointer' onClick={()=>{props.toggleProfileView(true)}}>{secondUser.name}</p>
+          <p className=' font-semibold cursor-pointer' onClick={()=>{props.toggleProfileView(true)}}>{secondUser.name}</p>
+          </div>
+          <i class="border-2  cursor-pointer border-[rgb(136,136,136)] px-1  text-sm rounded-full fa-solid text-[rgb(136,136,136)] fa-ellipsis"></i>
         </div>
         <div className={`chatBox  py-2 px-4  h-[77vh]`}>
         {loading&&<Loading></Loading>}
@@ -145,7 +127,6 @@ export default function SingleChat(props) {
             <input placeholder='Your messages...' className='bg-[rgb(53,55,59)] 
              border-black w-[86%] h-12 outline-none rounded-xl py-1 px-4' type="text"
               onChange={(e)=>{setnewMessage(e.target.value)}} value={newMessage} ></input>
-              
               <i className="fa-solid absolute text-xl right-20 text-[rgb(36,141,97)] fa-paper-plane"></i>
         </FormControl>
       </div>

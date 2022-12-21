@@ -64,7 +64,6 @@ export default function Navbar() {
         <DrawerContent bg={"rgb(36,36,36)"} color={"white"}>
           <DrawerCloseButton />
           <DrawerHeader>Search for Chat</DrawerHeader>
-
           <DrawerBody>
             <Input
               onChange={onChange}

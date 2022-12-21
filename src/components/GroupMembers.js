@@ -4,7 +4,7 @@ import grpLogo from "../images/group.png";
 
 import {
   Modal,ModalOverlay,ModalContent,
-  ModalBody,useDisclosure,FormControl,FormLabel,
+  ModalBody,useDisclosure,FormControl,
   Input,useToast,} from '@chakra-ui/react'
 import { useContext } from 'react';
 import ChatContext from '../context/user/ChatContext';
@@ -17,7 +17,8 @@ function GroupMembers(props) {
     const {Profile,groupMembers, setgroupMembers}=props;
     const initialRef = React.useRef(null)
     const context = useContext(ChatContext);
-    const {logUser}=context;
+    const {logUser,createNoty,groupMessages,setgroupMessages,recentChats,
+      setrecentChats,socket }=context;
     const finalRef = React.useRef(null)
     const [search, setsearch] = useState("")
     const [users, setusers] = useState([]);
@@ -97,23 +98,7 @@ function GroupMembers(props) {
     }))
   }
   
-  
-  const createNoty =async ()=>{
-    let token =localStorage.getItem('token');
-    const response=await fetch(`http://localhost:7000/api/chat/message`,
-    {
-               method:'POST',
-               mode:"cors" ,
-               headers: {
-                 'Content-Type':'application/json',
-                 'auth-token':token
-               },
-               body:JSON.stringify({noty:true,content:`created group"`,chatId:Profile._id})
-     }) 
-     
-     const data=await response.json();
-     console.log(data);
-  }
+
   
   
   const addUsers=async()=>{
@@ -132,7 +117,7 @@ function GroupMembers(props) {
   
     let data=await response.json();
     if(data.success){
-        setgroupMembers(groupMembers.concat(selectedUsers));  
+       setgroupMembers(groupMembers.concat(selectedUsers));  
        setselectedUsers([]);
        setselectedUsersId([]);
        onClose();
@@ -143,10 +128,10 @@ function GroupMembers(props) {
   
   
   
-  const removeFromGroup= async(userId)=>{
-    console.log(userId);
+  const removeFromGroup= async(User)=>{
+    
     let token =localStorage.getItem('token');
-    const response=await fetch(`http://localhost:7000/api/chat/removeUser?chatId=${Profile._id}&userId=${userId}`,
+    const response=await fetch(`http://localhost:7000/api/chat/removeUser?chatId=${Profile._id}&userId=${User._id}`,
     {
       method:'GET',
       mode:"cors" ,
@@ -156,12 +141,26 @@ function GroupMembers(props) {
       },
     })
   
-      let data=await response.json();
-   
-      if(data.success){
-            setgroupMembers(groupMembers.filter((member)=>{
-                  return member._id!==userId;
-      }))
+    let data=await response.json();
+    let message="removed "+User.name;
+    let noty=await createNoty(Profile._id,message);
+    socket.emit("new_message",noty);
+    let updatedChat;
+          let chats=recentChats;
+          chats=chats.filter((Chat)=>{
+          if(Chat._id===noty.chatId._id){
+               Chat.latestMessage=noty;
+               updatedChat=Chat;
+          }
+           return Chat._id!==noty.chatId._id;
+         });
+    setrecentChats([updatedChat,...chats]);
+    setgroupMessages([...groupMessages,noty]);
+    
+    if(data.success){
+         setgroupMembers(groupMembers.filter((member)=>{
+             return member._id!==User._id;
+         }))
     }
   }
 
@@ -232,7 +231,7 @@ function GroupMembers(props) {
                     <p className=' text-sm font-semibold'>{logUser._id===user._id?"You":user.name}</p>
 
                     {logUser._id===Profile.admin._id&&<div className=' cursor-pointer right-0 absolute'>
-                       <i onClick={()=>{removeFromGroup(user._id)}} className="fa-solid fa-caret-down"></i>
+                       <i onClick={()=>{removeFromGroup(user)}} className="fa-solid fa-caret-down"></i>
                     </div>}
 
                    {/* <div  className=' dropdown bg-[rgb(53,55,59)] hidden   right-1 -bottom-3 absolute px-7  py-1 '>
