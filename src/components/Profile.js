@@ -62,12 +62,19 @@ function Profile() {
         <DrawerContent textColor={"white"} bg={"rgb(36,36,36)"}>
           <DrawerCloseButton />
           <DrawerHeader>Profile</DrawerHeader>
-          <DrawerBody bg={"rgb(27,27,27)"}>
-            <div className='flex justify-center py-8'>
-            <img alt='' className='rounded-full h-48 w-48' src={user.avtar}></img>
+            <div className='flex h-[90vh] px-2 flex-col bg-[rgb(27,27,27)] '>
+              <div className='flex  justify-center py-8'>
+                 <img alt='' className='rounded-full h-48 w-48' src={user.avtar}></img>
+              </div>
+              <div className='flex px-2 flex-col space-y-2'>
+                  <p className='text-[rgb(9,128,93)] font-semibold'>Your name</p>
+                  <div className='justify-center  flex relative'>
+                  <input className='bg-transparent border-b-[1px] border-[rgb(36,36,36)] py-[2x] outline-none  w-72' type={"text"} value={user.name} placeholder={user.name}></input>
+                  <i class="absolute text-[rgb(87,87,87)]  right-0 fa-solid fa-pen"></i>
+                  </div>
+              </div>
             </div>
             <div></div>
-          </DrawerBody>
         </DrawerContent> 
       </Drawer>
       

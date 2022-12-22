@@ -117,13 +117,31 @@ function GroupMembers(props) {
   
     let data=await response.json();
     if(data.success){
+      
+       
+      let message="added ";
+      selectedUsers.forEach(user=>{
+        message=message.concat(user.name);
+        message= message.concat(', ');
+      })
+
+       message=message.slice(0,message.length-2);
+       let noty=await createNoty(Profile._id,message);
+       socket.emit("new_message",noty);
        setgroupMembers(groupMembers.concat(selectedUsers));  
+       setgroupMessages([...groupMessages,noty]);
        setselectedUsers([]);
        setselectedUsersId([]);
        onClose();
     }
   
   }
+
+ 
+
+    
+
+  
   
   
   

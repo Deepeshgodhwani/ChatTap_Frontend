@@ -13,16 +13,17 @@ const ChatState=(props)=>{
     //  const [userPic, setuserPic] = useState("")
      const [groupName, setgroupName] = useState("");
      const [groupMessages, setgroupMessages] = useState([]);
-  const [loading, setloading] = useState(false);
+    const [loading, setloading] = useState(false);
 
 
 
      useEffect(() => {
-      let userInfo=JSON.parse(localStorage.getItem('user'));
-      socket = io(ENDPOINT);
-      socket.emit("setup",userInfo);
-      // eslint-disable-next-line 
-     }, [])
+      if(logUser){
+        socket = io(ENDPOINT);
+        socket.emit("setup",logUser);
+      }
+     
+     }, [logUser])
 
 
      useEffect(() => {

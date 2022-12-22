@@ -97,8 +97,7 @@ function GroupChat(props) {
       <img onClick={()=>{props.toggleProfileView(true)}} alt='' className='w-10 h-10   cursor-pointer rounded-full' src={groupPic}></img>
       <p className="cursor-pointer font-semibold" onClick={()=>{props.toggleProfileView(true)}}>{chatroom.chatname}</p>
       </div>
-      <i class="border-2  cursor-pointer border-[rgb(136,136,136)] px-1  text-sm rounded-full fa-solid text-[rgb(136,136,136)] fa-ellipsis"></i>
-
+      <i className="border-2  cursor-pointer border-[rgb(136,136,136)] px-1  text-sm rounded-full fa-solid text-[rgb(136,136,136)] fa-ellipsis"></i>
     </div>
     <div className={`chatBox py-2 px-4  h-[77vh]`}>
     {loading&&<Loading></Loading>}
