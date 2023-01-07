@@ -17,7 +17,7 @@ function RenderGroupMessages(props) {
     <ScrollableFeed className="chatBox flex flex-col py-2  px-2 overflow-y-scroll space-y-3">
       {messages &&
         messages.map((message, i) => {
-          if (message.noty){
+          if (message.noty) {
             return (
               <div key={message._id} className="flex  justify-center">
                 <span className="bg-[rgb(36,36,36)] px-3 py-1 rounded-xl text-sm">
@@ -59,14 +59,17 @@ function RenderGroupMessages(props) {
                   ></img>
                   <div className="space-y-1">
                     <div className="flex space-x-3">
-                    <p className="text-xs font-semibold">{message.sender.name}</p>
-                    <p className="text-xs text-[rgb(115,115,115)]">10:39 PM</p>
+                      <p className="text-xs font-semibold">
+                        {message.sender.name}
+                      </p>
+                      <p className="text-xs text-[rgb(115,115,115)]">
+                        10:39 PM
+                      </p>
                     </div>
                     <p className="px-2 text-[rgb(168,170,172)] py-2  space-y-1 rounded-tr-lg rounded-br-lg rounded-bl-lg bg-[rgb(53,55,59)] text-sm">
                       {message.content}
                     </p>
                   </div>
-                 
                 </div>
               </div>
             );
