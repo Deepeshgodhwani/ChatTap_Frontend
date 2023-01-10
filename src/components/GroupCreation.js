@@ -53,18 +53,20 @@ function GroupCreation() {
         if(isExist) return ;
 
         setselectedUsers([...selectedUsers,selectedUser]);
-        setselectedUsersId([...selectedUsersId,selectedUser._id]); 
+        let userObj={user:selectedUser._id};
+        setselectedUsersId([...selectedUsersId,userObj]); 
         setsearch("");
         setusers([]);
-    }
-
+      }
+      
+     
     const removeUser =(user)=>{
         setselectedUsers(selectedUsers.filter((User)=>{
             return User._id!==user._id;
         }))
 
         setselectedUsersId(selectedUsersId.filter((User)=>{
-          return User!==user._id;
+          return User.user!==user._id;
         }))
     }
 

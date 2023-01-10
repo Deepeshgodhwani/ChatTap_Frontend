@@ -33,7 +33,7 @@ function GroupChat(props) {
         toggleProfileView(false);
         socket = io(ENDPOINT);
         socket.emit("setup", logUser);
-        // socket.on("connection",()=>setSocketConnected(true));
+       
       }
     };
     connectUser();
@@ -79,12 +79,14 @@ function GroupChat(props) {
   // To receive message //
   useEffect(() => {
     if (!socket) return;
-    socket.on("message_recieved", (message) => {
+    socket.on("message_recieved", (data) => {
+       let message=data.message
       if (
         !selectedChatCompare ||
         selectedChatCompare._id !== message.chatId._id
       ) {
         //give notification
+         
       } else {
         let updatedMessages = groupMessages;
         updatedMessages.push(message);
@@ -92,6 +94,18 @@ function GroupChat(props) {
       }
     });
   }, [chatroom, groupMessages]);
+
+  const checkUserExist =()=>{
+      let check=true;
+       chatroom.users.forEach(members=>{
+             if(members.user._id===logUser._id){
+                   if(members.isRemoved){
+                      check=false;
+                   }
+             }
+            })
+            return check;
+  }
 
   return (
     <div className="bg-[rgb(27,27,27)] text-white w-[70%]">
@@ -123,7 +137,7 @@ function GroupChat(props) {
           <RenderGroupMessages messages={groupMessages} user={logUser} />
         )}
       </div>
-      <FormControl
+      {checkUserExist()&&<FormControl
         className="bg-[rgb(36,36,36)] border-[1px] border-[rgb(42,42,42)] relative flex justify-center items-center h-[4.9rem]"
         onKeyDown={sendMessage}
       >
@@ -138,7 +152,7 @@ function GroupChat(props) {
           value={newMessage}
         ></input>
         <i className="fa-solid absolute text-xl right-20 text-[rgb(36,141,97)] fa-paper-plane"></i>
-      </FormControl>
+      </FormControl>}
     </div>
   );
 }

@@ -27,7 +27,7 @@ export default function SingleChat(props) {
           const connectUser=()=>{
             toggleProfileView(false);
             if(chatroom.users){ 
-              chatroom.users[0]._id===logUser._id?setsecondUser(chatroom.users[1]):setsecondUser(chatroom.users[0]);
+              chatroom.users[0].user._id===logUser._id?setsecondUser(chatroom.users[1].user):setsecondUser(chatroom.users[0].user);
             }
             
           }
@@ -96,9 +96,11 @@ export default function SingleChat(props) {
   // To receive message //
         useEffect(() => {
           if(!socket) return ;
-          socket.on('message_recieved',(message)=>{
+          socket.on('message_recieved',(data)=>{
+               let message=data.message;
                 if(!selectedChatCompare||selectedChatCompare._id!==message.chatId._id){
                       //give notification
+                      
                 }else{
                   setmessages([...messages,message]); 
                 }

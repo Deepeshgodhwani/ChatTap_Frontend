@@ -21,20 +21,60 @@ export default function Chatlist() {
     // eslint-disable-next-line
   }, []);
 
+
+
+
+  const hitCount =async(message,userId)=>{
+    let token = localStorage.getItem("token");
+    let data = await fetch(
+      `http://localhost:7000/api/chat/countMssg?type=addCount&chatId=${message.chatId._id}&userId=${userId}`,
+      {
+        method: "GET",
+        mode: "cors",
+        headers: {
+          "Content-Type": "application/json",
+          "auth-token": token,
+        },
+      }
+    );
+
+    let users = await data.json();
+    console.log(users);
+    return users;
+  }
+
+
+
   useEffect(() => {
     if (!socket) return;
-    socket.on("message_recieved", (message) => {
-      console.log(message);
+    socket.on("message_recieved", async (data) => {
+      let message=data.message;
+       let updatedUsers=[];
+      if(chatroom){
+        if(chatroom._id!=message.chatId._id){
+          updatedUsers=await hitCount(message,data.receiverId);
+          console.log(updatedUsers);
+        }
+      }
+
       let updatedChat;
       let chats = recentChats;
+      let check=true;
       chats = chats.filter((Chat) => {
         if (Chat._id === message.chatId._id) {
           Chat.latestMessage = message;
           updatedChat = Chat;
+          check=false;
+          Chat.users=updatedUsers
         }
         return Chat._id !== message.chatId._id;
       });
-      setrecentChats([updatedChat, ...chats]);
+
+      if(check){
+        setrecentChats([message.chatId,...recentChats]);
+      }else{
+        setrecentChats([updatedChat, ...chats]);
+      }
     });
   }, [recentChats]);
 
@@ -44,18 +84,17 @@ export default function Chatlist() {
       setrecentChats([group, ...recentChats]);
     });
   }, [recentChats]);
-
   const checkUser = (user, chat) => {
     if (recentChats.length) {
       if (user._id === logUser._id) {
-        if (user._id === chat.users[0]._id) {
-          let string = chat.users[1].name;
+        if (user._id === chat.users[0].user._id) {
+          let string = chat.users[1].user.name;
           if (string.length > 21) {
             return string.slice(0, 21) + "..";
           }
           return string;
         } else {
-          let string = chat.users[0].name;
+          let string = chat.users[0].user.name;
           if (string.length > 21) {
             return string.slice(0, 21) + "..";
           }
@@ -74,10 +113,10 @@ export default function Chatlist() {
   const checkUserId = (user, chat) => {
     if (recentChats.length) {
       if (user._id === logUser._id) {
-        if (user._id === chat.users[0]._id) {
-          return chat.users[1]._id;
+        if (user._id === chat.users[0].user._id) {
+          return chat.users[1].user._id;
         } else {
-          return chat.users[0]._id;
+          return chat.users[0].user._id;
         }
       } else {
         return user._id;
@@ -87,11 +126,11 @@ export default function Chatlist() {
 
   const checkUserAvtar = (user, chat) => {
     if (recentChats.length) {
-      if (user._id === logUser._id) {
-        if (user._id === chat.users[0]._id) {
-          return chat.users[1].avtar;
+      if (user._id === logUser._id){
+        if (user._id === chat.users[0].user._id) {
+          return chat.users[1].user.avtar;
         } else {
-          return chat.users[0].avtar;
+          return chat.users[0].user.avtar;
         }
       } else {
         return user.avtar;
@@ -106,6 +145,20 @@ export default function Chatlist() {
       return User.name;
     }
   };
+
+
+  const countMsgs =(members)=>{
+        let mssgCount=0;
+         members.map(member=>{
+              let memberId=member.user._id.toString();
+             if(memberId===logUser._id){
+                  mssgCount=member.unseenMsg;
+             }
+         })
+
+         return mssgCount;
+  }
+
 
   return (
     <div className="bg-[rgb(36,36,36)]  pt-9 text-white w-[25%] h-[100%] flex flex-col space-y-2">
@@ -155,6 +208,7 @@ export default function Chatlist() {
                         Thursday
                       </p>
                     </div>
+                    <div className="flex justify-between">
                     <p className="text-[rgb(146,145,148)] text-sm">
                       {element.latestMessage.noty
                         ? checkUserName(element.latestMessage.sender)
@@ -163,6 +217,11 @@ export default function Chatlist() {
                         ? element.latestMessage.content.slice(0, 10) + "..."
                         : element.latestMessage.content}
                     </p>
+                   {(<p className="bg-[rgb(197,73,69)] rounded-full font-bold flex justify-center 
+                    items-center text-[0.7rem] h-5 w-5">
+                        {countMsgs(element.users)}
+                      </p>)}
+                    </div>
                   </div>
                 </div>
               );
@@ -200,9 +259,15 @@ export default function Chatlist() {
                           09:38 AM
                         </p>
                       </div>
+                      <div className="flex justify-between">
                       <p className="text-[rgb(146,145,148)] text-sm">
                         {element.latestMessage.content}
                       </p>
+                      <p className="bg-[rgb(197,73,69)] rounded-full font-bold flex justify-center 
+                       items-center text-[0.7rem] h-5 w-5">
+                        {countMsgs(element.users)}
+                      </p>
+                      </div>
                     </div>
                   </div>
                 );

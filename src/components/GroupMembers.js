@@ -62,8 +62,12 @@ function GroupMembers(props) {
  const collectUser =(selectedUser)=>{
     let isExist=false;
     
-    groupMembers.forEach(User=>{
-      if(User._id===selectedUser._id) isExist=true;
+    groupMembers.forEach(members=>{
+      if(members.user===selectedUser._id){
+         if(members.isRemoved===false){
+            isExist=true;
+         }
+      } 
     })
   
     selectedUsers.forEach(User=>{
@@ -82,8 +86,8 @@ function GroupMembers(props) {
       return ;
     }
   
-    setselectedUsers([...selectedUsers,selectedUser]);
-    setselectedUsersId([...selectedUsersId,selectedUser._id]); 
+    setselectedUsers([...selectedUsers,{user:selectedUser,isRemoved:false,unseenMsg:0}]);
+    setselectedUsersId([...selectedUsersId,{user:selectedUser._id}]); 
     setsearch("");
     setusers([]);
   }
@@ -120,8 +124,8 @@ function GroupMembers(props) {
       
        
       let message="added ";
-      selectedUsers.forEach(user=>{
-        message=message.concat(user.name);
+      selectedUsers.forEach(member=>{
+        message=message.concat(member.user.name);
         message= message.concat(', ');
       })
 
@@ -136,15 +140,7 @@ function GroupMembers(props) {
     }
   
   }
-
- 
-
-    
-
-  
-  
-  
-  
+   
   
   const removeFromGroup= async(User)=>{
     
@@ -177,7 +173,7 @@ function GroupMembers(props) {
     
     if(data.success){
          setgroupMembers(groupMembers.filter((member)=>{
-             return member._id!==User._id;
+             return member.user._id!==User._id;
          }))
     }
   }
@@ -214,11 +210,11 @@ function GroupMembers(props) {
                     </div>
                     <ModalBody pb={5}>
                       <FormControl mt={4}>
-                        <div className='flex flex-wrap gap-y-1 gap-x-1 my-2'>{selectedUsers.map((user)=>{
-                        return user._id!==logUser._id?(<div className='px-2 py-1  space-x-1 justify-between items-center flex  rounded-lg text-xs text-white 
-                        bg-[rgb(255,108,55)]' key={user._id}>
-                          <p>{user.name}</p>
-                          {<i onClick={(e)=>{removeUser(user)}} className="cursor-pointer fa-solid fa-xmark"></i>}
+                        <div className='flex flex-wrap gap-y-1 gap-x-1 my-2'>{selectedUsers.map((members)=>{
+                        return members.user._id!==logUser._id?(<div className='px-2 py-1  space-x-1 justify-between items-center flex  rounded-lg text-xs text-white 
+                        bg-[rgb(255,108,55)]' key={members.user._id}>
+                          <p>{members.user.name}</p>
+                          {<i onClick={(e)=>{removeUser(members.user)}} className="cursor-pointer fa-solid fa-xmark"></i>}
                           </div>):(<div></div>)
 
                       })}</div>
@@ -242,14 +238,14 @@ function GroupMembers(props) {
                     border-[rgb(36,141,97)]'>Admin</p>
                     </div>
                </div>
-                {groupMembers.map((user)=>{
+                {groupMembers.map((members)=>{
                   
-                   return user._id!==Profile.admin._id?(<div key={user._id} className='flex cursor-pointer space-x-2 relative items-center'>
-                    <img alt='' className='w-10 rounded-full h-10' src={user.avtar}></img>
-                    <p className=' text-sm font-semibold'>{logUser._id===user._id?"You":user.name}</p>
+                   return !members.isRemoved&&members.user._id!==Profile.admin._id?(<div key={members.user._id} className='flex cursor-pointer space-x-2 relative items-center'>
+                    <img alt='' className='w-10 rounded-full h-10' src={members.user.avtar}></img>
+                    <p className=' text-sm font-semibold'>{logUser._id===members.user._id?"You":members.user.name}</p>
 
                     {logUser._id===Profile.admin._id&&<div className=' cursor-pointer right-0 absolute'>
-                       <i onClick={()=>{removeFromGroup(user)}} className="fa-solid fa-caret-down"></i>
+                       <i onClick={()=>{removeFromGroup(members.user)}} className="fa-solid fa-caret-down"></i>
                     </div>}
 
                    {/* <div  className=' dropdown bg-[rgb(53,55,59)] hidden   right-1 -bottom-3 absolute px-7  py-1 '>

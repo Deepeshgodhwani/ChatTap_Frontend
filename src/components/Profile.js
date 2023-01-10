@@ -3,8 +3,6 @@ import { useHistory } from "react-router-dom";
 
 import {
   Drawer,
-  DrawerBody,
-  DrawerFooter,
   DrawerHeader,
   DrawerOverlay,
   DrawerContent,

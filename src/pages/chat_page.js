@@ -45,10 +45,10 @@ function Chat_page() {
              setdetails(chatroom);
          }else{
          
-             if(logUser._id===chatroom.users[0]._id){
-                  setdetails(chatroom.users[1]);
+             if(logUser._id===chatroom.users[0].user._id){
+                  setdetails(chatroom.users[1].user);
              }else{
-                  setdetails(chatroom.users[0]);
+                  setdetails(chatroom.users[0].user);
              }
          }
 

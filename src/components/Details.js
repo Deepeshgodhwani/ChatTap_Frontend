@@ -57,7 +57,6 @@ function Details(props) {
       );
 
       let message = await data.json();
-      console.log(message);
       if (message.success) {
         setloading(false);
         console.log(picture);
@@ -67,8 +66,21 @@ function Details(props) {
       e.target.value = null;
     }
   };
+  
+  const countMembers=(Members)=>{
+        let count =0;
+        Members.map(member =>{
+            if(member.isRemoved===false){
+                 count++;
+            }
+        })
+
+        return count;
+  }
 
   return (
+
+    
     <div className="w-96 bg-[rgb(36,36,36)] overflow-y-scroll chatBox  flex flex-col px-4 py-4">
       <div className="text-[rgb(233,233,233)] text-xl font-semibold flex justify-between ">
         <p>Profile</p>
@@ -92,7 +104,7 @@ function Details(props) {
               <input
                 onChange={changeProfile}
                 className=" group-hover:flex hidden inputFile absolute top-0 h-40 opacity-70
-         text-white rounded-full justify-center items-center  bg-black w-40"
+           text-white rounded-full justify-center items-center  bg-black w-40"
                 type="file"
               ></input>
             )}
@@ -103,7 +115,7 @@ function Details(props) {
             </p>
             {Profile.isGroupChat && (
               <p className="text-[rgb(97,97,97)] text-sm font-semibold">
-                Group • {groupMembers.length} members
+                Group • {countMembers(groupMembers)} members
               </p>
             )}
           </div>
