@@ -17,27 +17,31 @@ function GroupChat(props) {
     groupMessages,
     setgroupMessages,
     chatroom,
-    logUser,
     groupPic,
+    setgroupPic,
+    logUser,
+    setgroupName,
+    groupName,
     loading,
     recentChats,
     setrecentChats,
   } = context;
   const [newMessage, setnewMessage] = useState("");
+  const [userExist, setuserExist] = useState(true);
 
   // To estaiblish connection //
 
   useEffect(() => {
     const connectUser = () => {
       if (chatroom.users) {
+        checkUserExist();
         toggleProfileView(false);
         socket = io(ENDPOINT);
         socket.emit("setup", logUser);
-       
       }
     };
     connectUser();
-  }, [chatroom, logUser]);
+  }, [chatroom]);
 
   //To join room //
 
@@ -90,22 +94,40 @@ function GroupChat(props) {
       } else {
         let updatedMessages = groupMessages;
         updatedMessages.push(message);
+        checkUserExist();
         setgroupMessages(updatedMessages);
       }
     });
+
+    socket.on("groupRemoved",(status)=>{
+       if(status==='add'){
+          setuserExist(true);
+       }else{
+         setuserExist(false);
+       }  
+    })
+
+      socket.on("toggleImage",(data)=>{
+          setgroupPic(data.picture);
+      })
+
+    socket.on("toggleName",(data)=>{
+      setgroupName(data.name);
+    })
+
   }, [chatroom, groupMessages]);
 
   const checkUserExist =()=>{
-      let check=true;
+      let check=false;
        chatroom.users.forEach(members=>{
              if(members.user._id===logUser._id){
-                   if(members.isRemoved){
-                      check=false;
-                   }
+                   check=true;
              }
             })
-            return check;
+        setuserExist(check);     
   }
+
+
 
   return (
     <div className="bg-[rgb(27,27,27)] text-white w-[70%]">
@@ -125,7 +147,7 @@ function GroupChat(props) {
               props.toggleProfileView(true);
             }}
           >
-            {chatroom.chatname}
+            {groupName}
           </p>
         </div>
         <i className="border-2  cursor-pointer border-[rgb(136,136,136)] px-1  text-sm rounded-full fa-solid text-[rgb(136,136,136)] fa-ellipsis"></i>
@@ -137,7 +159,7 @@ function GroupChat(props) {
           <RenderGroupMessages messages={groupMessages} user={logUser} />
         )}
       </div>
-      {checkUserExist()&&<FormControl
+      {userExist?<FormControl
         className="bg-[rgb(36,36,36)] border-[1px] border-[rgb(42,42,42)] relative flex justify-center items-center h-[4.9rem]"
         onKeyDown={sendMessage}
       >
@@ -152,7 +174,7 @@ function GroupChat(props) {
           value={newMessage}
         ></input>
         <i className="fa-solid absolute text-xl right-20 text-[rgb(36,141,97)] fa-paper-plane"></i>
-      </FormControl>}
+      </FormControl>:<div className="text-white">you can't send message to this group because you're no longer a participant</div>}
     </div>
   );
 }

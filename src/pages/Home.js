@@ -2,9 +2,6 @@ import React ,{useEffect} from 'react'
 import Login from '../components/Login';
 import Signup from '../components/Signup';
 // import axios from "axios";
-import { Tabs, TabList, TabPanels, Tab, TabPanel } from '@chakra-ui/react'
-import { Container } from '@chakra-ui/react'
-
 function Home() {
 
     const fetchData=async ()=>{
@@ -15,31 +12,20 @@ function Home() {
           
     }
 
-    useEffect(() => {
-     
+    useEffect(() => {      
          fetchData();
-  
     }, [])
     
 
 
   return (
-    <Container className='mt-[12vh]'>
-       <Tabs size='md' variant='enclosed'>
-  <TabList>
-    <Tab>Login</Tab>
-    <Tab>Signup</Tab>
-  </TabList>
-     <TabPanels>
-       <TabPanel>
+      <div className='flex justify-center items-center h-[100vh]'>
+        <div>
+          
+        </div>
         <Login/>
-        </TabPanel>
-        <TabPanel>
-       <Signup/>
-       </TabPanel>
-     </TabPanels>
-  </Tabs>
-    </Container>
+        {/* <Signup/> */}
+      </div>
   )
 }
 

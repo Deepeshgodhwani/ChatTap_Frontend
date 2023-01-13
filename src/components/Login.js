@@ -66,7 +66,7 @@ function Login() {
 
   return (
     <form className="" onSubmit={formHandler}>
-      <div className=" w-[100%] flex flex-col h-[280px] justify-between p-[20px] rounded-[5px]">
+      <div className=" w-96 flex flex-col h-[280px] justify-between p-[20px] rounded-[5px]">
         <h2 className="text-base font-bold">Email Address *</h2>
         <input
           className="border-2 p-[5px] outline-none rounded-[5px] ml-2"

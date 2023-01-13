@@ -26,20 +26,6 @@ function Signup() {
       });
     }
 
-    // if((avatar) && (avatar.type==="image/jpeg"||avatar.type==="image/png")){
-    //   const formData= new FormData();
-    //   console.log(avatar);
-    //   formData.append("file",avatar);
-    //   formData.append("upload_preset","chat_app");
-    //   formData.append("cloud_name","dynjwlpl3");
-    //   const response= await fetch("https://api.cloudinary.com/v1_1/dynjwlpl3/image/upload",{
-    //     method:"POST",
-    //     body:formData
-    //   })
-    //   let pic= await response.json();
-    //   setavatar(pic.url.toString());
-    // }
-
     const response = await fetch("http://localhost:7000/api/auth/createUser", {
       method: "POST",
       mode: "cors",

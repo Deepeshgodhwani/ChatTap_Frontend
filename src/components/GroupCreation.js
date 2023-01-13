@@ -5,7 +5,7 @@ import {
     Input,Button,} from '@chakra-ui/react'
 import ChatContext from '../context/user/ChatContext'
 import createGroupLogo from '../images/createGroup.png';
-import cameraLogo from '../images/camera.png';
+
 
 
 
@@ -17,9 +17,10 @@ function GroupCreation() {
     const [search, setsearch] = useState("")
     const [users, setusers] = useState([]);
     const context = useContext(ChatContext);
-    const {setchatroom,setrecentChats,recentChats,createNoty,socket}=context;
+    const {setchatroom,setrecentChats,recentChats,createNoty,socket,setgroupPic,setgroupName}=context;
     const [selectedUsers, setselectedUsers] = useState([]);
     const [selectedUsersId, setselectedUsersId] = useState([]);
+    const [groupPicture, setgroupPicture] = useState("https://cdn6.aptoide.com/imgs/1/2/2/1221bc0bdd2354b42b293317ff2adbcf_icon.png");
     const [chatName, setchatName] = useState("");
 
 
@@ -70,9 +71,32 @@ function GroupCreation() {
         }))
     }
 
+    const UploadPic = async (e) => {
+      // setloading(true);
+      if (
+        e.target.files[0] &&
+        (e.target.files[0].type === "image/jpeg" ||
+          e.target.files[0] === "image/png")
+      ) {
+        const formData = new FormData();
+        formData.append("file", e.target.files[0]);
+        formData.append("upload_preset", "chat_app");
+        formData.append("cloud_name", "dynjwlpl3");
+        const response = await fetch(
+          "https://api.cloudinary.com/v1_1/dynjwlpl3/image/upload",
+          {
+            method: "POST",
+            body: formData,
+          }
+        );
+         let pic = await response.json();
+         let picture = pic.url.toString();
+         setgroupPicture(picture);
 
+        }
+      }   
     
-
+     console.log(groupPicture)
    const createGroup =async ()=>{
       let token =localStorage.getItem('token');
       const response=await fetch('http://localhost:7000/api/chat/createGroup',
@@ -83,7 +107,7 @@ function GroupCreation() {
           'Content-Type':'application/json',
           'auth-token':token
         },
-        body:JSON.stringify({chatName,selectedUsersId})
+        body:JSON.stringify({chatName,selectedUsersId,groupPicture})
       })
 
       let data=await response.json();
@@ -91,6 +115,8 @@ function GroupCreation() {
       let latestMessage=await createNoty(data._id,message);
       data.latestMessage=latestMessage;
       setchatroom(data);
+      setgroupPic(data.profilePic);
+      setgroupName(data.chatname);
       socket.emit("group_created",data);
       setrecentChats([data,...recentChats]);
       setselectedUsers([]);
@@ -116,9 +142,14 @@ function GroupCreation() {
       <ModalCloseButton />
       <ModalBody pb={6}>
         <div className='flex flex-col gap-y-2 items-center'>
-          <div className='relative w-40  rounded-full'>
-          <img alt='' className='w-40' src='https://cdn6.aptoide.com/imgs/1/2/2/1221bc0bdd2354b42b293317ff2adbcf_icon.png'></img>
-           <div className='absolute opacity-40 top-0 bg-black w-40 h-40 rounded-full'><img alt='' className='w-12 ' src={cameraLogo}></img></div>
+          <div className='flex group  items-center relative justify-center py-8 rounded-full'>
+          <img alt='' className='w-40 rounded-full' src={groupPicture}></img>
+          <input
+                onChange={UploadPic}
+                className="  inputFile absolute top-10 h-36 opacity-70
+           text-white rounded-full justify-center items-center  bg-black w-36"
+                type="file"
+              ></input>
           </div>
           <input className='w-52 outline-none bg-transparent px-1 border-[rgb(46,121,95)] border-b-2' onChange={(e)=>{setchatName(e.target.value)}} value={chatName} ref={initialRef} placeholder='Chat name' /> 
         </div>

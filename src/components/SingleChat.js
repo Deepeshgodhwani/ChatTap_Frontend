@@ -79,16 +79,24 @@ export default function SingleChat(props) {
                   socket.emit("new_message",data);
                   setmessages([...messages,data]);
                   let updatedChat;
+                  let check=true;
                   let chats=recentChats;
                   chats=chats.filter((Chat)=>{
                   if(Chat._id===chatroom._id){
                          Chat.latestMessage=data;
                          updatedChat=Chat;
+                         check=false;
                   }
                       return Chat._id!==chatroom._id;
                   });
                   setnewMessage("");
-                  setrecentChats([updatedChat,...chats]);
+                  if(check){
+                      let chat=chatroom;
+                      chat.latestMessage=data;
+                      setrecentChats([chat,...chats]);
+                  }else{
+                    setrecentChats([updatedChat,...chats]);
+                  }
               }
               }
                   

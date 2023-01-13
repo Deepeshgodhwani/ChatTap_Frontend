@@ -46,14 +46,6 @@ const ChatState = (props) => {
     fetchMessage();
   }, [chatroom]);
 
-  const getUser = () => {
-    let userInfo = JSON.parse(localStorage.getItem("user"));
-    setlogUser(userInfo);
-  };
-
-  useEffect(() => {
-    getUser();
-  }, []);
 
   const accessChat = async (userId) => {
     let token = localStorage.getItem("token");
@@ -73,7 +65,7 @@ const ChatState = (props) => {
     setchatroom(data);
   };
 
-  const accessGroupChat = async (chatId) => {
+  const accessGroupChat = async (chatId) => { 
     let token = localStorage.getItem("token");
     const response = await fetch(
       `http://localhost:7000/api/chat/accessGroupChat?chatId=${chatId}`,
@@ -135,6 +127,7 @@ const ChatState = (props) => {
         recentChats,
         fetchRecentChats,
         logUser,
+        setlogUser,
         accessChat,
         socket,
         chatroom,

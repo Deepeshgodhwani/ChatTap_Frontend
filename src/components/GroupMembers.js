@@ -56,17 +56,14 @@ function GroupMembers(props) {
        
      }
 
-     
-  
 
  const collectUser =(selectedUser)=>{
     let isExist=false;
-    
+       
     groupMembers.forEach(members=>{
-      if(members.user===selectedUser._id){
-         if(members.isRemoved===false){
-            isExist=true;
-         }
+       console.log(members.user ,"and",selectedUser._id);
+      if(members.user._id===selectedUser._id){
+          isExist=true;
       } 
     })
   
@@ -86,15 +83,15 @@ function GroupMembers(props) {
       return ;
     }
   
-    setselectedUsers([...selectedUsers,{user:selectedUser,isRemoved:false,unseenMsg:0}]);
+    setselectedUsers([...selectedUsers,{user:selectedUser,unseenMsg:0}]);
     setselectedUsersId([...selectedUsersId,{user:selectedUser._id}]); 
     setsearch("");
     setusers([]);
   }
   
   const removeUser =(user)=>{
-    setselectedUsers(selectedUsers.filter((User)=>{
-        return User._id!==user._id;
+    setselectedUsers(selectedUsers.filter((members)=>{
+        return members.user._id!==user._id;
     }))
   
     setselectedUsersId(selectedUsersId.filter((User)=>{
@@ -132,13 +129,16 @@ function GroupMembers(props) {
        message=message.slice(0,message.length-2);
        let noty=await createNoty(Profile._id,message);
        socket.emit("new_message",noty);
+       let status={users:selectedUsersId,status:"add"};
+       socket.emit("member_status",status);
+       let dataSend={group:Profile,newMembers:selectedUsers};
        setgroupMembers(groupMembers.concat(selectedUsers));  
        setgroupMessages([...groupMessages,noty]);
+       socket.emit("added_users",dataSend);
        setselectedUsers([]);
        setselectedUsersId([]);
        onClose();
     }
-  
   }
    
   
@@ -156,9 +156,11 @@ function GroupMembers(props) {
     })
   
     let data=await response.json();
-    let message="removed "+User.name;
+    let message="removed "+ User.name;
     let noty=await createNoty(Profile._id,message);
     socket.emit("new_message",noty);
+     let status={users:[{user:User._id}],status:"remove"};
+    socket.emit("member_status",status);
     let updatedChat;
           let chats=recentChats;
           chats=chats.filter((Chat)=>{
