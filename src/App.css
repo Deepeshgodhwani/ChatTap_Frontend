@@ -18,11 +18,14 @@
        visibility: hidden;
     }
 
+    
+
     .inputFile::before{
-        content:"Select a picture";
         color: white;
-        margin-top: 50px;
-        margin-left: 20px;
+    }
+
+    .inputFile::-webkit-input-placeholder{
+         visibility: hidden;
     }
 
 

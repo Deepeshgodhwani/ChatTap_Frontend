@@ -65,8 +65,8 @@ function Login() {
   };
 
   return (
-    <form className="" onSubmit={formHandler}>
-      <div className=" w-96 flex flex-col h-[280px] justify-between p-[20px] rounded-[5px]">
+    <form className="relative " onSubmit={formHandler}>
+      <div className=" w-96 flex  bg-[rgb(36,36,36)]  flex-col z-10 rounded-xl h-[280px] justify-between p-[20px] ">
         <h2 className="text-base font-bold">Email Address *</h2>
         <input
           className="border-2 p-[5px] outline-none rounded-[5px] ml-2"
@@ -79,7 +79,7 @@ function Login() {
         ></input>
         <h2 className="text-base font-bold">Password *</h2>
         <input
-          className="border-2 p-[5px] outline-none rounded-[5px] ml-2"
+          className="border-2 text-black p-[5px] outline-none rounded-[5px] ml-2"
           value={credentials.password}
           name="password"
           onChange={onChange}

@@ -2,13 +2,13 @@ import React from "react";
 import { useContext } from "react";
 import logo from "../images/meetme.png";
 import GroupCreation from './GroupCreation';
+import {  Spinner } from '@chakra-ui/react'
 import {
   Drawer,
   DrawerBody,
   DrawerHeader,
   DrawerOverlay,
   DrawerContent,
-  DrawerCloseButton,
   useDisclosure,
   Input,
 } from "@chakra-ui/react";
@@ -23,11 +23,14 @@ export default function Navbar() {
   const { accessChat } = context;
   const { isOpen, onOpen, onClose } = useDisclosure();
   const btnRef = React.useRef();
+  const [loading, setloading] = useState(false);
   const [search, setsearch] = useState("");
   const [users, setusers] = useState([]);
+  const [result, setresult] = useState(true);
  
 
   const onChange = async (e) => {
+    setloading(true);
     setsearch(e.target.value);
     let token = localStorage.getItem("token");
     const response = await fetch(
@@ -43,34 +46,58 @@ export default function Navbar() {
     );
 
     let userrs = await response.json();
-    setusers(userrs);
+     setloading(false);
+     if(!userrs.length){
+        setresult(false);
+     }else{
+       setusers(userrs);
+       setresult(true);
+     }
+
     if (!e.target.value) {
       setusers([]);
-    }
+    }  
   };
+
+  const closeTheTab =()=>{
+     setusers([]);
+     setsearch("");
+     setloading(false);
+     setresult(true);
+     onClose();
+  }
+
 
   return (
     <nav className="flex flex-col items-center justify-between  w-20 px-6 py-10 text-white  bg-[rgb(27,27,27)] ">
       <img alt="" className="w-20" src={logo}></img>
       <div className="space-y-4">
-      <i onClick={onOpen} className="text-[rgb(111,111,111)] ml-2 text-lg cursor-pointer fa-solid fa-magnifying-glass"></i>
+      <i onClick={onOpen}  class=" text-[rgb(111,111,111)] ml-2 text-lg cursor-pointer fa-solid fa-pen-to-square"></i>
+      
       <Drawer
         isOpen={isOpen}
         placement="left"
-        onClose={onClose}
+        onClose={closeTheTab}
         finalFocusRef={btnRef}
       >
         <DrawerOverlay />
-        <DrawerContent bg={"rgb(36,36,36)"} color={"white"}>
-          <DrawerCloseButton />
-          <DrawerHeader>Search for Chat</DrawerHeader>
-          <DrawerBody>
+        <DrawerContent overflow={"hidden"} bg={"rgb(27,27,27)"} color={"white"}>
+          <DrawerHeader bg={"rgb(36,36,36)"}>
+          <div className="flex justify-between">
+            Search for chat
+             <i onClick={closeTheTab} class="fa-solid cursor-pointer text-xl mt-[1px] fa-xmark"></i>
+            </div>
+          </DrawerHeader>
+          <DrawerBody paddingTop={"7"} overflow={"hidden"}>
             <Input
               onChange={onChange}
               value={search}
               placeholder="Type here..."
             />
-            <div className="flex mt-6 flex-col space-y-3">
+           { loading&&<div className="h-96  flex justify-center items-center">
+              <Spinner />
+            </div>}
+            {!loading&&result&&<div className="flex h-[77vh] overflow-y-scroll chatBox mt-6 flex-col space-y-3">
               {users.map((user) => {
                 return (
                   <div
@@ -86,7 +113,8 @@ export default function Navbar() {
                   </div>
                 );
               })}
-            </div>
+            </div>}
+            {!result&&<div className="text-white h-96  flex justify-center items-center">No result found</div>}
           </DrawerBody>
         </DrawerContent>
       </Drawer>

@@ -2,15 +2,13 @@ import React, { useContext,useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { useToast } from "@chakra-ui/react";
 import { Spinner } from "@chakra-ui/react";
-
-
-
+ 
+import logo from  "../images/power-off.png";
 import {
   Drawer,
   DrawerHeader,
   DrawerOverlay,
   DrawerContent,
-  DrawerCloseButton,
   useDisclosure,
 } from "@chakra-ui/react";
 import ChatContext from "../context/user/ChatContext";
@@ -21,9 +19,7 @@ function Profile() {
   const btnRef = React.useRef();
   const context = useContext(ChatContext);
   const { setchatroom ,logUser,setlogUser} = context;
-  
   const [loading, setloading] = useState(false);
-
   const [username, setusername] = useState("")
   const [enabled, setenabled] = useState(false);
   const [currentName, setcurrentName] = useState("");
@@ -57,6 +53,7 @@ function Profile() {
   const editName=()=>{
        let input=document.getElementById("inputName");
        input.disabled=false;
+       input.style.borderBottomColor="rgb(66,203,165)"
        setenabled(true);
   }
 
@@ -97,23 +94,30 @@ function Profile() {
       
       let input=document.getElementById("inputName");
         setlogUser({...logUser,name:data.name});
+        input.style.borderBottomColor="rgb(36,36,36)";
         localStorage.setItem("user",JSON.stringify(data));
         input.value="";
         setcurrentName(data.name);
         setusername("");
         input.disabled=false;
         setenabled(false);
+        toast({
+          title: "Your name changed",
+          status: 'success',
+          isClosable: true,
+        })
+
     }
    
   }
 
   const changePic = async (e) => {
-    setloading(true);
     if (
       e.target.files[0] &&
       (e.target.files[0].type === "image/jpeg" ||
-        e.target.files[0] === "image/png")
-    ) {
+      e.target.files[0] === "image/png")
+      ) {
+      setloading(true);
       const formData = new FormData();
       formData.append("file", e.target.files[0]);
       formData.append("upload_preset", "chat_app");
@@ -142,12 +146,12 @@ function Profile() {
 
       let message = await data.json();
       if (message.success) {
-        setloading(false);
         setlogUser({...logUser,avtar:picture});
         let updatedUser=logUser;
         updatedUser.avtar=picture
         localStorage.setItem("user",JSON.stringify(updatedUser));
       }
+      setloading(false);
    }
    e.target.value = null;
   }
@@ -159,7 +163,7 @@ function Profile() {
         alt=""
         onClick={updateUser}
         src={logUser.avtar}
-        className=" rounded-lg   cursor-pointer h-10 w-10"
+        className=" rounded-lg  cursor-pointer h-10 w-10"
         ></img>
       <Drawer
         isOpen={isOpen}
@@ -169,8 +173,12 @@ function Profile() {
       >
         <DrawerOverlay />
         <DrawerContent textColor={"white"} bg={"rgb(36,36,36)"}>
-          <DrawerCloseButton />
-          <DrawerHeader>Profile</DrawerHeader>
+          <DrawerHeader>
+            <div className="flex justify-between">
+            Profile
+             <i onClick={closeTheTab} className="fa-solid cursor-pointer text-xl mt-[1px] fa-xmark"></i>
+            </div>
+             </DrawerHeader>
           <div className="flex h-[90vh] px-2 flex-col bg-[rgb(27,27,27)] ">
             <div className="flex group  items-center relative justify-center py-8">
               <img
@@ -181,28 +189,50 @@ function Profile() {
                {loading&&<Spinner className="absolute" />}
               <input
                 onChange={changePic}
-                className=" group-hover:flex hidden inputFile absolute top-8 h-48 opacity-70
+                className=" flex z-50 inputFile absolute top-8 h-48 opacity-0
            text-white rounded-full justify-center items-center  bg-black w-48"
                 type="file"
               ></input>
+              <div className="absolute hidden group-hover:flex text-center py-14 bg-black w-48 space-y-1 h-48 opacity-70 rounded-full flex-col justify-center items-center">
+                <i className="fa-solid text-lg fa-camera"></i>
+                <div className="  text-xs font-semibold ">
+                 <p>UPLOAD</p>
+                 <p>PROFILE PHOTO</p>
+                </div>
+
+              </div>
             </div>
-            <div className="flex px-2 flex-col space-y-2">
+            <div className="flex px-2 flex-col space-y-1">
               <p className="text-[rgb(9,128,93)] font-semibold">Your name</p>
               <div className="justify-center  flex relative">
                 <input
-                  className="bg-transparent text-white border-b-[1px] border-[rgb(36,36,36)] py-[2x] outline-none  w-72"
+                  className="bg-transparent text-white placeholder:text-white border-b-[1px] pb-2 
+                  border-[rgb(36,36,36)] outline-none  w-72"
                   type={"text"}
                   disabled
                   id="inputName"
                   placeholder={currentName}
+                  maxLength="30"
                   onChange={ (e)=>{setusername(e.target.value)}}
                 ></input>
                 {!enabled&&<i onClick={editName} className="absolute cursor-pointer text-[rgb(87,87,87)]  right-0 fa-solid fa-pen"></i>}
                 {enabled&&username&&<i onClick={changeName} className="absolute cursor-pointer text-[rgb(87,87,87)]  right-0 fa-solid fa-circle-check"></i>}
               </div>
             </div>
+            <div className="mt-3 px-2">
+                <p className="text-[rgb(9,128,93)] font-semibold">Your email</p>
+                <p className="border-b-[1px] border-[rgb(36,36,36)] pb-2">{logUser.email}</p>
+              </div>
           </div>
-          <div onClick={logout} className="cursor-pointer"> LoGOUT</div>
+          
+          <div onClick={logout}  className="space-x-2 justify-center items-center py-2 cursor-pointer flex">
+            <img alt="" className="w-5 h-5" src={logo}></img>
+            <p className="text-lg font-semibold">
+              Logout
+            </p>
+            </div>
+        
+          
         </DrawerContent>
       </Drawer>
     </div>

@@ -64,6 +64,7 @@ function Details(props) {
       );
 
       let message = await data.json();
+      console.log(message);
       if (message.success) {
         setloading(false);
         setgroupPic(picture);
