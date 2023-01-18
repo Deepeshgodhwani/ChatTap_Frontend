@@ -7,8 +7,8 @@ import ChatContext from '../context/user/ChatContext';
 import { FormControl } from '@chakra-ui/react';
 import ScrollableChat from './ScrollableChat';
 import Loading from './Loading';
-
 var selectedChatCompare;
+let delay=true;
 
 
 export default function SingleChat(props) {
@@ -18,7 +18,9 @@ export default function SingleChat(props) {
        const context = useContext(ChatContext);
        const [secondUser, setsecondUser] = useState({});
        const [loading, setloading] = useState(false);
-       const {logUser,chatroom,recentChats,setrecentChats,socket}=context;
+       const {logUser,chatroom,setchatroom,recentChats,setrecentChats,socket}=context;
+       const [dropdown, setDropdown] = useState(false)
+
 
 
   // To estaiblish connection //
@@ -62,7 +64,8 @@ export default function SingleChat(props) {
     
   // To send message //
        const sendMessage =async (e)=>{
-         if(e.key==="Enter" && newMessage){
+         if(e.key==="Enter" && newMessage && delay){
+                delay=false;
                 let token =localStorage.getItem('token');
                 const response=await fetch(`http://localhost:7000/api/chat/message`,
                   {
@@ -97,7 +100,8 @@ export default function SingleChat(props) {
                   }else{
                     setrecentChats([updatedChat,...chats]);
                   }
-              }
+               }
+               delay=true;
               }
                   
 
@@ -116,6 +120,14 @@ export default function SingleChat(props) {
            })
         },[chatroom,messages,recentChats]); 
 
+        const toggleDropdown= ()=>{
+          if(dropdown){
+            setDropdown(false);
+          }else{
+              setDropdown(true);
+          }
+    }
+
        
   return (
     <>
@@ -126,7 +138,15 @@ export default function SingleChat(props) {
           <img onClick={()=>{props.toggleProfileView(true)}} alt='' className='w-10 h-10 cursor-pointer rounded-full' src={secondUser.avtar}></img>
           <p className=' font-semibold cursor-pointer' onClick={()=>{props.toggleProfileView(true)}}>{secondUser.name}</p>
           </div>
-          <i className="border-2  cursor-pointer border-[rgb(136,136,136)] px-1  text-sm rounded-full fa-solid text-[rgb(136,136,136)] fa-ellipsis"></i>
+          <div className="relative ">
+              <i onClick={toggleDropdown} className="border-2  cursor-pointer border-[rgb(136,136,136)] px-1  text-sm rounded-full fa-solid text-[rgb(136,136,136)] fa-ellipsis"></i>
+              {dropdown&&<div className="text-white py-2 border-[1px] border-[] right-2 w-44 top-9 bg-[rgb(36,36,36)] absolute px-4">
+                   <p onClick={()=>{ setDropdown(false)
+                     props.toggleProfileView(true);}} className="cursor-pointer">View details</p>
+                   <p onClick={()=>{ props.toggleProfileView(false)
+                     setchatroom({})}} className="cursor-pointer">Close chat</p>
+              </div>}
+            </div>
         </div>
         <div className={`chatBox  py-2 px-4  h-[77vh]`}>
         {loading&&<Loading></Loading>}

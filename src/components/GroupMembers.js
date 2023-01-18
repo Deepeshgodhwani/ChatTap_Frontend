@@ -1,13 +1,15 @@
 import React ,{ useState ,useEffect} from 'react'
 import createGroupLogo from '../images/add-user.png';
 import grpLogo from "../images/group.png";
+import List from "../components/List";
 
 import {
   Modal,ModalOverlay,ModalContent,
   ModalBody,useDisclosure,FormControl,
-  Input,useToast,} from '@chakra-ui/react'
+  Input,useToast} from '@chakra-ui/react'
 import { useContext } from 'react';
 import ChatContext from '../context/user/ChatContext';
+
 
 
 
@@ -182,13 +184,14 @@ function GroupMembers(props) {
 
   return (
     <div>
-         <div className='flex py-3 space-x-2'>
+         <div className='flex justify-between'>
+               <div className='flex  space-x-2'>
                 <img alt='' className='w-5 h-5' src={grpLogo}></img>
-              <p className='text-[rgb(167,169,171)] font-bold'>Members</p>
+                <p className='text-[rgb(167,169,171)] text-sm font-semibold'>MEMBER ({groupMembers.length})</p>
+               </div>
+               {groupMembers.length>4&&<List groupMembers={groupMembers} setgroupMembers={setgroupMembers} Profile={Profile} logUser={logUser}/>}
               </div>
-              <div className='space-y-2 overflow-y-scroll chatBox  py-1 text-[rgb(240,240,240)]'>
-
-
+              <div className='space-y-2  max-h-60  chatBox mt-2   py-1 text-[rgb(240,240,240)]'>
                 {logUser._id===Profile.admin._id&&<div onClick={()=>{
                   onOpen()}} className='flex items-center cursor-pointer space-x-2'>
                  
@@ -217,6 +220,7 @@ function GroupMembers(props) {
                         bg-[rgb(255,108,55)]' key={members.user._id}>
                           <p>{members.user.name}</p>
                           {<i onClick={(e)=>{removeUser(members.user)}} className="cursor-pointer fa-solid fa-xmark"></i>}
+                          
                           </div>):(<div></div>)
 
                       })}</div>
@@ -224,20 +228,20 @@ function GroupMembers(props) {
                       </FormControl>
                       <div className='flex flex-col space-y-2 py-2 my-2'>{users.map((user)=>{
                         return(<div  onClick={(e)=>{collectUser(user)}}  className='space-x-2 w-56  cursor-pointer items-center flex ' key={user._id}>
-                         <img alt='' className='w-10 rounded-full h-10' src={user.avtar}></img>
-                         <p className=' text-sm font-semibold'>{user.name}</p>
+                         <img alt='' className='w-11 rounded-full h-11' src={user.avtar}></img>
+                         <p className=' text-base font-semibold'>{user.name}</p>
                           </div>)
                       })}</div>
                      {selectedUsers.length>=1&&<span onClick={addUsers} className='py-1 px-2 absolute bottom-0 right-0 rounded-full bg-[rgb(38,141,97)]'><i className="fa-solid fa-check"></i></span>}
                     </ModalBody>
                   </ModalContent>
              </Modal>
-              <div className='flex relative  space-x-2 items-center'>
-                    <img alt='' className='w-10 rounded-full h-10' src={Profile.admin.avtar}></img>
+              <div className='flex relative   space-x-2 items-center'>
+                    <img alt='' className='w-11 rounded-full h-11' src={Profile.admin.avtar}></img>
                     <div className='flex'>
-                    <p className=' text-sm font-semibold'>{logUser._id===Profile.admin._id?"You":Profile.admin.name}</p>
-                    <p className='text-xs absolute right-0   py-[2px]  font-bold px-1 border-[1px] text-[rgb(36,141,97)] 
-                    border-[rgb(36,141,97)]'>Admin</p>
+                    <p className=' text-base font-semibold'>{logUser._id===Profile.admin._id?"You":Profile.admin.name}</p>
+                    <p className='text-xs absolute right-0  py-[5px] font-bold px-2 rounded-md  text-white
+                     bg-[rgb(53,55,59)] '>Group Admin</p>
                     </div>
                </div>
                 {groupMembers.map((members)=>{
@@ -247,7 +251,7 @@ function GroupMembers(props) {
                     <p className=' text-sm font-semibold'>{logUser._id===members.user._id?"You":members.user.name}</p>
 
                     {logUser._id===Profile.admin._id&&<div className=' cursor-pointer right-0 absolute'>
-                       <i onClick={()=>{removeFromGroup(members.user)}} className="fa-solid fa-caret-down"></i>
+                       <i onClick={()=>{removeFromGroup(members.user)}} className=" text-white fa-solid fa-ellipsis"></i>
                     </div>}
 
                    {/* <div  className=' dropdown bg-[rgb(53,55,59)] hidden   right-1 -bottom-3 absolute px-7  py-1 '>

@@ -72,7 +72,7 @@ export default function Navbar() {
     <nav className="flex flex-col items-center justify-between  w-20 px-6 py-10 text-white  bg-[rgb(27,27,27)] ">
       <img alt="" className="w-20" src={logo}></img>
       <div className="space-y-4">
-      <i onClick={onOpen}  class=" text-[rgb(111,111,111)] ml-2 text-lg cursor-pointer fa-solid fa-pen-to-square"></i>
+      <i onClick={onOpen}  className=" text-[rgb(111,111,111)] ml-2 text-lg cursor-pointer fa-solid fa-pen-to-square"></i>
       
       <Drawer
         isOpen={isOpen}
@@ -85,7 +85,7 @@ export default function Navbar() {
           <DrawerHeader bg={"rgb(36,36,36)"}>
           <div className="flex justify-between">
             Search for chat
-             <i onClick={closeTheTab} class="fa-solid cursor-pointer text-xl mt-[1px] fa-xmark"></i>
+             <i onClick={closeTheTab} className="fa-solid cursor-pointer text-xl mt-[1px] fa-xmark"></i>
             </div>
           </DrawerHeader>
           <DrawerBody paddingTop={"7"} overflow={"hidden"}>

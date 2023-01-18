@@ -51,14 +51,14 @@ function Profile() {
 
 
   const editName=()=>{
-       let input=document.getElementById("inputName");
+       let input=document.getElementById("inputName1");
        input.disabled=false;
        input.style.borderBottomColor="rgb(66,203,165)"
        setenabled(true);
   }
 
   const closeTheTab=()=>{
-    let input=document.getElementById("inputName");
+    let input=document.getElementById("inputName1");
     input.disabled=true;
     setenabled(false);
     onClose();  
@@ -92,7 +92,7 @@ function Profile() {
   
       let data = await response.json();
       
-      let input=document.getElementById("inputName");
+      let input=document.getElementById("inputName1");
         setlogUser({...logUser,name:data.name});
         input.style.borderBottomColor="rgb(36,36,36)";
         localStorage.setItem("user",JSON.stringify(data));
@@ -115,7 +115,7 @@ function Profile() {
     if (
       e.target.files[0] &&
       (e.target.files[0].type === "image/jpeg" ||
-      e.target.files[0] === "image/png")
+      e.target.files[0].type === "image/png")
       ) {
       setloading(true);
       const formData = new FormData();
@@ -153,6 +153,7 @@ function Profile() {
       }
       setloading(false);
    }
+   setloading(false);
    e.target.value = null;
   }
 
@@ -210,7 +211,7 @@ function Profile() {
                   border-[rgb(36,36,36)] outline-none  w-72"
                   type={"text"}
                   disabled
-                  id="inputName"
+                  id="inputName1"
                   placeholder={currentName}
                   maxLength="30"
                   onChange={ (e)=>{setusername(e.target.value)}}

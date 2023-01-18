@@ -15,14 +15,33 @@ function Details(props) {
   const [newChatName, setnewChatName] = useState("");
   const [enabled, setenabled] = useState(false);
   const toast = useToast();
+  const [commonGroups, setcommonGroups] = useState([]);
 
   
 
+  const getCommonGroups =async()=>{
+    let token =localStorage.getItem('token');
+    const response=await fetch(`http://localhost:7000/api/chat/getCommonGroups?userId=${Profile._id}`,
+    {
+      method:'GET',
+      mode:"cors" ,
+      headers: {
+        'Content-Type':'application/json',
+        'auth-token':token
+      },
+    })
+  
+    let data=await response.json();
+    setcommonGroups(data);
+  }
+  
 
 
   useEffect(() => {
+       if(!Profile.isGroupChat){
+           getCommonGroups();
+       }
        socket.on("updateUsers",members=>{
-        console.log(members);
            setgroupMembers(groupMembers.concat(members));
        })
   }, [groupMembers])
@@ -30,10 +49,12 @@ function Details(props) {
 
   const changeProfile = async (e) => {
     setloading(true);
+    let hover =document.getElementById("hoverImg");
+    hover.style.display="none";
     if (
       e.target.files[0] &&
       (e.target.files[0].type === "image/jpeg" ||
-        e.target.files[0] === "image/png")
+        e.target.files[0].type === "image/png")
     ) {
       const formData = new FormData();
       formData.append("file", e.target.files[0]);
@@ -64,7 +85,6 @@ function Details(props) {
       );
 
       let message = await data.json();
-      console.log(message);
       if (message.success) {
         setloading(false);
         setgroupPic(picture);
@@ -86,9 +106,15 @@ function Details(props) {
         Profile.isGroupChat && setgroupPic(picture);
         let data={chat:chatroom,picture:picture}
         socket.emit("changed_groupImage",data);
+        toast({
+          title: "Photo changed successfully",
+          status: 'success',
+          isClosable: true,
+        })
       }
       e.target.value = null;
     }
+    setloading(false);
   };
   
 
@@ -126,6 +152,7 @@ function Details(props) {
 
   const editName=()=>{
     let input=document.getElementById("inputName");
+    input.style.borderBottomColor="rgb(66,203,165)"
     input.disabled=false;
     setenabled(true);
   } 
@@ -181,15 +208,22 @@ function Details(props) {
      let send={chat:chatroom,name:newChatName};
      setnewChatName("");
      socket.emit("changed_groupName",send);
+     toast({
+      title: "Group name changed successfully",
+      status: 'success',
+      isClosable: true,
+    })
     }
   }
 
 
+  
+
   return (
 
     
-    <div className="w-96 bg-[rgb(36,36,36)] overflow-y-scroll chatBox  flex flex-col px-4 py-4">
-      <div className="text-[rgb(233,233,233)] text-xl font-semibold flex justify-between ">
+    <div className="w-96  overflow-hidden bg-[rgb(36,36,36)]  flex flex-col px-2 py-4">
+      <div className="text-[rgb(233,233,233)]  text-xl font-semibold flex justify-between ">
         <p>Profile</p>
         <i
           onClick={() => {
@@ -198,46 +232,73 @@ function Details(props) {
           className="cursor-pointer fa-solid fa-xmark"
         ></i>
       </div>
-      <div className="py-2 px-2">
-        <div className="flex space-y-2 mt-4 border-b-[1px] border-gray-600  py-4 flex-col items-center">
+      <div className="py-2  px-2">
+        <div className="flex space-y-2 mt-3  py-4 flex-col items-center">
           <div className="relative flex justify-center items-center group">
             <img
               alt=""
-              className="w-40 rounded-full h-40"
+              className="w-44 rounded-full h-44"
               src={Profile.isGroupChat?groupPic:Profile.avtar}
             ></img>
-            {loading && <Spinner className="absolute" />}
+            {loading&&<Spinner size='xl' color="white" thickness='3px' className="absolute" />}
             {Profile.isGroupChat&& checkUserExist()&& (
               <input
                 onChange={changeProfile}
-                className=" group-hover:flex hidden inputFile absolute top-0 h-40 opacity-70
-           text-white rounded-full justify-center items-center  bg-black w-40"
+                className=" inputFile absolute top-0 h-44  opacity-0
+           text-white rounded-full z-20 justify-center items-center check w-44"
                 type="file"
               ></input>
             )}
+            {Profile.isGroupChat&& checkUserExist()&&<div id="hoverImg" className="absolute  hidden text-white group-hover:flex text-center py-14 bg-black w-44 space-y-1 h-44 opacity-70 rounded-full 
+            flex-col justify-center items-center">
+                <i className="fa-solid text-lg fa-camera"></i>
+                <div className="  text-xs font-semibold ">
+                 <p>UPLOAD</p>
+                 <p>GROUP PHOTO</p>
+                </div>
+              </div>}
           </div>
-          <div className="flex flex-col items-center text-[rgb(233,233,233)]">
+          <div className="flex flex-col  items-center text-[rgb(233,233,233)]">
             {/* <p className="font-[calibri] text-xl "> */}
               {Profile.isGroupChat ? 
-              <div className="relative">
+              <div className="relative group mt-1 mb-2">
               <input
-              className="bg-transparent text-white  border-b-[1px] border-[white] py-[2x] outline-none"
+              className={`bg-transparent ${enabled?"border-b-2":"border-b-0 text-center"} cursor-pointer text-white px-3  placeholder:text-white  pb-2 
+              border-[rgb(53,55,59)] outline-none  w-60`}
               type={"text"}
               disabled
               id="inputName"
               placeholder={groupName}
+              maxLength="25"
               onChange={ (e)=>{setnewChatName(e.target.value)}}
               ></input> 
-              {!enabled&&checkUserExist()&&<i onClick={editName} className="absolute cursor-pointer text-[rgb(87,87,87)]  right-0 fa-solid fa-pen"></i>}
+              {!enabled&&checkUserExist()&&<i onClick={editName} className="absolute group-hover:opacity-100 opacity-0 cursor-pointer text-[rgb(87,87,87)]  right-0 fa-solid fa-pen"></i>}
                 {enabled&&newChatName&&<i onClick={changeName} className="absolute cursor-pointer text-[rgb(87,87,87)]  right-0 fa-solid fa-circle-check"></i>}
               </div>
-            : Profile.name}
-           
-            {Profile.isGroupChat && (
-              <p className="text-[rgb(97,97,97)] text-sm font-semibold">
-                Group • {groupMembers.length} members
-              </p>
-            )}
+            :<div className="font-semibold text-lg mt-1 w-52 pb-2 text-center">
+              {Profile.name}
+            </div> 
+            }
+            <div className="bg-[rgb(27,27,27)] w-80 h-4"></div>
+            {!Profile.isGroupChat&&<div className=" py-2  w-64">
+               <p className="text-[rgb(167,169,171)] font-semibold">Groups in common</p>
+               <div className="flex h-56  overflow-y-scroll chatBox mt-3 flex-col space-y-3">
+              {commonGroups.map((group) => {
+                return (
+                  <div
+                 className="flex cursor-pointer items-center space-x-2"
+                  key={group._id}
+                  >
+                    <img className="w-11 rounded-full h-11  " alt="" src={group.profilePic}></img>
+                    <div>
+                    <p className="text-base">{group.chatname}</p>
+                    <p className="text-[rgb(146,145,148)] text-xs">{group.users.length} member</p>
+                      </div>
+                  </div>
+                );
+              })}
+            </div>
+              </div>} 
           </div>
         </div>
         {Profile.isGroupChat && (
@@ -247,6 +308,8 @@ function Details(props) {
             setgroupMembers={setgroupMembers}
           />
         )}
+
+        <div className="bg-[rgb(27,27,27)] w-80 h-4"></div>
         {Profile.isGroupChat&&checkUserExist()&&Profile.admin._id!==logUser._id&&<p onClick={exitGroup} className="text-white cursor-pointer">exit group</p>}
       </div>
     </div>

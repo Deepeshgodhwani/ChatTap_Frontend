@@ -105,7 +105,7 @@ function GroupCreation() {
       if (
         e.target.files[0] &&
         (e.target.files[0].type === "image/jpeg" ||
-          e.target.files[0] === "image/png")
+          e.target.files[0].type === "image/png")
       ) {
         const formData = new FormData();
         formData.append("file", e.target.files[0]);
@@ -126,33 +126,34 @@ function GroupCreation() {
          setloading(false);
 
         }
+        setloading(false);
       } 
       
       
       const createGroup =async ()=>{
          if(!chatName){
           toast({
-            title: "Error",
-            description: "it is already your name",
+            description: "Please enter group name",
             status: "warning",
             duration: 9000,
             isClosable: true,
           });
-         }
-          let token =localStorage.getItem('token');
-          const response=await fetch('http://localhost:7000/api/chat/createGroup',
-          {
-            method:'POST',
-            mode:"cors" ,
-            headers: {
-              'Content-Type':'application/json',
-              'auth-token':token
-            },
-            body:JSON.stringify({chatName,selectedUsersId,groupPicture})
-          })
-    
-          let data=await response.json();
-          let message="created group "+data.chatname;
+         }else{
+
+           let token =localStorage.getItem('token');
+           const response=await fetch('http://localhost:7000/api/chat/createGroup',
+           {
+             method:'POST',
+             mode:"cors" ,
+             headers: {
+               'Content-Type':'application/json',
+               'auth-token':token
+              },
+              body:JSON.stringify({chatName,selectedUsersId,groupPicture})
+            })
+            
+            let data=await response.json();
+            let message="created group "+data.chatname;
           let latestMessage=await createNoty(data._id,message);
           data.latestMessage=latestMessage;
           setchatroom(data);
@@ -162,22 +163,40 @@ function GroupCreation() {
           setrecentChats([data,...recentChats]);
           setselectedUsers([]);
           setselectedUsersId([]);
-          setchatName("");
           setphase(1);
           onClose();
+          toast({
+            description: `Created group ${chatName}`,
+            status: "success",
+            duration: 9000,
+            isClosable: true,
+          })
+        }
+        setchatName("");
        }
 
 
        const changePhase=()=>{
-            if(phase===1){
-              setphase(2);
-              setloading(false);
-              setresult(true);
-              setsearch("");
+         if(selectedUsers.length<=1){
+          toast({
+            description: "Add atleast two members",
+            status: "warning",
+            duration: 9000,
+            isClosable: true,
+          });
+            return ;
+         }else{
+
+           if(phase===1){
+             setphase(2);
+             setloading(false);
+             setresult(true);
+             setsearch("");
             }else{
-               createGroup();
+              createGroup();
             }
-       }
+          }
+        }
 
 
        const changePage =()=>{
@@ -263,7 +282,7 @@ function GroupCreation() {
                 text-white rounded-full z-10 justify-center cursor-pointer items-center opacity-0 w-48"
                       type="file"
                     ></input>
-                     {loading&&<Spinner className="absolute" />}
+                     {loading&&<Spinner className="absolute z-50" />}
  
                     {!isPicture&&<div className="absolute top-2  flex text-center cursor-pointer py-14 bg-black w-48 space-y-1 h-48 opacity-70 rounded-full flex-col justify-center items-center">
                       <i className="fa-solid text-lg fa-camera"></i>
@@ -273,7 +292,7 @@ function GroupCreation() {
                     </div>
               </div>}
                 </div>
-                <input className='w-64 outline-none bg-transparent px-1 my-2  border-[rgb(9,128,93)] border-b-2' onChange={(e)=>{setchatName(e.target.value)}} value={chatName} placeholder='Chat name' /> 
+                <input className='w-64 outline-none bg-transparent px-1 my-2  border-[rgb(9,128,93)] border-b-2' onChange={(e)=>{setchatName(e.target.value)}} value={chatName} placeholder='Group name' /> 
               </div>}
      </DrawerBody>
       

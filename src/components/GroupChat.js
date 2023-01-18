@@ -6,9 +6,13 @@ import Loading from "./Loading";
 import { FormControl } from "@chakra-ui/react";
 import RenderGroupMessages from "./RenderGroupMessages";
 
+
+
 const ENDPOINT = "http://localhost:4000";
 var socket;
 var selectedChatCompare;
+let processSend=true;
+let processRecieve=true;
 
 function GroupChat(props) {
   const context = useContext(ChatContext);
@@ -17,6 +21,7 @@ function GroupChat(props) {
     groupMessages,
     setgroupMessages,
     chatroom,
+    setchatroom,
     groupPic,
     setgroupPic,
     logUser,
@@ -28,6 +33,7 @@ function GroupChat(props) {
   } = context;
   const [newMessage, setnewMessage] = useState("");
   const [userExist, setuserExist] = useState(true);
+  const [dropdown, setDropdown] = useState(false)
 
   // To estaiblish connection //
 
@@ -51,7 +57,9 @@ function GroupChat(props) {
 
   // To send message //
   const sendMessage = async (e) => {
-    if (e.key === "Enter" && newMessage) {
+    if (e.key === "Enter" && newMessage && processSend) {
+      processSend=false;
+      console.log("count");
       let token = localStorage.getItem("token");
       const response = await fetch(`http://localhost:7000/api/chat/message`, {
         method: "POST",
@@ -71,19 +79,27 @@ function GroupChat(props) {
       chats = chats.filter((Chat) => {
         if (Chat._id === chatroom._id) {
           Chat.latestMessage = data;
+          Chat.users.forEach(members=>{
+            console.log(members.users._id," and ",logUser._id);
+            if(members.user._id==logUser._id){
+                members.unseenMsg=0;
+            }
+        })
           updatedChat = Chat;
         }
         return Chat._id !== chatroom._id;
       });
       setnewMessage("");
       setrecentChats([updatedChat, ...chats]);
+      processSend=true;
     }
   };
 
   // To receive message //
   useEffect(() => {
-    if (!socket) return;
+    if (!socket || !processSend) return;
     socket.on("message_recieved", (data) => {
+       processSend=false; 
        let message=data.message
       if (
         !selectedChatCompare ||
@@ -97,6 +113,7 @@ function GroupChat(props) {
         checkUserExist();
         setgroupMessages(updatedMessages);
       }
+      processSend=true;
     });
 
     socket.on("groupRemoved",(status)=>{
@@ -128,10 +145,19 @@ function GroupChat(props) {
   }
 
 
+  const toggleDropdown= ()=>{
+        if(dropdown){
+          setDropdown(false);
+        }else{
+            setDropdown(true);
+        }
+  }
+
+
 
   return (
     <div className="bg-[rgb(27,27,27)] text-white w-[70%]">
-      <div className="flex justify-between items-center h-16 border-[1px] border-[rgb(42,42,42)] py-3 space-x-4 px-10 bg-[rgb(36,36,36)] ">
+      <div className="flex justify-between  items-center h-16 border-[1px] border-[rgb(42,42,42)] py-3 space-x-4 px-10 bg-[rgb(36,36,36)] ">
         <div className="flex space-x-4 items-center ">
           <img
             onClick={() => {
@@ -149,8 +175,17 @@ function GroupChat(props) {
           >
             {groupName}
           </p>
-        </div>
-        <i className="border-2  cursor-pointer border-[rgb(136,136,136)] px-1  text-sm rounded-full fa-solid text-[rgb(136,136,136)] fa-ellipsis"></i>
+        </div> 
+            <div className="relative ">
+              <i onClick={toggleDropdown} className="border-2  cursor-pointer border-[rgb(136,136,136)] px-1  text-sm rounded-full fa-solid text-[rgb(136,136,136)] fa-ellipsis"></i>
+              {dropdown&&<div className="text-white py-2 border-[1px] border-[] right-2 w-44 top-9 bg-[rgb(36,36,36)] absolute px-4">
+                   <p onClick={()=>{ setDropdown(false)
+                     props.toggleProfileView(true);}} className="cursor-pointer">View details</p>
+                   <p onClick={()=>{ props.toggleProfileView(false)
+                     setchatroom({})}} className="cursor-pointer">Close chat</p>
+              </div>}
+            </div>
+        
       </div>
       <div className={`chatBox py-2 px-4  h-[77vh]`}>
         {loading && <Loading></Loading>}
