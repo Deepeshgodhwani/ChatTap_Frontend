@@ -13,6 +13,8 @@ import {
     Button
   } from '@chakra-ui/react'
 import ChatContext from '../context/user/ChatContext';
+import grpLogo from "../images/group.png";
+
 
 
 function List(props) {
@@ -64,31 +66,33 @@ function List(props) {
     <div>
 
          <p onClick={onOpen} className='text-[rgb(36,141,97)] cursor-pointer font-semibold text-sm underline '>Show all</p>
-
         <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
-        <ModalContent width={"96"}  bg="rgb(36,36,36)">
-            <ModalHeader textColor={"white"}>Modal Title</ModalHeader>
-            <ModalCloseButton />
-            <ModalBody>
-            <div className='space-y-2  max-h-60 chatBox mt-2   py-1 text-[rgb(240,240,240)]'>
-
-
-     <div className='flex relative   space-x-2 items-center'>
-            <img alt='' className='w-11 rounded-full h-11' src={Profile.admin.avtar}></img>
+        <ModalContent width={"22rem"}     bg="">
+            <div className="flex px-6 bg-[rgb(36,36,36)] py-3 justify-between">
+            <div className='flex  space-x-2'>
+                <img alt='' className='w-6 h-6' src={grpLogo}></img>
+                <p className='text-[rgb(167,169,171)] text-base font-semibold'>MEMBER ({groupMembers.length})</p>
+               </div>
+             <i onClick={onClose} className="fa-solid cursor-pointer text-[rgb(167,169,171)] text-xl  fa-xmark"></i>
+            </div>
+            <ModalBody padding={"0"} minHeight={"18rem"} maxHeight={"23rem"} overflow={"scroll"} className="chatBox" bg={"rgb(27,27,27)"}>
+            <div className='text-[rgb(240,240,240)] '>
+     <div className='flex relative  hover:bg-[rgb(44,44,44)] px-4 py-[5px] space-x-2 items-center'>
+            <img alt='' className='w-12 rounded-full h-12' src={Profile.admin.avtar}></img>
             <div className='flex'>
             <p className=' text-base font-semibold'>{logUser._id===Profile.admin._id?"You":Profile.admin.name}</p>
-            <p className='text-xs absolute right-0  py-[5px] font-bold px-2 rounded-md  text-white
+            <p className='text-xs absolute right-4  py-[5px] font-bold px-2 rounded-md  text-white
             bg-[rgb(53,55,59)] '>Group Admin</p>
             </div>
         </div>
         {groupMembers.map((members)=>{
   
-         return !members.isRemoved&&members.user._id!==Profile.admin._id?(<div key={members.user._id} className='flex cursor-pointer space-x-2 relative items-center'>
-            <img alt='' className='w-10 rounded-full h-10' src={members.user.avtar}></img>
+         return !members.isRemoved&&members.user._id!==Profile.admin._id?(<div key={members.user._id} className='flex px-4 group py-[5px] hover:bg-[rgb(44,44,44)] cursor-pointer space-x-2 relative items-center'>
+            <img alt='' className='w-12 rounded-full h-12' src={members.user.avtar}></img>
             <p className=' text-sm font-semibold'>{logUser._id===members.user._id?"You":members.user.name}</p>
 
-            {logUser._id===Profile.admin._id&&<div className=' cursor-pointer right-0 absolute'>
+            {logUser._id===Profile.admin._id&&<div className=' cursor-pointer group-hover:flex hidden right-4 absolute'>
             <i onClick={()=>{removeFromGroup(members.user)}} className=" text-white fa-solid fa-ellipsis"></i>
             </div>}
         </div>):(<div key=""></div>)

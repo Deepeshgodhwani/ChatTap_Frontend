@@ -1,6 +1,6 @@
 import React from "react";
 import { useContext } from "react";
-import { useEffect,useState } from "react";
+import { useEffect } from "react";
 import chatContext from "../context/user/ChatContext";
 let delay=true;
 
@@ -44,7 +44,7 @@ export default function Chatlist() {
     return data;
   }
 
-  console.log(chatroom._id);
+
 
   useEffect(() => {
     
@@ -55,7 +55,7 @@ export default function Chatlist() {
       let updatedUsers=[];
       console.log(message.chatId._id," and ",chatroom._id);
       if(!chatroom || message.chatId._id!==chatroom._id){
-          console.log("why");
+         
          updatedUsers=await hitCount(message.chatId._id,data.receiverId);
       }
       let updatedChat;
@@ -190,20 +190,57 @@ export default function Chatlist() {
                   mssgCount=member.unseenMsg;
              }
          })
+           
 
-         return mssgCount;
+             return mssgCount;
+           
   }
 
 
   const setGroupChat=(element)=>{
     if(chatroom._id !== element._id){
       accessGroupChat(element._id);
+  
+     setrecentChats(recentChats.map(chat=>{
+           if(chat._id==element._id){
+                 chat.users.map(members=>{
+                     if(members.user._id==logUser._id){
+                        members.unseenMsg=0;
+                     }
+                 })
+
+                 return chat;
+           }else{
+              return chat;
+           }
+     }))  
+     
     }
   }
 
 
+  const setSingleChat=(element)=>{
+     if(element._id!=chatroom._id){
+       accessChat(checkUserId(element.latestMessage.sender, element));
+       setrecentChats(recentChats.map(chat=>{
+        if(chat._id==element._id){
+              chat.users.map(members=>{
+                  if(members.user._id==logUser._id){
+                     members.unseenMsg=0;
+                  }
+              })
+
+              return chat;
+        }else{
+           return chat;
+        }
+  })) 
+     } 
+  }
+
+
   return (
-    <div className="bg-[rgb(36,36,36)]  pt-9 text-white w-[25%] h-[100%] flex flex-col space-y-2">
+    <div className="bg-[rgb(36,36,36)]  pt-9 text-white w-80 h-[100%] flex flex-col space-y-2">
       <p className="font-semibold mb-4 font-[calibri] text-3xl ml-3">
         Messages
       </p>
@@ -256,7 +293,7 @@ export default function Chatlist() {
                         ? element.latestMessage.content.slice(0, 10) + "..."
                         : element.latestMessage.content}
                     </p>
-                   {(<p className="bg-[rgb(197,73,69)] rounded-full font-bold flex justify-center 
+                   {countMsgs(element.users)>0&&(<p className="bg-[rgb(197,73,69)] rounded-full font-bold flex justify-center 
                     items-center text-[0.7rem] h-5 w-5">
                         {countMsgs(element.users)}
                       </p>)}
@@ -269,9 +306,7 @@ export default function Chatlist() {
                 return (
                   <div
                     onClick={() => {
-                      accessChat(
-                        checkUserId(element.latestMessage.sender, element)
-                      );
+                       setSingleChat(element); 
                     }}
                     className={`flex ${
                       element._id === chatroom._id
@@ -302,10 +337,10 @@ export default function Chatlist() {
                       <p className="text-[rgb(146,145,148)] text-sm">
                         {element.latestMessage.content}
                       </p>
-                      {/* <p className="bg-[rgb(197,73,69)] rounded-full font-bold flex justify-center 
+                      {countMsgs(element.users)>0&&<p className="bg-[rgb(197,73,69)] rounded-full font-bold flex justify-center 
                        items-center text-[0.7rem] h-5 w-5">
                         {countMsgs(element.users)}
-                      </p> */}
+                      </p>}
                       </div>
                     </div>
                   </div>

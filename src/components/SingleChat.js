@@ -12,7 +12,7 @@ let delay=true;
 
 
 export default function SingleChat(props) {
-     const {toggleProfileView}=props;
+     const {toggleProfileView,details}=props;
        const [messages, setmessages] = useState([]);
        const [newMessage, setnewMessage] = useState("");
        const context = useContext(ChatContext);
@@ -118,7 +118,7 @@ export default function SingleChat(props) {
                 }
                 setnewMessage("");
            })
-        },[chatroom,messages,recentChats]); 
+        },[messages,recentChats]); 
 
         const toggleDropdown= ()=>{
           if(dropdown){
@@ -132,7 +132,7 @@ export default function SingleChat(props) {
   return (
     <>
     
-      <div className="bg-[rgb(27,27,27)]  text-white w-[70%]" >
+      <div className={`bg-[rgb(27,27,27)]  text-white ${details?"w-[47.5%]":"w-[71%]"} `}>
         <div className='flex items-center justify-between border-[1px] border-[rgb(42,42,42)]  h-16 py-3 space-x-4 px-10 bg-[rgb(36,36,36)] '>
           <div className='flex space-x-4 items-center ' >
           <img onClick={()=>{props.toggleProfileView(true)}} alt='' className='w-10 h-10 cursor-pointer rounded-full' src={secondUser.avtar}></img>

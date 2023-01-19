@@ -16,7 +16,7 @@ let processRecieve=true;
 
 function GroupChat(props) {
   const context = useContext(ChatContext);
-  const { toggleProfileView } = props;
+  const { toggleProfileView, details } = props;
   const {
     groupMessages,
     setgroupMessages,
@@ -30,6 +30,7 @@ function GroupChat(props) {
     loading,
     recentChats,
     setrecentChats,
+    setloading
   } = context;
   const [newMessage, setnewMessage] = useState("");
   const [userExist, setuserExist] = useState(true);
@@ -55,6 +56,32 @@ function GroupChat(props) {
     selectedChatCompare = chatroom;
   }, [chatroom]);
 
+  useEffect(() => {
+    const fetchMessage = async () => {
+      setloading(true);
+      if (!chatroom.users) return;
+      let token = localStorage.getItem("token");
+      const response = await fetch(
+        `http://localhost:7000/api/chat/fetchMessages?Id=${chatroom._id}`,
+        {
+          method: "GET",
+          mode: "cors",
+          headers: {
+            "Content-Type": "application/json",
+            "auth-token": token,
+          },
+        }
+      );
+      let data = await response.json();
+      setgroupMessages(data);
+      setloading(false);
+      socket.emit("join chat", chatroom._id);
+    };
+    fetchMessage();
+  }, [chatroom]);
+ 
+  // console.log(groupMessages);
+
   // To send message //
   const sendMessage = async (e) => {
     if (e.key === "Enter" && newMessage && processSend) {
@@ -79,12 +106,6 @@ function GroupChat(props) {
       chats = chats.filter((Chat) => {
         if (Chat._id === chatroom._id) {
           Chat.latestMessage = data;
-          Chat.users.forEach(members=>{
-            console.log(members.users._id," and ",logUser._id);
-            if(members.user._id==logUser._id){
-                members.unseenMsg=0;
-            }
-        })
           updatedChat = Chat;
         }
         return Chat._id !== chatroom._id;
@@ -96,11 +117,13 @@ function GroupChat(props) {
   };
 
   // To receive message //
+  // console.log(groupMessages[0]);
   useEffect(() => {
-    if (!socket || !processSend) return;
+    if (!socket || !processRecieve) return;
     socket.on("message_recieved", (data) => {
-       processSend=false; 
+       processRecieve=false; 
        let message=data.message
+       console.log(message);
       if (
         !selectedChatCompare ||
         selectedChatCompare._id !== message.chatId._id
@@ -108,12 +131,15 @@ function GroupChat(props) {
         //give notification
          
       } else {
-        let updatedMessages = groupMessages;
-        updatedMessages.push(message);
         checkUserExist();
-        setgroupMessages(updatedMessages);
+        console.log(groupMessages);
+        // let ind=groupMessages.length-1;
+        // if(!groupMessages||message._id!==groupMessages[ind]._id){
+          setgroupMessages([...groupMessages,message])
+        // }
+        // console.log(message._id , " and ",groupMessages[ind]._id);
       }
-      processSend=true;
+      processRecieve=true;
     });
 
     socket.on("groupRemoved",(status)=>{
@@ -131,8 +157,8 @@ function GroupChat(props) {
     socket.on("toggleName",(data)=>{
       setgroupName(data.name);
     })
-
-  }, [chatroom, groupMessages]);
+    // eslint-disable-next-line
+  }, []);
 
   const checkUserExist =()=>{
       let check=false;
@@ -156,7 +182,7 @@ function GroupChat(props) {
 
 
   return (
-    <div className="bg-[rgb(27,27,27)] text-white w-[70%]">
+    <div className={`bg-[rgb(27,27,27)] text-white ${details?"w-[47.5%]":"w-[71%]"}`}>
       <div className="flex justify-between  items-center h-16 border-[1px] border-[rgb(42,42,42)] py-3 space-x-4 px-10 bg-[rgb(36,36,36)] ">
         <div className="flex space-x-4 items-center ">
           <img

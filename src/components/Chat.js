@@ -5,16 +5,16 @@ import GroupChat from "./GroupChat";
 import SingleChat from "./SingleChat";
 function Chat(props) {
   const context = useContext(ChatContext);
-  const { toggleProfileView } = props;
+  const { toggleProfileView,details } = props;
   const { chatroom } = context;
 
   return (
     <>
       {chatroom.users ? (
         chatroom.isGroupChat ? (
-          <GroupChat toggleProfileView={toggleProfileView} />
+          <GroupChat toggleProfileView={toggleProfileView} details={details}/>
         ) : (
-          <SingleChat toggleProfileView={toggleProfileView} />
+          <SingleChat toggleProfileView={toggleProfileView} details={details} />
         )
       ) : (
         <div></div>

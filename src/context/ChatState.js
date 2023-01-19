@@ -22,30 +22,7 @@ const ChatState = (props) => {
     }
   }, [logUser]);
 
-  useEffect(() => {
-    const fetchMessage = async () => {
-      setloading(true);
-      if (!chatroom.users) return;
-      let token = localStorage.getItem("token");
-      const response = await fetch(
-        `http://localhost:7000/api/chat/fetchMessages?Id=${chatroom._id}`,
-        {
-          method: "GET",
-          mode: "cors",
-          headers: {
-            "Content-Type": "application/json",
-            "auth-token": token,
-          },
-        }
-      );
-      let data = await response.json();
-      setgroupMessages(data);
-      setloading(false);
-      socket.emit("join chat", chatroom._id);
-    };
-    fetchMessage();
-  }, [chatroom]);
-
+  
 
   const accessChat = async (userId) => {
     let token = localStorage.getItem("token");

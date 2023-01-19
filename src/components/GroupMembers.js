@@ -26,6 +26,7 @@ function GroupMembers(props) {
     const [users, setusers] = useState([]);
     const [selectedUsers, setselectedUsers] = useState([]);
     const [selectedUsersId, setselectedUsersId] = useState([]);
+    const[renderMembers, setrenderMembers] = useState([]);
     const toast = useToast(); 
 
 
@@ -36,6 +37,17 @@ function GroupMembers(props) {
         }
        // eslint-disable-next-line 
      }, [])
+
+
+     useEffect(() => {
+        if(groupMembers.length>4){
+          setrenderMembers(groupMembers.slice(0,4));
+        }else{
+           setrenderMembers(groupMembers);
+        }
+
+     }, [groupMembers])
+     
 
     const onChange =async(e)=>{
         setsearch(e.target.value); 
@@ -107,6 +119,7 @@ function GroupMembers(props) {
   const addUsers=async()=>{
     
     let token =localStorage.getItem('token');
+    console.log("checking at add user");
     const response=await fetch(`http://localhost:7000/api/chat/addUser`,
     {
       method:'POST',
@@ -145,7 +158,7 @@ function GroupMembers(props) {
    
   
   const removeFromGroup= async(User)=>{
-    
+    console.log("checking at remove user");
     let token =localStorage.getItem('token');
     const response=await fetch(`http://localhost:7000/api/chat/removeUser?chatId=${Profile._id}&userId=${User._id}`,
     {
@@ -184,16 +197,16 @@ function GroupMembers(props) {
 
   return (
     <div>
-         <div className='flex justify-between'>
+         <div className='flex pt-4 px-8 justify-between'>
                <div className='flex  space-x-2'>
                 <img alt='' className='w-5 h-5' src={grpLogo}></img>
                 <p className='text-[rgb(167,169,171)] text-sm font-semibold'>MEMBER ({groupMembers.length})</p>
                </div>
                {groupMembers.length>4&&<List groupMembers={groupMembers} setgroupMembers={setgroupMembers} Profile={Profile} logUser={logUser}/>}
               </div>
-              <div className='space-y-2  max-h-60  chatBox mt-2   py-1 text-[rgb(240,240,240)]'>
+              <div className='  max-h-60   chatBox mt-4  text-[rgb(240,240,240)]'>
                 {logUser._id===Profile.admin._id&&<div onClick={()=>{
-                  onOpen()}} className='flex items-center cursor-pointer space-x-2'>
+                  onOpen()}} className='flex hover:bg-[rgb(44,44,44)] py-[5px] px-4 items-center cursor-pointer space-x-2'>
                  
                  <div className='bg-[rgb(34,134,92)]  py-2 px-2  rounded-full'>
                   <img className='w-6  rounded-full' alt='' src={createGroupLogo}></img>
@@ -236,21 +249,21 @@ function GroupMembers(props) {
                     </ModalBody>
                   </ModalContent>
              </Modal>
-              <div className='flex relative   space-x-2 items-center'>
+              <div className='flex relative py-[5px] px-4 hover:bg-[rgb(44,44,44)]  space-x-2 items-center'>
                     <img alt='' className='w-11 rounded-full h-11' src={Profile.admin.avtar}></img>
                     <div className='flex'>
                     <p className=' text-base font-semibold'>{logUser._id===Profile.admin._id?"You":Profile.admin.name}</p>
-                    <p className='text-xs absolute right-0  py-[5px] font-bold px-2 rounded-md  text-white
+                    <p className='text-xs absolute right-2  py-[5px] font-bold px-2 rounded-md  text-white
                      bg-[rgb(53,55,59)] '>Group Admin</p>
                     </div>
                </div>
-                {groupMembers.map((members)=>{
-                  
-                   return !members.isRemoved&&members.user._id!==Profile.admin._id?(<div key={members.user._id} className='flex cursor-pointer space-x-2 relative items-center'>
-                    <img alt='' className='w-10 rounded-full h-10' src={members.user.avtar}></img>
+                {renderMembers.map((members)=>{
+                   return !members.isRemoved&&members.user._id!==Profile.admin._id?(<div key={members.user._id} className='flex hover:bg-[rgb(44,44,44)] group cursor-pointer space-x-2 
+                   relative py-[5px] px-4 items-center'>
+                    <img alt='' className='w-11 rounded-full h-11' src={members.user.avtar}></img>
                     <p className=' text-sm font-semibold'>{logUser._id===members.user._id?"You":members.user.name}</p>
 
-                    {logUser._id===Profile.admin._id&&<div className=' cursor-pointer right-0 absolute'>
+                    {logUser._id===Profile.admin._id&&<div className=' cursor-pointer group-hover:flex hidden right-4 absolute'>
                        <i onClick={()=>{removeFromGroup(members.user)}} className=" text-white fa-solid fa-ellipsis"></i>
                     </div>}
 

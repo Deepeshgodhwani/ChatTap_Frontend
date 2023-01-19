@@ -220,20 +220,18 @@ function Details(props) {
   
 
   return (
-
-    
-    <div className="w-96  overflow-hidden bg-[rgb(36,36,36)]  flex flex-col px-2 py-4">
-      <div className="text-[rgb(233,233,233)]  text-xl font-semibold flex justify-between ">
-        <p>Profile</p>
+    <div className="w-80 overflow-hidden bg-[rgb(36,36,36)]  flex flex-col">
+      <div className="text-[rgb(233,233,233)] pt-4  px-5 text-xl font-semibold flex justify-between ">
+        <p>Details</p>
         <i
           onClick={() => {
             toggleProfileView(false);
           }}
-          className="cursor-pointer fa-solid fa-xmark"
+          className="cursor-pointer mt-1 fa-solid fa-xmark"
         ></i>
       </div>
-      <div className="py-2  px-2">
-        <div className="flex space-y-2 mt-3  py-4 flex-col items-center">
+      <div className="py-2 chatBox overflow-y-scroll  ">
+        <div className="flex space-y-2 mt-3  py-2 flex-col items-center">
           <div className="relative flex justify-center items-center group">
             <img
               alt=""
@@ -261,9 +259,9 @@ function Details(props) {
           <div className="flex flex-col  items-center text-[rgb(233,233,233)]">
             {/* <p className="font-[calibri] text-xl "> */}
               {Profile.isGroupChat ? 
-              <div className="relative group mt-1 mb-2">
+              <div className="relative group mt-1 mb-1">
               <input
-              className={`bg-transparent ${enabled?"border-b-2":"border-b-0 text-center"} cursor-pointer text-white px-3  placeholder:text-white  pb-2 
+              className={`bg-transparent ${enabled?"border-b-2":"border-b-0 text-center"} cursor-pointer text-white px-3 font-semibold  placeholder:text-white  pb-2 
               border-[rgb(53,55,59)] outline-none  w-60`}
               type={"text"}
               disabled
@@ -279,10 +277,13 @@ function Details(props) {
               {Profile.name}
             </div> 
             }
-            <div className="bg-[rgb(27,27,27)] w-80 h-4"></div>
-            {!Profile.isGroupChat&&<div className=" py-2  w-64">
-               <p className="text-[rgb(167,169,171)] font-semibold">Groups in common</p>
-               <div className="flex h-56  overflow-y-scroll chatBox mt-3 flex-col space-y-3">
+            
+          </div>
+        </div>
+        <div className="bg-[rgb(27,27,27)]  w-80 h-3"></div>
+            {!Profile.isGroupChat&&<div className="  py-3 text-white w-64">
+               <p className="text-[rgb(167,169,171)] px-5 font-semibold">Groups in common</p>
+               <div className="flex h-56  overflow-y-scroll px-3 chatBox mt-3 flex-col space-y-3">
               {commonGroups.map((group) => {
                 return (
                   <div
@@ -299,8 +300,6 @@ function Details(props) {
               })}
             </div>
               </div>} 
-          </div>
-        </div>
         {Profile.isGroupChat && (
           <GroupMembers
             Profile={Profile}
@@ -309,8 +308,15 @@ function Details(props) {
           />
         )}
 
-        <div className="bg-[rgb(27,27,27)] w-80 h-4"></div>
-        {Profile.isGroupChat&&checkUserExist()&&Profile.admin._id!==logUser._id&&<p onClick={exitGroup} className="text-white cursor-pointer">exit group</p>}
+        {Profile.isGroupChat&&logUser._id!==Profile.admin._id&&<div className="bg-[rgb(27,27,27)] 
+        my-3 w-80 h-3"></div>}
+        {Profile.isGroupChat&&checkUserExist()&&Profile.admin._id!==logUser._id&&<div onClick={exitGroup}
+         className="text-[rgb(227,92,109)] items-center px-6 text-base space-x-2 flex cursor-pointer">
+        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+          <p className="">
+            Exit group
+            </p>
+            </div>}
       </div>
     </div>
   );
