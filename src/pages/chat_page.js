@@ -59,7 +59,7 @@ function Chat_page() {
     }
 
   return (
-    <div className='flex h-[100vh] space bg-[rgb(53,53,72)] '>
+    <div className='flex h-[100vh] space bg-[rgb(44,44,44)] '>
     <Navbar/>
     <Chatlist/>
     <Chat toggleProfileView={toggleProfileView} details={profileView} />

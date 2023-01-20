@@ -308,7 +308,7 @@ function Details(props) {
           />
         )}
 
-        {Profile.isGroupChat&&logUser._id!==Profile.admin._id&&<div className="bg-[rgb(27,27,27)] 
+        {Profile.isGroupChat&&checkUserExist()&&logUser._id!==Profile.admin._id&&<div className="bg-[rgb(27,27,27)] 
         my-3 w-80 h-3"></div>}
         {Profile.isGroupChat&&checkUserExist()&&Profile.admin._id!==logUser._id&&<div onClick={exitGroup}
          className="text-[rgb(227,92,109)] items-center px-6 text-base space-x-2 flex cursor-pointer">

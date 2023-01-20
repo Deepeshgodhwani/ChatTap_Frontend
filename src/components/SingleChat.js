@@ -20,6 +20,7 @@ export default function SingleChat(props) {
        const [loading, setloading] = useState(false);
        const {logUser,chatroom,setchatroom,recentChats,setrecentChats,socket}=context;
        const [dropdown, setDropdown] = useState(false)
+       const [clicked, setclicked] = useState(false);
 
 
 
@@ -64,7 +65,13 @@ export default function SingleChat(props) {
     
   // To send message //
        const sendMessage =async (e)=>{
-         if(e.key==="Enter" && newMessage && delay){
+                let condition=false;
+               if(e===true){
+                   condition=true;
+               }else{
+                   condition=e.key==="Enter"
+               }
+         if( condition && newMessage && delay){
                 delay=false;
                 let token =localStorage.getItem('token');
                 const response=await fetch(`http://localhost:7000/api/chat/message`,
@@ -100,8 +107,9 @@ export default function SingleChat(props) {
                   }else{
                     setrecentChats([updatedChat,...chats]);
                   }
+                  delay=true;
+                  setclicked(false);
                }
-               delay=true;
               }
                   
 
@@ -140,23 +148,23 @@ export default function SingleChat(props) {
           </div>
           <div className="relative ">
               <i onClick={toggleDropdown} className="border-2  cursor-pointer border-[rgb(136,136,136)] px-1  text-sm rounded-full fa-solid text-[rgb(136,136,136)] fa-ellipsis"></i>
-              {dropdown&&<div className="text-white py-2 border-[1px] border-[] right-2 w-44 top-9 bg-[rgb(36,36,36)] absolute px-4">
+              {dropdown&&<div className="text-white  border-[1px] border-[rgb(44,44,44)]  right-2 w-44 top-9 bg-[rgb(36,36,36)] absolute ">
                    <p onClick={()=>{ setDropdown(false)
-                     props.toggleProfileView(true);}} className="cursor-pointer">View details</p>
+                     props.toggleProfileView(true);}} className="cursor-pointer hover:bg-[rgb(44,44,44)]  py-1 px-4">View details</p>
                    <p onClick={()=>{ props.toggleProfileView(false)
-                     setchatroom({})}} className="cursor-pointer">Close chat</p>
+                     setchatroom({})}} className="cursor-pointer hover:bg-[rgb(44,44,44)]  py-1 px-4">Close chat</p>
               </div>}
             </div>
         </div>
-        <div className={`chatBox  py-2 px-4  h-[77vh]`}>
+        <div className={` py-2 px-4  h-[77vh]`}>
         {loading&&<Loading></Loading>}
            {!loading&&<ScrollableChat className="" messages={messages} user={logUser}/> }
         </div>
         <FormControl className='bg-[rgb(36,36,36)] border-[1px] border-[rgb(42,42,42)] relative flex justify-center items-center h-[4.9rem]' onKeyDown={sendMessage}>
             <input placeholder='Your messages...' className='bg-[rgb(53,55,59)] 
-             border-black w-[86%] h-12 outline-none rounded-xl py-1 px-4' type="text"
+             border-black w-[86%] h-12  pr-16 outline-none rounded-xl py-1 px-4' type="text"
               onChange={(e)=>{setnewMessage(e.target.value)}} value={newMessage} ></input>
-              <i className="fa-solid absolute text-xl right-20 text-[rgb(36,141,97)] fa-paper-plane"></i>
+              <i onClick={(e)=>{sendMessage(true)}} className={`fa-solid absolute text-xl ${details?"right-20":"right-24"}  cursor-pointer text-[rgb(36,141,97)] fa-paper-plane`}></i>
         </FormControl>
       </div>
   </>

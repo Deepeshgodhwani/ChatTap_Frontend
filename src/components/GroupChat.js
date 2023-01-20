@@ -84,7 +84,13 @@ function GroupChat(props) {
 
   // To send message //
   const sendMessage = async (e) => {
-    if (e.key === "Enter" && newMessage && processSend) {
+    let condition=false;
+    if(e===true){
+        condition=true;
+    }else{
+        condition=e.key==="Enter"
+    }
+    if (  condition && newMessage && processSend) {
       processSend=false;
       console.log("count");
       let token = localStorage.getItem("token");
@@ -204,11 +210,11 @@ function GroupChat(props) {
         </div> 
             <div className="relative ">
               <i onClick={toggleDropdown} className="border-2  cursor-pointer border-[rgb(136,136,136)] px-1  text-sm rounded-full fa-solid text-[rgb(136,136,136)] fa-ellipsis"></i>
-              {dropdown&&<div className="text-white py-2 border-[1px] border-[] right-2 w-44 top-9 bg-[rgb(36,36,36)] absolute px-4">
+              {dropdown&&<div className="text-white  border-[1px] border-[rgb(44,44,44)] right-2 w-44 top-9 bg-[rgb(36,36,36)] absolute">
                    <p onClick={()=>{ setDropdown(false)
-                     props.toggleProfileView(true);}} className="cursor-pointer">View details</p>
+                     props.toggleProfileView(true);}} className="cursor-pointer hover:bg-[rgb(44,44,44)]  py-1 px-4 ">View details</p>
                    <p onClick={()=>{ props.toggleProfileView(false)
-                     setchatroom({})}} className="cursor-pointer">Close chat</p>
+                     setchatroom({})}} className="cursor-pointer hover:bg-[rgb(44,44,44)] py-1  px-4 ">Close chat</p>
               </div>}
             </div>
         
@@ -227,15 +233,16 @@ function GroupChat(props) {
         <input
           placeholder="Your messages..."
           className="bg-[rgb(53,55,59)] 
-         border-black w-[86%] h-12 outline-none rounded-xl py-1 px-4"
+         border-black w-[86%] h-12 pr-16 outline-none rounded-xl py-1 px-4"
           type="text"
           onChange={(e) => {
             setnewMessage(e.target.value);
           }}
           value={newMessage}
         ></input>
-        <i className="fa-solid absolute text-xl right-20 text-[rgb(36,141,97)] fa-paper-plane"></i>
-      </FormControl>:<div className="text-white">you can't send message to this group because you're no longer a participant</div>}
+        <i onClick={(e)=>{sendMessage(true)}} className={`fa-solid absolute text-xl ${details?"right-20":"right-24"}  cursor-pointer 
+         text-[rgb(36,141,97)]   fa-paper-plane`}></i>
+      </FormControl>:<div className="text-[rgb(146,145,148)] text-sm border-[1px] border-[rgb(42,42,42)] flex justify-center items-center bg-[rgb(36,36,36)] mt-[14px] h-[4rem]">You can't send message to this group because you're no longer a member</div>}
     </div>
   );
 }

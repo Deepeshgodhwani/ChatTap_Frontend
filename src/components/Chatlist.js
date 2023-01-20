@@ -1,12 +1,11 @@
-import React from "react";
-import { useContext } from "react";
-import { useEffect } from "react";
+import React ,{ useContext,useEffect,useState }from "react";
 import chatContext from "../context/user/ChatContext";
 let delay=true;
 
 
 export default function Chatlist() {
   const context = useContext(chatContext);
+  const [search, setsearch] = useState("");
 
   const {
     chatroom,
@@ -240,20 +239,26 @@ export default function Chatlist() {
 
 
   return (
-    <div className="bg-[rgb(36,36,36)]  pt-9 text-white w-80 h-[100%] flex flex-col space-y-2">
-      <p className="font-semibold mb-4 font-[calibri] text-3xl ml-3">
+    <div className="bg-[rgb(36,36,36)]  pt-4 text-white w-80 h-[100%] flex flex-col space-y-2">
+      <div className="flex justify-between pb-4 items-center  px-7 ">
+        <div className="flex space-x-2 items-center">
+      <p className="font-semibold  font-[calibri] text-3xl ">
         Messages
       </p>
-      <div className="relative  ml-2 mr-4 text-[rgb(124,126,128)]">
-        <i className="fa-solid absolute top-3 left-2   fa-magnifying-glass"></i>
+        </div>
+      <i  className=" text-[rgb(39,102,76)]  text-lg cursor-pointer fa-regular fa-pen-to-square"></i>
+      </div>
+      <div className="relative mx-8   text-[rgb(124,126,128)]">
+        {!search&&<i className="fa-solid absolute top-3 left-4   fa-magnifying-glass"></i>}
         <input
-          className="border-none w-full outline-none text-white rounded-md px-4 pl-8 py-2 bg-[rgb(53,55,59)]"
+          className={`border-none w-full outline-none text-white rounded-md px-4 ${search?"":"pl-10"} py-2 bg-[rgb(53,55,59)]`}
           placeholder="Search.."
           type="text"
           name="search"
+          onChange={(e)=>{setsearch(e.target.value)}}
         ></input>
       </div>
-      <div className=" h-[78vh] py-4 overflow-y-scroll chatBox  flex space-y-2 flex-col">
+      <div className=" h-[78vh] py-4 overflow-y-scroll chatBox  flex  flex-col">
         {recentChats.length > 0 && 
           recentChats.map((element) => {
             if (element.isGroupChat) {
@@ -261,7 +266,7 @@ export default function Chatlist() {
                 <div
                   key={element._id}
                   onClick={(e)=>{setGroupChat(element)}}
-                  className={`flex hover:bg-[rgb(44,44,44)]  cursor-pointer ${
+                  className={`flex hover:bg-[rgb(44,44,44)] py-2 cursor-pointer ${
                     element._id === chatroom._id
                       ? "bg-[rgb(27,27,27)] border-l-2  border-[rgb(36,141,97)]"
                       : "bg-[rgb(36,36,36)] "
@@ -280,17 +285,12 @@ export default function Chatlist() {
                           ? element.chatname.slice(0, 21) + "..."
                           : element.chatname}
                       </p>
-                      <p className="text-xs text-[rgb(146,145,148)]">
-                        Thursday
-                      </p>
                     </div>
                     <div className="flex justify-between">
                     <p className="text-[rgb(146,145,148)] text-sm">
-                      {element.latestMessage.noty
-                        ? checkUserName(element.latestMessage.sender)
-                        : ""}{" "}
-                      {element.latestMessage.content.length > 10
-                        ? element.latestMessage.content.slice(0, 10) + "..."
+                      {checkUserName(element.latestMessage.sender)} {": "}
+                      {element.latestMessage.content.length > 20
+                        ? element.latestMessage.content.slice(0, 20) + "..."
                         : element.latestMessage.content}
                     </p>
                    {countMsgs(element.users)>0&&(<p className="bg-[rgb(197,73,69)] rounded-full font-bold flex justify-center 
@@ -329,13 +329,12 @@ export default function Chatlist() {
                         <p className="text-base">
                           {checkUser(element.latestMessage.sender, element)}
                         </p>
-                        <p className="text-xs text-[rgb(146,145,148)]">
-                          09:38 AM
-                        </p>
                       </div>
                       <div className="flex justify-between">
-                      <p className="text-[rgb(146,145,148)] text-sm">
-                        {element.latestMessage.content}
+                      <p className={`${countMsgs(element.users)>0?"text-white":"text-[rgb(146,145,148)]"} text-sm`}>
+                      {element.latestMessage.content.length > 10
+                        ? element.latestMessage.content.slice(0, 10) + "..."
+                        : element.latestMessage.content}
                       </p>
                       {countMsgs(element.users)>0&&<p className="bg-[rgb(197,73,69)] rounded-full font-bold flex justify-center 
                        items-center text-[0.7rem] h-5 w-5">
