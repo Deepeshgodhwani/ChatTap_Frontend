@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import ChatContext from "../context/user/ChatContext";
+import ChatContext from "../context/chat/ChatContext";
 import io from "socket.io-client";
 import Loading from "./Loading";
 
@@ -92,7 +92,6 @@ function GroupChat(props) {
     }
     if (  condition && newMessage && processSend) {
       processSend=false;
-      console.log("count");
       let token = localStorage.getItem("token");
       const response = await fetch(`http://localhost:7000/api/chat/message`, {
         method: "POST",
@@ -106,6 +105,7 @@ function GroupChat(props) {
 
       const data = await response.json();
       socket.emit("new_message", data);
+      socket.emit("update_Chatlist",data);
       setgroupMessages([...groupMessages, data]);
       let updatedChat;
       let chats = recentChats;
@@ -123,30 +123,34 @@ function GroupChat(props) {
   };
 
   // To receive message //
-  // console.log(groupMessages[0]);
-  useEffect(() => {
-    if (!socket || !processRecieve) return;
+  if ( socket &&  processRecieve){
     socket.on("message_recieved", (data) => {
-       processRecieve=false; 
-       let message=data.message
-       console.log(message);
-      if (
-        !selectedChatCompare ||
-        selectedChatCompare._id !== message.chatId._id
-      ) {
-        //give notification
-         
-      } else {
-        checkUserExist();
-        console.log(groupMessages);
-        // let ind=groupMessages.length-1;
-        // if(!groupMessages||message._id!==groupMessages[ind]._id){
-          setgroupMessages([...groupMessages,message])
-        // }
-        // console.log(message._id , " and ",groupMessages[ind]._id);
-      }
-      processRecieve=true;
+      processRecieve=false; 
+      let message=data.message
+     if (
+       !selectedChatCompare ||
+       selectedChatCompare._id !== message.chatId._id
+     ) {
+       //give notification
+        
+     } else {
+       checkUserExist();
+       // let ind=groupMessages.length-1;
+       // if(!groupMessages||message._id!==groupMessages[ind]._id){
+         setgroupMessages([...groupMessages,message])
+       // }
+       // console.log(message._id , " and ",groupMessages[ind]._id);
+     }
+     processRecieve=true;
     });
+  } 
+
+
+
+
+  useEffect(() => {
+   
+   if(!socket)return
 
     socket.on("groupRemoved",(status)=>{
        if(status==='add'){

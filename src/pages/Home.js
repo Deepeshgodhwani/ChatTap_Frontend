@@ -1,6 +1,6 @@
 import React ,{useEffect} from 'react'
 import Login from '../components/Login';
-import Signup from '../components/Signup';
+// import Signup from '../components/Signup';
 
 // import axios from "axios";
 function Home() {

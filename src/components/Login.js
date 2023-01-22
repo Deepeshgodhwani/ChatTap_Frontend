@@ -65,11 +65,12 @@ function Login() {
   };
 
   return (
-    <form className="relative " onSubmit={formHandler}>
-      <div className=" w-96 flex  bg-[rgb(36,36,36)]  flex-col z-10 rounded-xl h-[280px] justify-between p-[20px] ">
-        <h2 className="text-base font-bold">Email Address *</h2>
+    <form className="relative h-72 w-96 rounded-xl  " onSubmit={formHandler}>
+      <div className="bg-[rgb(36,36,36)] rounded-xl opacity-90  h-72 w-96 absolute "></div>
+      <div className=" w-96 flex   relative flex-col z-10  h-72 justify-between p-[20px] ">
+        <h2 className="text-base font-bold">Email</h2>
         <input
-          className="border-2 p-[5px] outline-none rounded-[5px] ml-2"
+          className="border-2 py-2 px-4 bg-transparent outline-none rounded-lg "
           value={credentials.email}
           name="email"
           onChange={onChange}
@@ -79,7 +80,7 @@ function Login() {
         ></input>
         <h2 className="text-base font-bold">Password *</h2>
         <input
-          className="border-2 text-black p-[5px] outline-none rounded-[5px] ml-2"
+          className="border-2 py-2 px-4 bg-transparent outline-none rounded-lg  "
           value={credentials.password}
           name="password"
           onChange={onChange}
@@ -91,7 +92,7 @@ function Login() {
         <input
           type="submit"
           value="Login"
-          className="text-white bg-blue-600 p-[5px] rounded-[5px]"
+          className="text-white bg-[rgb(26,234,182)] p-[5px] rounded-[5px]"
         ></input>
         <button className="text-white bg-red-700 p-[5px] rounded-[5px]">
           Get Guest User Credentials

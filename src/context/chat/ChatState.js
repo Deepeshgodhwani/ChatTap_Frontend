@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useState } from "react";
-import UserContext from "./user/ChatContext";
+import ChatContext from "./ChatContext";
 
 import io from "socket.io-client";
 const ENDPOINT = "http://localhost:4000";
@@ -22,8 +22,6 @@ const ChatState = (props) => {
     }
   }, [logUser]);
 
-  
-
   const accessChat = async (userId) => {
     let token = localStorage.getItem("token");
     const response = await fetch(
@@ -42,7 +40,7 @@ const ChatState = (props) => {
     setchatroom(data);
   };
 
-  const accessGroupChat = async (chatId) => { 
+  const accessGroupChat = async (chatId) => {
     let token = localStorage.getItem("token");
     const response = await fetch(
       `http://localhost:7000/api/chat/accessGroupChat?chatId=${chatId}`,
@@ -72,7 +70,7 @@ const ChatState = (props) => {
         "auth-token": token,
       },
     });
-     
+
     let chat = await response.json();
     setrecentChats(chat);
   };
@@ -94,7 +92,7 @@ const ChatState = (props) => {
   };
 
   return (
-    <UserContext.Provider
+    <ChatContext.Provider
       value={{
         groupMessages,
         setgroupMessages,
@@ -118,7 +116,7 @@ const ChatState = (props) => {
       }}
     >
       {props.children}
-    </UserContext.Provider>
+    </ChatContext.Provider>
   );
 };
 

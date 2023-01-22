@@ -1,6 +1,6 @@
 import React ,{useContext} from "react";
 import ScrollableFeed from "react-scrollable-feed";
-import ChatContext from "../context/user/ChatContext";
+import ChatContext from "../context/chat/ChatContext";
 
 
 import "../App.css";
@@ -21,7 +21,8 @@ function RenderGroupMessages(props) {
 
   
   const checkSelf=(element)=>{
-         if(messages.length<2){return ;}   
+        //  console.log(messages.length);
+         if(messages.length<2) return ;
         let index=messages.indexOf(element);
          if(messages[index-1].sender._id!==element.sender._id){
            return true;

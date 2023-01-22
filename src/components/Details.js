@@ -1,6 +1,6 @@
 import React from "react";
 import { useContext, useState, useEffect } from "react";
-import ChatContext from "../context/user/ChatContext";
+import ChatContext from "../context/chat/ChatContext";
 import GroupMembers from "./GroupMembers";
 import { Spinner } from "@chakra-ui/react";
 import { useToast } from "@chakra-ui/react";

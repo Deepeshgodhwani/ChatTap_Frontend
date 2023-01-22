@@ -17,7 +17,7 @@ import createGroupLogo from '../images/createGroup.png';
 
 
 
-import ChatContext from '../context/user/ChatContext'
+import ChatContext from '../context/chat/ChatContext'
 
 
 
@@ -223,7 +223,7 @@ function GroupCreation() {
       
   return (
     <div>
-        <img onClick={onOpen} alt='' className='w-20 cursor-pointer' src={createGroupLogo}></img>
+        <img onClick={onOpen} alt='' className='w-8 cursor-pointer' src={createGroupLogo}></img>
         <Drawer
         isOpen={isOpen}
         placement='left'

@@ -4,7 +4,7 @@ import Chat from '../components/Chat';
 import Navbar from '../components/Navbar';
 import { useHistory } from 'react-router-dom';
 import Profile from '../components/Details';
-import ChatContext from '../context/user/ChatContext';
+import ChatContext from '../context/chat/ChatContext';
 import { useContext } from 'react';
 
 
@@ -59,7 +59,7 @@ function Chat_page() {
     }
 
   return (
-    <div className='flex h-[100vh] space bg-[rgb(44,44,44)] '>
+    <div className='flex h-[100vh] '>
     <Navbar/>
     <Chatlist/>
     <Chat toggleProfileView={toggleProfileView} details={profileView} />

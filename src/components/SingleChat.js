@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useContext } from 'react';
 
 
-import ChatContext from '../context/user/ChatContext';
+import ChatContext from '../context/chat/ChatContext';
 
 import { FormControl } from '@chakra-ui/react';
 import ScrollableChat from './ScrollableChat';

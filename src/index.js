@@ -5,16 +5,20 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { ChakraProvider } from '@chakra-ui/react'
 import {BrowserRouter } from "react-router-dom"
-import ChatState from './context/ChatState';
+import ChatState from './context/chat/ChatState';
+import MessageState from './context/messages/MessageState';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <BrowserRouter>
    <ChatState>
+   <MessageState>
     <ChakraProvider>
        <App />
     </ChakraProvider>
+   </MessageState>
    </ChatState>
+    
     </BrowserRouter>
  
   </React.StrictMode>

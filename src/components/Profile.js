@@ -11,7 +11,7 @@ import {
   DrawerContent,
   useDisclosure,
 } from "@chakra-ui/react";
-import ChatContext from "../context/user/ChatContext";
+import ChatContext from "../context/chat/ChatContext";
 
 function Profile() {
   let history = useHistory();
@@ -164,7 +164,7 @@ function Profile() {
         alt=""
         onClick={updateUser}
         src={logUser.avtar}
-        className=" rounded-lg  cursor-pointer h-10 w-10"
+        className=" rounded-full  cursor-pointer h-9 w-9"
         ></img>
       <Drawer
         isOpen={isOpen}
@@ -200,7 +200,6 @@ function Profile() {
                  <p>UPLOAD</p>
                  <p>PROFILE PHOTO</p>
                 </div>
-
               </div>
             </div>
             <div className="flex px-2 flex-col space-y-1">
@@ -232,8 +231,6 @@ function Profile() {
               Logout
             </p>
             </div>
-        
-          
         </DrawerContent>
       </Drawer>
     </div>

@@ -5,14 +5,10 @@ import {
     Modal,
     ModalOverlay,
     ModalContent,
-    ModalHeader,
-    ModalFooter,
     ModalBody,
-    ModalCloseButton,
     useDisclosure,
-    Button
   } from '@chakra-ui/react'
-import ChatContext from '../context/user/ChatContext';
+import ChatContext from '../context/chat/ChatContext';
 import grpLogo from "../images/group.png";
 
 
