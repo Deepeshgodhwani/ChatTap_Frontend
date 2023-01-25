@@ -2,10 +2,10 @@ import React, { useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
 import { useToast } from "@chakra-ui/react";
 
-function Login() {
+function Login(props) {
   let history = useHistory();
   const toast = useToast();
-
+  const {togglePage}=props;
   const renderPage = () => {
     if (localStorage.getItem("token")) {
       return history.push("/chat");
@@ -65,10 +65,11 @@ function Login() {
   };
 
   return (
-    <form className="relative h-72 w-96 rounded-xl  " onSubmit={formHandler}>
-      <div className="bg-[rgb(36,36,36)] rounded-xl opacity-90  h-72 w-96 absolute "></div>
-      <div className=" w-96 flex   relative flex-col z-10  h-72 justify-between p-[20px] ">
-        <h2 className="text-base font-bold">Email</h2>
+    // right-28 top-32 absolute
+    // 0 25px 50px -12px rgb(0 0 0 / 0.25)
+    <form  className=" bg-[rgb(27,27,27)] justify-center items-center flex  h-[80vh]  w-[70%]     " onSubmit={formHandler}>
+      <div className="  flex w-96  relative flex-col z-10 px-9 py-6  justify-between  ">
+         <p className="text-base pb-2 text-[rgb(194,194,194)] font-bold">Email</p>
         <input
           className="border-2 py-2 px-4 bg-transparent outline-none rounded-lg "
           value={credentials.email}
@@ -77,10 +78,11 @@ function Login() {
           type={"text"}
           placeholder={"Enter Your Email Address"}
           required
-        ></input>
-        <h2 className="text-base font-bold">Password *</h2>
+          autoComplete="off"
+          ></input>
+        <h2 className="text-base text-[rgb(194,194,194)] my-2 font-bold">Password</h2>
         <input
-          className="border-2 py-2 px-4 bg-transparent outline-none rounded-lg  "
+          className="border-2 py-2 px-4  bg-transparent outline-none rounded-lg  "
           value={credentials.password}
           name="password"
           onChange={onChange}
@@ -91,12 +93,23 @@ function Login() {
         ></input>
         <input
           type="submit"
-          value="Login"
-          className="text-white bg-[rgb(26,234,182)] p-[5px] rounded-[5px]"
+          value="LOGIN"
+          className="text-white cursor-pointer text-sm bg-[rgb(38,141,97)] mt-5 rounded-lg py-[10px] font-bold"
         ></input>
-        <button className="text-white bg-red-700 p-[5px] rounded-[5px]">
-          Get Guest User Credentials
-        </button>
+         <div className="flex  my-4 justify-center items-center">
+            <p className="w-32 border-b-2 h-0 border-[rgb(109,109,109)]"></p>
+            <p className="text-sm border-2 border-[rgb(109,109,109)] px-1 ">OR</p>
+            <p className="w-32 border-b-2  h-0 border-[rgb(109,109,109)]"> </p>
+         </div>
+        <div className="text-white text-center cursor-pointer bg-red-500  rounded-lg py-2 font-bold">
+           Login as guest user
+        </div>
+        <div onClick={()=>{togglePage(false)}} className="cursor-pointer justify-center text-center mt-2 flex text-sm" >
+          <p>
+            Need an account?
+            </p>&nbsp;
+            <p className="underline">Sign up</p>
+          </div>
       </div>
     </form>
   );

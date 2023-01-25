@@ -2,8 +2,10 @@ import React, { useState } from "react";
 import { useToast } from "@chakra-ui/react";
 import { useHistory } from "react-router-dom";
 
-function Signup() {
+function Signup(props) {
   let history = useHistory();
+  const {togglePage}=props;
+
 
   const [credentials, setcredentials] = useState({
     name: "",
@@ -75,53 +77,59 @@ function Signup() {
   // console.log(avatar);
 
   return (
-    <form onSubmit={formHandler}>
-      <div className=" w-[100%] flex flex-col h-[480px] justify-between p-[20px] rounded-[5px]">
-        <h2 className="text-base font-bold">Name *</h2>
+    <form className="bg-[rgb(27,27,27)]  justify-center items-center flex  h-[80vh]  w-[70%] " onSubmit={formHandler}>
+      <div className=" w-96 flex   relative flex-col z-10 px-9 py-6  justify-between  space-y-2">
+      <p className="text-base  text-[rgb(194,194,194)] font-bold">Name</p>
         <input
           onChange={onChange}
           name="name"
           value={credentials.name}
-          className="border-2 p-[5px] outline-none rounded-[5px] ml-2"
+          className="border-2 py-2 px-4 bg-transparent outline-none rounded-lg "
           type="text"
           placeholder="Enter Your Name"
           required
         ></input>
-        <h2 className="text-base font-bold">Email Address *</h2>
+        <p className="text-base  text-[rgb(194,194,194)] font-bold">Email address</p>
         <input
           onChange={onChange}
           name="email"
           value={credentials.email}
-          className="border-2 p-[5px] outline-none rounded-[5px] ml-2"
+          className="border-2 py-2 px-4 bg-transparent outline-none rounded-lg "
           type="text"
           placeholder="Enter Your Email Address"
           required
         ></input>
-        <h2 className="text-base font-bold">Password *</h2>
+        <p className="text-base  text-[rgb(194,194,194)] font-bold">Password</p>
         <input
           onChange={onChange}
           name="password"
           value={credentials.password}
-          className="border-2 p-[5px] outline-none rounded-[5px] ml-2"
+          className="border-2 py-2 px-4 bg-transparent outline-none rounded-lg "
           type="password"
           placeholder="Enter Password"
           required
         ></input>
-        <h2 className="text-base font-bold">Confirm Password *</h2>
+        <p className="text-base  text-[rgb(194,194,194)] font-bold">Password confirm</p>
         <input
           onChange={onChange}
           name="confPassword"
           value={credentials.confPassword}
-          className="border-2 p-[5px] outline-none rounded-[5px] ml-2"
+          className="border-2 py-2  px-4 bg-transparent outline-none rounded-lg"
           type="password"
           placeholder="Confirm Password"
           required
         ></input>
         <input
           type="submit"
-          value="Login"
-          className="text-white bg-blue-600 p-[5px] rounded-[5px]"
+          value="SIGN UP"
+          className="text-white cursor-pointer text-sm bg-[rgb(38,141,97)]  rounded-lg py-[10px] font-bold"
         ></input>
+         <div onClick={()=>{togglePage(true)}} className="cursor-pointer justify-center text-center mt-2 flex text-sm" >
+          <p>
+            Need an account?
+            </p>&nbsp;
+            <p className="underline">Sign up</p>
+          </div>
       </div>
     </form>
   );

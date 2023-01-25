@@ -1,12 +1,14 @@
 import React ,{ useContext,useEffect,useState }from "react";
 import chatContext from "../context/chat/ChatContext";
+
+let currentChat;
 let delay=true;
 
-
-export default function Chatlist() {
+export default function Chatlist(props) {
   const context = useContext(chatContext);
-  const [search, setsearch] = useState("");
+  const {socket}=props;
   const [groupsView, setgroupsView] = useState(false);
+  
 
   const {
     chatroom,
@@ -16,22 +18,19 @@ export default function Chatlist() {
     recentChats,
     fetchRecentChats,
     logUser,
-    setlogUser,
-    socket
   } = context;
 
+
+
   useEffect(() => {
-    let userInfo = JSON.parse(localStorage.getItem("user"));
-    setlogUser(userInfo);
     fetchRecentChats();
     // eslint-disable-next-line
   }, []);
 
+ 
 
   const hitCount = async(chatId,userId)=>{
-    console.log(chatId," and ",chatroom._id);
-    if( chatroom && chatId===chatroom._id) return ;
-     
+    if( chatroom && chatId===currentChat._id) return ; 
     let token = localStorage.getItem("token");
     const response = await fetch(
       `http://localhost:7000/api/chat/countMssg?type=add&chatId=${chatId}&userId=${userId}`,
@@ -48,43 +47,45 @@ export default function Chatlist() {
     return data;
   }
 
-   
-  useEffect(() => {
-    if (!socket ) return;
-    socket.on("latest_message", async (data) => {
-      delay=false;
-      let message=data.message;
-      console.log("check receive");
-      let updatedUsers=await hitCount(message.chatId._id,data.receiverId); 
-      console.log(updatedUsers);
-      let updatedChat;
-      let chats = recentChats;
-      let check=true;
-      chats = chats.filter((Chat) => {
-        if (Chat._id === message.chatId._id) {
-          Chat.latestMessage = message;
-          if(updatedUsers){
-            Chat.users=updatedUsers
-          }
-          updatedChat = Chat;
-          check=false;
+
+
+  const updateLatestMessage=async (data) => {
+    delay=false;
+    let message=data.message;
+    let updatedUsers=await hitCount(message.chatId._id,data.receiverId); 
+    let updatedChat;
+    let chats = recentChats;
+    let check=true;
+    chats = chats.filter((Chat) => {
+      if (Chat._id === message.chatId._id) {
+        Chat.latestMessage = message;
+        if(updatedUsers){
+          Chat.users=updatedUsers
         }
-        return Chat._id !== message.chatId._id;
-      });
-  
-      if(check){
-            let chat=message.chatId;
-            chat.latestMessage=message;
-            setrecentChats([chat,...recentChats]);
-      }else{
-        setrecentChats([updatedChat, ...chats]);
+        updatedChat = Chat;
+        check=false;
       }
-  
-       delay=true;
+      return Chat._id !== message.chatId._id;
     });
 
+    if(check){
+          let chat=message.chatId;
+          chat.latestMessage=message;
+          setrecentChats([chat,...recentChats]);
+    }else{
+          setrecentChats([updatedChat, ...chats]);
+    }
+
+     delay=true;
+  };
+
+
+  useEffect(() => {
+    currentChat=chatroom;
+    if (!socket ) return;
+    socket.once("latest_message",updateLatestMessage) 
+    
     socket.on("toggleImage",(data)=>{
-      console.log(data);
       let updatedChat;
       let chats=recentChats;
       chats=chats.filter((Chat)=>{
@@ -94,8 +95,8 @@ export default function Chatlist() {
       }
       return Chat._id!==data.chat._id;
      }); 
-      setrecentChats([updatedChat,...chats]);
-    })
+      setrecentChats([updatedChat,...chats])    
+   });
 
     socket.on("toggleName",(data)=>{
       let updatedChat;
@@ -109,7 +110,14 @@ export default function Chatlist() {
      }); 
       setrecentChats([updatedChat,...chats]);
     })
-  }, [chatroom]);
+       
+
+    return () => socket.off('latest_message',updateLatestMessage);     
+
+  }, [chatroom,recentChats]);
+
+
+  
 
   useEffect(() => {
     if (!socket) return;
@@ -117,6 +125,8 @@ export default function Chatlist() {
       setrecentChats([group, ...recentChats]);
     });
   }, [recentChats]);
+
+
   const checkUser = (user, chat) => {
     if (recentChats.length) {
       if (user._id === logUser._id) {
@@ -318,7 +328,7 @@ export default function Chatlist() {
                           cursor-pointer hover:bg-[rgb(44,44,44)]   px-4   text-white `}
                     key={element._id}
                   >
-                     <div className="flex space-x-2 py-2  w-72  border-b-[1px] border-[rgb(42,42,42)]">
+                     <div className="flex space-x-2 py-2 relative w-72  border-b-[1px] border-[rgb(42,42,42)]">
                     <img
                       alt=""
                       className="w-12 h-12 rounded-[50%]"
@@ -339,12 +349,13 @@ export default function Chatlist() {
                         ? element.latestMessage.content.slice(0, 33) + "..."
                         : element.latestMessage.content}
                       </p>
-                      {countMsgs(element.users)>0&&<p className="bg-[rgb(197,73,69)] rounded-full font-bold flex justify-center 
+                      
+                      </div>
+                    </div>
+                    {countMsgs(element.users)>0&&<p className="bg-[rgb(197,73,69)] absolute right-2 top-6 rounded-full font-bold flex justify-center 
                        items-center text-[0.7rem] h-5 w-5">
                         {countMsgs(element.users)}
                       </p>}
-                      </div>
-                    </div>
                     </div>
                   </div>
                 );

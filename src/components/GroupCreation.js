@@ -23,17 +23,18 @@ import ChatContext from '../context/chat/ChatContext'
 
 
 
-function GroupCreation() {
+function GroupCreation(props) {
 
 
     const { isOpen, onOpen, onClose } = useDisclosure()
     const btnRef = React.useRef()
+    const {socket}=props;
     const [search, setsearch] = useState("")
     const [users, setusers] = useState([]);
     const [loading, setloading] = useState(false);
   const [result, setresult] = useState(true);
   const context = useContext(ChatContext);
-  const {setchatroom,setrecentChats,recentChats,createNoty,socket,setgroupPic,setgroupName}=context;
+  const {setchatroom,setrecentChats,recentChats,createNoty,setgroupPic,setgroupName}=context;
     const [groupPicture, setgroupPicture] = useState("https://cdn6.aptoide.com/imgs/1/2/2/1221bc0bdd2354b42b293317ff2adbcf_icon.png");
     const [chatName, setchatName] = useState("");
     const [phase, setphase] = useState(1);

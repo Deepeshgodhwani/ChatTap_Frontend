@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
 import ChatContext from "../context/chat/ChatContext";
-import io from "socket.io-client";
 import Loading from "./Loading";
 
 import { FormControl } from "@chakra-ui/react";
@@ -8,18 +7,24 @@ import RenderGroupMessages from "./RenderGroupMessages";
 
 
 
-const ENDPOINT = "http://localhost:4000";
-var socket;
+// const ENDPOINT = "http://localhost:4000";
+// var socket;
 var selectedChatCompare;
 let processSend=true;
 let processRecieve=true;
 
+
 function GroupChat(props) {
   const context = useContext(ChatContext);
-  const { toggleProfileView, details } = props;
+  const { toggleProfileView, details ,socket} = props;
+  const [isTyping, setisTyping] = useState(false);
+  const [TypingUser, setTypingUser] = useState([]);
+  
+
   const {
     groupMessages,
     setgroupMessages,
+    groupMembers,
     chatroom,
     setchatroom,
     groupPic,
@@ -30,7 +35,7 @@ function GroupChat(props) {
     loading,
     recentChats,
     setrecentChats,
-    setloading
+    setloading,
   } = context;
   const [newMessage, setnewMessage] = useState("");
   const [userExist, setuserExist] = useState(true);
@@ -41,11 +46,13 @@ function GroupChat(props) {
   useEffect(() => {
     const connectUser = () => {
       if (chatroom.users) {
-        checkUserExist();
         toggleProfileView(false);
-        socket = io(ENDPOINT);
-        socket.emit("setup", logUser);
+        setisTyping(false);
       }
+
+       return ()=>{ 
+          socket.emit("toggleTyping",{chat:chatroom,status:false,user:logUser})  
+        };
     };
     connectUser();
   }, [chatroom]);
@@ -75,12 +82,11 @@ function GroupChat(props) {
       let data = await response.json();
       setgroupMessages(data);
       setloading(false);
-      socket.emit("join chat", chatroom._id);
     };
     fetchMessage();
   }, [chatroom]);
  
-  // console.log(groupMessages);
+
 
   // To send message //
   const sendMessage = async (e) => {
@@ -92,6 +98,7 @@ function GroupChat(props) {
     }
     if (  condition && newMessage && processSend) {
       processSend=false;
+      socket.emit("toggleTyping",{chat:chatroom,status:false,user:logUser})
       let token = localStorage.getItem("token");
       const response = await fetch(`http://localhost:7000/api/chat/message`, {
         method: "POST",
@@ -134,51 +141,70 @@ function GroupChat(props) {
        //give notification
         
      } else {
-       checkUserExist();
-       // let ind=groupMessages.length-1;
-       // if(!groupMessages||message._id!==groupMessages[ind]._id){
+      //  checkUserExist();
          setgroupMessages([...groupMessages,message])
-       // }
-       // console.log(message._id , " and ",groupMessages[ind]._id);
      }
      processRecieve=true;
     });
   } 
 
 
+ const updateUserExist =(data)=>{
+  if(data.chat._id===selectedChatCompare._id){
+    if(data.status==='add'){
+      setuserExist(true);
+    }else{
+      setuserExist(false);
+    }  
+   }
+  }
 
 
   useEffect(() => {
    
    if(!socket)return
 
-    socket.on("groupRemoved",(status)=>{
-       if(status==='add'){
-          setuserExist(true);
-       }else{
-         setuserExist(false);
-       }  
-    })
+    socket.on("groupRemoved",updateUserExist)
 
       socket.on("toggleImage",(data)=>{
-          setgroupPic(data.picture);
+        console.log(data.chat._id," and ",selectedChatCompare._id);
+         if(data.chat._id===selectedChatCompare._id){
+           setgroupPic(data.picture);
+         }
       })
 
     socket.on("toggleName",(data)=>{
-      setgroupName(data.name);
+      if(data.chat._id===selectedChatCompare._id){
+        setgroupName(data.name);
+      } 
     })
-    // eslint-disable-next-line
-  }, []);
 
-  const checkUserExist =()=>{
-      let check=false;
-       chatroom.users.forEach(members=>{
+    socket.on('isTyping',data=>{
+      console.log(data.chat._id," and ",selectedChatCompare._id);
+      if(data.chat._id===chatroom._id){
+        if(data.status){
+          setisTyping(true)
+          setTypingUser(data.user)
+        }else{
+            setisTyping(false);
+            setTypingUser([]);
+        }
+      }
+    })
+  }, [chatroom]);
+
+
+  useEffect(() => {      
+    let check=false;
+       groupMembers.forEach(members=>{
              if(members.user._id===logUser._id){
                    check=true;
              }
             })
         setuserExist(check);     
-  }
+     
+  }, [groupMembers])
+  
 
 
   const toggleDropdown= ()=>{
@@ -203,14 +229,21 @@ function GroupChat(props) {
             className="w-10 h-10   cursor-pointer rounded-full"
             src={groupPic}
           ></img>
+           
+           <div className="-space-y-1">
           <p
             className="cursor-pointer font-semibold"
             onClick={() => {
               props.toggleProfileView(true);
             }}
-          >
+            >
             {groupName}
           </p>
+          {isTyping&&<div className="flex text-sm space-x-2">
+            <p className="text-[rgb(150,150,150)] font-semibold">{TypingUser.name} :</p>
+             <p className="text-[rgb(36,141,97)]">Typing ...</p>
+          </div>}
+            </div>
         </div> 
             <div className="relative ">
               <i onClick={toggleDropdown} className="border-2  cursor-pointer border-[rgb(136,136,136)] px-1  text-sm rounded-full fa-solid text-[rgb(136,136,136)] fa-ellipsis"></i>
@@ -227,7 +260,7 @@ function GroupChat(props) {
         {loading && <Loading></Loading>}
 
         {!loading && (
-          <RenderGroupMessages messages={groupMessages} user={logUser} />
+          <RenderGroupMessages socket={socket} messages={groupMessages} user={logUser} />
         )}
       </div>
       {userExist?<FormControl
@@ -240,7 +273,9 @@ function GroupChat(props) {
          border-black w-[86%] h-12 pr-16 outline-none rounded-xl py-1 px-4"
           type="text"
           onChange={(e) => {
+             
             setnewMessage(e.target.value);
+            socket.emit("toggleTyping",{chat:chatroom,status:e.target.value?true:false,user:logUser})
           }}
           value={newMessage}
         ></input>

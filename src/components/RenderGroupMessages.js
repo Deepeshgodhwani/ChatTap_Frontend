@@ -9,6 +9,7 @@ function RenderGroupMessages(props) {
   const { messages, user } = props;
   const context = useContext(ChatContext);
   const {logUser}=context;
+ 
 
 
   const checkUser = (User) => {
@@ -18,6 +19,8 @@ function RenderGroupMessages(props) {
       return User.name;
     }
   };
+
+
 
   
   const checkSelf=(element)=>{
@@ -78,7 +81,7 @@ function RenderGroupMessages(props) {
               >
                 <div className="flex space-x-2">
                   {checkSelf(message)&&<img
-                    className="w-9 h-10 rounded-full "
+                    className="w-10 h-10 rounded-full "
                     alt=""
                     src={message.sender.avtar}
                   ></img>}

@@ -8,16 +8,16 @@ import img1 from '../images/chatting2.png'
 
 function Chat(props) {
   const context = useContext(ChatContext);
-  const { toggleProfileView,details } = props;
+  const { toggleProfileView,details ,socket} = props;
   const { chatroom } = context;
 
   return (
     <>
       {chatroom.users ? (
         chatroom.isGroupChat ? (
-          <GroupChat toggleProfileView={toggleProfileView} details={details}/>
+          <GroupChat socket={socket} toggleProfileView={toggleProfileView} details={details}/>
         ) : (
-          <SingleChat toggleProfileView={toggleProfileView} details={details} />
+          <SingleChat socket={socket} toggleProfileView={toggleProfileView} details={details} />
         )
       ) : (
         // bg-[rgb(44,44,44)] bg-[rgb(26,26,26)]

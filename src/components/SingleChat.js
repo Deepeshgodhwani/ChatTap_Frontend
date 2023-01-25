@@ -12,15 +12,16 @@ let delay=true;
 
 
 export default function SingleChat(props) {
-     const {toggleProfileView,details}=props;
+     const {toggleProfileView,details,socket}=props;
        const [messages, setmessages] = useState([]);
        const [newMessage, setnewMessage] = useState("");
        const context = useContext(ChatContext);
        const [secondUser, setsecondUser] = useState({});
        const [loading, setloading] = useState(false);
-       const {logUser,chatroom,setchatroom,recentChats,setrecentChats,socket}=context;
-       const [dropdown, setDropdown] = useState(false)
-       const [clicked, setclicked] = useState(false);
+       const {logUser,chatroom,setchatroom,recentChats,setrecentChats}=context;
+       const [dropdown, setDropdown] = useState(false);
+       const [isTyping, setisTyping] = useState(false);
+      
 
 
 
@@ -56,7 +57,7 @@ export default function SingleChat(props) {
                 let data=await response.json();
                 setmessages(data);
                 setloading(false);
-                socket.emit('join chat',chatroom._id);
+                // socket.emit('join chat',chatroom._id);
               }
              fetchMessage();
              selectedChatCompare=chatroom;
@@ -73,6 +74,7 @@ export default function SingleChat(props) {
                }
          if( condition && newMessage && delay){
                 delay=false;
+                socket.emit("toggleTyping",{chat:chatroom,status:false,user:logUser})    
                 let token =localStorage.getItem('token');
                 const response=await fetch(`http://localhost:7000/api/chat/message`,
                   {
@@ -87,6 +89,7 @@ export default function SingleChat(props) {
 
                   const data=await response.json();
                   socket.emit("new_message",data);
+                  socket.emit("update_Chatlist",data);
                   setmessages([...messages,data]);
                   let updatedChat;
                   let check=true;
@@ -108,7 +111,6 @@ export default function SingleChat(props) {
                     setrecentChats([updatedChat,...chats]);
                   }
                   delay=true;
-                  setclicked(false);
                }
               }
                   
@@ -136,6 +138,20 @@ export default function SingleChat(props) {
           }
     }
 
+    useEffect(() => {
+      socket.on('isTyping',data=>{
+        if(data.chat._id===chatroom._id){
+          if(data.status){
+              setisTyping(true)
+          }else{
+              setisTyping(false);
+          }
+        }
+      })
+       // eslint-disable-next-line
+    }, [])
+    
+
        
   return (
     <>
@@ -144,7 +160,10 @@ export default function SingleChat(props) {
         <div className='flex items-center justify-between border-[1px] border-[rgb(42,42,42)]  h-16 py-3 space-x-4 px-10 bg-[rgb(36,36,36)] '>
           <div className='flex space-x-4 items-center ' >
           <img onClick={()=>{props.toggleProfileView(true)}} alt='' className='w-10 h-10 cursor-pointer rounded-full' src={secondUser.avtar}></img>
-          <p className=' font-semibold cursor-pointer' onClick={()=>{props.toggleProfileView(true)}}>{secondUser.name}</p>
+          <div className='-space-y-1'>
+           <p className=' font-semibold cursor-pointer' onClick={()=>{props.toggleProfileView(true)}}>{secondUser.name}</p>
+           {isTyping&&<p className='text-sm text-[rgb(36,141,97)]'>Typing ...</p>}
+          </div>
           </div>
           <div className="relative ">
               <i onClick={toggleDropdown} className="border-2  cursor-pointer border-[rgb(136,136,136)] px-1  text-sm rounded-full fa-solid text-[rgb(136,136,136)] fa-ellipsis"></i>
@@ -163,7 +182,11 @@ export default function SingleChat(props) {
         <FormControl className='bg-[rgb(36,36,36)] border-[1px] border-[rgb(42,42,42)] relative flex justify-center items-center h-[4.9rem]' onKeyDown={sendMessage}>
             <input placeholder='Your messages...' className='bg-[rgb(53,55,59)] 
              border-black w-[86%] h-12  pr-16 outline-none rounded-xl py-1 px-4' type="text"
-              onChange={(e)=>{setnewMessage(e.target.value)}} value={newMessage} ></input>
+              onChange={(e)=>{
+                setnewMessage(e.target.value)
+                socket.emit("toggleTyping",{chat:chatroom,status:e.target.value?true:false,user:logUser})
+                 
+                }} value={newMessage} ></input>
               <i onClick={(e)=>{sendMessage(true)}} className={`fa-solid absolute text-xl ${details?"right-20":"right-24"}  cursor-pointer text-[rgb(36,141,97)] fa-paper-plane`}></i>
         </FormControl>
       </div>

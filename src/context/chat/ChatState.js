@@ -1,26 +1,20 @@
-import { useEffect } from "react";
 import { useState } from "react";
 import ChatContext from "./ChatContext";
 
-import io from "socket.io-client";
-const ENDPOINT = "http://localhost:4000";
-var socket;
+
+
+
+
 const ChatState = (props) => {
   const [logUser, setlogUser] = useState({});
   const [chatroom, setchatroom] = useState({});
   const [recentChats, setrecentChats] = useState([]);
   const [groupPic, setgroupPic] = useState("");
-  //  const [userPic, setuserPic] = useState("")
   const [groupName, setgroupName] = useState("");
   const [groupMessages, setgroupMessages] = useState([]);
   const [loading, setloading] = useState(false);
+  const [groupMembers, setgroupMembers] = useState([]);
 
-  useEffect(() => {
-    if (logUser) {
-      socket = io(ENDPOINT);
-      socket.emit("setup", logUser);
-    }
-  }, [logUser]);
 
   const accessChat = async (userId) => {
     let token = localStorage.getItem("token");
@@ -58,6 +52,7 @@ const ChatState = (props) => {
     setgroupPic(data.profilePic);
     setgroupName(data.chatname);
     setchatroom(data);
+    setgroupMembers(data.users);
   };
 
   const fetchRecentChats = async () => {
@@ -96,6 +91,8 @@ const ChatState = (props) => {
       value={{
         groupMessages,
         setgroupMessages,
+        groupMembers,
+        setgroupMembers,
         loading,
         setloading,
         setrecentChats,
@@ -104,7 +101,6 @@ const ChatState = (props) => {
         logUser,
         setlogUser,
         accessChat,
-        socket,
         chatroom,
         accessGroupChat,
         setchatroom,

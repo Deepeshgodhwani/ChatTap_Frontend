@@ -6,6 +6,9 @@ import { useHistory } from 'react-router-dom';
 import Profile from '../components/Details';
 import ChatContext from '../context/chat/ChatContext';
 import { useContext } from 'react';
+import io from "socket.io-client";
+const ENDPOINT = "http://localhost:4000";
+var socket;
 
 
 
@@ -17,7 +20,7 @@ function Chat_page() {
   const [profileView, setprofileView] = useState(false);
   const [details, setdetails] = useState({});
   const context = useContext(ChatContext);
-  const {chatroom,logUser}=context;
+  const {chatroom,logUser,setlogUser}=context;
 
 
  
@@ -27,6 +30,11 @@ function Chat_page() {
     const redirectPage=()=>{
       if(!localStorage.getItem('token')){
         history.push('/');
+      }else{
+        let userInfo = JSON.parse(localStorage.getItem("user"));
+        setlogUser(userInfo);
+        socket=io(ENDPOINT);
+        socket.emit("setup", userInfo);
       }
     }
 
@@ -60,10 +68,11 @@ function Chat_page() {
 
   return (
     <div className='flex h-[100vh] '>
-    <Navbar/>
-    <Chatlist/>
-    <Chat toggleProfileView={toggleProfileView} details={profileView} />
-    {profileView &&<Profile toggleProfileView={toggleProfileView} Profile={details} />} 
+    <Navbar socket={socket}/>
+    <Chatlist socket={socket} />
+    <Chat toggleProfileView={toggleProfileView} details={profileView} socket={socket} />
+    {profileView &&<Profile toggleProfileView={toggleProfileView} 
+    socket={socket} Profile={details} />} 
   </div>
   )
 }

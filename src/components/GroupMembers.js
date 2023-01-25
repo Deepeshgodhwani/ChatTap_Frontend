@@ -11,16 +11,17 @@ import { useContext } from 'react';
 import ChatContext from '../context/chat/ChatContext';
 
 
+    
 
 
 function GroupMembers(props) {
 
     const { isOpen, onOpen, onClose } = useDisclosure();
-    const {Profile,groupMembers, setgroupMembers}=props;
+    const {Profile,socket}=props;
     const initialRef = React.useRef(null)
     const context = useContext(ChatContext);
     const {logUser,createNoty,groupMessages,setgroupMessages,recentChats,
-      setrecentChats,socket }=context;
+      setrecentChats,chatroom,groupMembers,setgroupMembers}=context;
     const finalRef = React.useRef(null)
     const [search, setsearch] = useState("")
     const [users, setusers] = useState([]);
@@ -29,14 +30,7 @@ function GroupMembers(props) {
     const[renderMembers, setrenderMembers] = useState([]);
     const toast = useToast(); 
 
-
-    useEffect(() => {
-    
-        if(Profile.isGroupChat){
-           setgroupMembers(Profile.users);
-        }
-       // eslint-disable-next-line 
-     }, [])
+      
 
 
      useEffect(() => {
@@ -45,9 +39,20 @@ function GroupMembers(props) {
         }else{
            setrenderMembers(groupMembers);
         }
+          
+        if(!socket) return ;
+        socket.on("updateUsers",data=>{
+           console.log(data.group._id," and ",chatroom._id)
+           if(data.group._id===chatroom._id){
+               data.status==="add"?setgroupMembers(groupMembers.concat(data.members)):
+                setgroupMembers(groupMembers.filter((member)=>{
+                return member.user._id!==data.members._id;
+            }));
+           }
+        })
 
      }, [groupMembers])
-     
+
 
     const onChange =async(e)=>{
         setsearch(e.target.value); 
@@ -133,8 +138,6 @@ function GroupMembers(props) {
   
     let data=await response.json();
     if(data.success){
-      
-       
       let message="added ";
       selectedUsers.forEach(member=>{
         message=message.concat(member.user.name);
@@ -144,12 +147,13 @@ function GroupMembers(props) {
        message=message.slice(0,message.length-2);
        let noty=await createNoty(Profile._id,message);
        socket.emit("new_message",noty);
-       let status={users:selectedUsersId,status:"add"};
+       socket.emit("update_Chatlist",noty);
+       let status={users:selectedUsersId,chat:chatroom,status:"add"};
        socket.emit("member_status",status);
-       let dataSend={group:Profile,newMembers:selectedUsers};
+       let dataSend={group:Profile,members:selectedUsers,status:"add"};
        setgroupMembers(groupMembers.concat(selectedUsers));  
        setgroupMessages([...groupMessages,noty]);
-       socket.emit("added_users",dataSend);
+       socket.emit("change_users",dataSend);
        setselectedUsers([]);
        setselectedUsersId([]);
        onClose();
@@ -173,9 +177,13 @@ function GroupMembers(props) {
     let data=await response.json();
     let message="removed "+ User.name;
     let noty=await createNoty(Profile._id,message);
+    noty.removedUserId=User._id;
     socket.emit("new_message",noty);
-     let status={users:[{user:User._id}],status:"remove"};
+    socket.emit("update_Chatlist",noty);
+     let status={users:[{user:User._id}],chat:chatroom,status:"remove"};
     socket.emit("member_status",status);
+    let dataSend={group:Profile,members:User,status:"remove"};
+    socket.emit("change_users",dataSend);
     let updatedChat;
           let chats=recentChats;
           chats=chats.filter((Chat)=>{

@@ -6,12 +6,13 @@ import { Spinner } from "@chakra-ui/react";
 import { useToast } from "@chakra-ui/react";
 
 function Details(props) {
-  const { Profile, toggleProfileView } = props;
+  const { Profile, toggleProfileView ,socket} = props;
   const context = useContext(ChatContext);
-  const [groupMembers, setgroupMembers] = useState([]);
   const [loading, setloading] = useState(false);
   const { logUser, setgroupPic,createNoty , recentChats ,setrecentChats,
-    socket,chatroom,setchatroom,groupPic,setgroupName,groupName} = context;
+  chatroom,setchatroom,groupPic,setgroupName,groupName,groupMembers} = context;
+  const [dropdown, setDropdown] = useState(false)
+
   const [newChatName, setnewChatName] = useState("");
   const [enabled, setenabled] = useState(false);
   const toast = useToast();
@@ -41,10 +42,8 @@ function Details(props) {
        if(!Profile.isGroupChat){
            getCommonGroups();
        }
-       socket.on("updateUsers",members=>{
-           setgroupMembers(groupMembers.concat(members));
-       })
-  }, [groupMembers])
+       // eslint-disable-next-line
+  }, [])
   
 
   const changeProfile = async (e) => {
@@ -92,6 +91,7 @@ function Details(props) {
         let message="changed this group's icon";
         let noty=await createNoty(Profile._id,message);
         socket.emit("new_message",noty);
+        socket.emit("update_Chatlist",noty);
         let updatedChat;
         let chats=recentChats;
         chats=chats.filter((Chat)=>{
@@ -104,7 +104,7 @@ function Details(props) {
       }); 
         setrecentChats([updatedChat,...chats]);
         Profile.isGroupChat && setgroupPic(picture);
-        let data={chat:chatroom,picture:picture}
+        let data={chat:chatroom,picture:picture,logUser:logUser}
         socket.emit("changed_groupImage",data);
         toast({
           title: "Photo changed successfully",
@@ -191,6 +191,7 @@ function Details(props) {
       let message="changed the subject to "+`${newChatName}`;
       let noty=await createNoty(Profile._id,message);
       socket.emit("new_message",noty);
+      socket.emit("update_Chatlist",noty);
       // input.placeholder=newChatName;
       input.disabled=false;
       setenabled(true);
@@ -205,7 +206,7 @@ function Details(props) {
        return Chat._id!==noty.chatId._id;
      }); 
      setrecentChats([updatedChat,...chats]);
-     let send={chat:chatroom,name:newChatName};
+     let send={chat:chatroom,name:newChatName,logUser:logUser};
      setnewChatName("");
      socket.emit("changed_groupName",send);
      toast({
@@ -217,10 +218,20 @@ function Details(props) {
   }
 
 
+  const toggleDropdown= ()=>{
+    if(dropdown){
+      setDropdown(false);
+    }else{
+        setDropdown(true);
+    }
+  }
+
   
 
   return (
-    <div className="w-80 overflow-hidden bg-[rgb(36,36,36)]  flex flex-col">
+    <>
+    
+    <div className="w-80  bg-[rgb(36,36,36)]  flex flex-col">
       <div className="text-[rgb(233,233,233)] pt-4  px-5 text-xl font-semibold flex justify-between ">
         <p>Details</p>
         <i
@@ -232,22 +243,22 @@ function Details(props) {
       </div>
       <div className="py-2 chatBox overflow-y-scroll  ">
         <div className="flex space-y-2 mt-3  py-2 flex-col items-center">
-          <div className="relative flex justify-center items-center group">
+          <div className="relative group flex justify-center items-center ">
             <img
               alt=""
-              className="w-44 rounded-full h-44"
+              className="w-44 group rounded-full h-44"
               src={Profile.isGroupChat?groupPic:Profile.avtar}
             ></img>
             {loading&&<Spinner size='xl' color="white" thickness='3px' className="absolute" />}
             {Profile.isGroupChat&& checkUserExist()&& (
               <input
                 onChange={changeProfile}
-                className=" inputFile absolute top-0 h-44  opacity-0
-           text-white rounded-full z-20 justify-center items-center check w-44"
+                className=" inputFile absolute top-16 z-40 left-14 h-7 w-40 cursor-pointer  opacity-0
+           text-white   justify-center items-center check"
                 type="file"
               ></input>
             )}
-            {Profile.isGroupChat&& checkUserExist()&&<div id="hoverImg" className="absolute  hidden text-white group-hover:flex text-center py-14 bg-black w-44 space-y-1 h-44 opacity-70 rounded-full 
+            {Profile.isGroupChat&& checkUserExist()&&<div id="hoverImg" onClick={toggleDropdown} className="absolute  hidden text-white group-hover:flex text-center py-14 bg-black w-44 space-y-1 h-44 opacity-70 rounded-full 
             flex-col justify-center items-center">
                 <i className="fa-solid text-lg fa-camera"></i>
                 <div className="  text-xs font-semibold ">
@@ -255,6 +266,7 @@ function Details(props) {
                  <p>GROUP PHOTO</p>
                 </div>
               </div>}
+              
           </div>
           <div className="flex flex-col  items-center text-[rgb(233,233,233)]">
             {/* <p className="font-[calibri] text-xl "> */}
@@ -303,8 +315,7 @@ function Details(props) {
         {Profile.isGroupChat && (
           <GroupMembers
             Profile={Profile}
-            groupMembers={groupMembers}
-            setgroupMembers={setgroupMembers}
+            socket={socket}
           />
         )}
 
@@ -312,13 +323,21 @@ function Details(props) {
         my-3 w-80 h-3"></div>}
         {Profile.isGroupChat&&checkUserExist()&&Profile.admin._id!==logUser._id&&<div onClick={exitGroup}
          className="text-[rgb(227,92,109)] items-center px-6 text-base space-x-2 flex cursor-pointer">
-        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+        <i className="fa-solid fa-arrow-right-from-bracket"></i>
           <p className="">
             Exit group
             </p>
             </div>}
       </div>
     </div>
+    {dropdown&&
+              <div onClick={toggleDropdown} className="absolute w-[100%]  h-[100vh] right-0 ">
+              <div className="text-white  border-[1px] border-[rgb(44,44,44)] right-7 top-28 absolute w-40  bg-[rgb(36,36,36)] ">
+                   <p onClick={()=>{ setDropdown(false) }} className="cursor-pointer border-b-[1px] border-[rgb(44,44,44)] hover:bg-[rgb(44,44,44)]  py-1 px-4 ">Upload photo</p>
+                   <p onClick={()=>{ }} className="cursor-pointer hover:bg-[rgb(44,44,44)] py-1  px-4 ">View profile</p>
+              </div>
+                </div>}
+    </>
   );
 }
 
