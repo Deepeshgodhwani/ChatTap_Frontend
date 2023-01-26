@@ -4,13 +4,16 @@ import ChatContext from "../context/chat/ChatContext";
 
 
 import "../App.css";
+import MessageContext from "../context/messages/MessageContext";
 
 function RenderGroupMessages(props) {
   const { messages, user } = props;
   const context = useContext(ChatContext);
+  const contextMsg = useContext(MessageContext);
   const {logUser}=context;
+  const {decryptData}=contextMsg
  
-
+//  console.log(decryptData("deepesh"));
 
   const checkUser = (User) => {
     if (User._id === user._id) {

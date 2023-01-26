@@ -29,30 +29,34 @@ export default function Chatlist(props) {
 
  
 
-  const hitCount = async(chatId,userId)=>{
-    if( chatroom && chatId===currentChat._id) return ; 
-    let token = localStorage.getItem("token");
-    const response = await fetch(
-      `http://localhost:7000/api/chat/countMssg?type=add&chatId=${chatId}&userId=${userId}`,
-      {
-        method: "GET",
-        mode: "cors",
-        headers: {
-          "Content-Type": "application/json",
-          "auth-token": token,
-        },
-      }
-    );
-    let data = await response.json();
-    return data;
+  const DissmissCount = async(chatId)=>{
+      let token = localStorage.getItem("token");
+      const response = await fetch(
+        `http://localhost:7000/api/chat/countMssg?type=dismiss&chatId=${chatId}&userId=${logUser._id}`,
+        {
+          method: "GET",
+          mode: "cors",
+          headers: {
+            "Content-Type": "application/json",
+            "auth-token": token,
+          },
+        }
+        );
+        let data = await response.json();
   }
+  
 
-
-
-  const updateLatestMessage=async (data) => {
+  const updateLatestMessage= (data) => {
     delay=false;
     let message=data.message;
-    let updatedUsers=await hitCount(message.chatId._id,data.receiverId); 
+    let updatedUsers;
+    if(currentChat && currentChat._id===message.chatId._id){
+      console.log("reached");
+      DissmissCount(message.chatId._id);
+    }else{
+      updatedUsers=data.users;
+    } 
+
     let updatedChat;
     let chats = recentChats;
     let check=true;
@@ -64,7 +68,7 @@ export default function Chatlist(props) {
         }
         updatedChat = Chat;
         check=false;
-      }
+    }
       return Chat._id !== message.chatId._id;
     });
 
@@ -84,8 +88,9 @@ export default function Chatlist(props) {
     currentChat=chatroom;
     if (!socket ) return;
     socket.once("latest_message",updateLatestMessage) 
-    
+
     socket.on("toggleImage",(data)=>{
+      console.log(data);
       let updatedChat;
       let chats=recentChats;
       chats=chats.filter((Chat)=>{

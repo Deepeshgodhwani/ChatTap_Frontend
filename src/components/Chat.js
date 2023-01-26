@@ -3,7 +3,6 @@ import { useContext } from "react";
 import ChatContext from "../context/chat/ChatContext";
 import GroupChat from "./GroupChat";
 import SingleChat from "./SingleChat";
-import img from '../images/chatting.png'
 import img1 from '../images/chatting2.png'
 
 function Chat(props) {

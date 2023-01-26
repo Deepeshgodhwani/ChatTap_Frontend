@@ -5,19 +5,33 @@ import GroupMembers from "./GroupMembers";
 import { Spinner } from "@chakra-ui/react";
 import { useToast } from "@chakra-ui/react";
 
+import {
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
+  useDisclosure
+} from '@chakra-ui/react'
+
 function Details(props) {
   const { Profile, toggleProfileView ,socket} = props;
   const context = useContext(ChatContext);
   const [loading, setloading] = useState(false);
   const { logUser, setgroupPic,createNoty , recentChats ,setrecentChats,
-  chatroom,setchatroom,groupPic,setgroupName,groupName,groupMembers} = context;
+  chatroom,setchatroom,groupPic,setgroupName,groupName,groupMembers,setgroupMembers,
+  groupMessages,setgroupMessages,
+  accessGroupChat,} = context;
   const [dropdown, setDropdown] = useState(false)
-
+   const [isUserExist, setisUserExist] = useState(true);
   const [newChatName, setnewChatName] = useState("");
   const [enabled, setenabled] = useState(false);
   const toast = useToast();
   const [commonGroups, setcommonGroups] = useState([]);
 
+  const { isOpen, onOpen, onClose } = useDisclosure()
   
 
   const getCommonGroups =async()=>{
@@ -42,6 +56,7 @@ function Details(props) {
        if(!Profile.isGroupChat){
            getCommonGroups();
        }
+       checkUserExist();
        // eslint-disable-next-line
   }, [])
   
@@ -134,19 +149,53 @@ function Details(props) {
     })
   
     let data=await response.json();
-    let status={users:[{user:logUser._id}],status:"remove"};
-    socket.emit("member_status",status);
+
+     try { 
+          let message="left"
+          let noty=await createNoty(Profile._id,message);
+          noty.removedUserId=logUser._id;
+          socket.emit("new_message",noty);
+          socket.emit("update_Chatlist",noty);
+           let status={users:[{user:logUser._id}],chat:Profile,status:"remove"};
+          socket.emit("member_status",status);
+          let dataSend={group:Profile,members:logUser,status:"remove"};
+          socket.emit("change_users",dataSend);
+          let updatedChat;
+                let chats=recentChats;
+                chats=chats.filter((Chat)=>{
+                if(Chat._id===noty.chatId._id){
+                     Chat.latestMessage=noty;
+                     updatedChat=Chat;
+                }
+                 return Chat._id!==noty.chatId._id;
+               });
+          setrecentChats([updatedChat,...chats]);
+          setgroupMessages([...groupMessages,noty]);
+          setgroupMembers(groupMembers.filter((member)=>{
+            return member.user._id!==logUser._id;
+        }))
+        setisUserExist(false);
+     } catch (error) {
+      toast({
+        title: "Error",
+        description: "Internal server error",
+        status: "warning",
+        duration: 6000,
+        isClosable: true,
+      });
+     }
+     
   }
 
 
   const checkUserExist =()=>{
-    let check=false;
-     Profile.users.forEach(members=>{
+     let check=false;
+     groupMembers.forEach(members=>{
            if(members.user._id===logUser._id){
                  check=true;
            }
           })
-    return check;      
+          setisUserExist(check);
   }
 
 
@@ -188,7 +237,7 @@ function Details(props) {
       input.value="";
        setgroupName(newChatName);
        setchatroom({...chatroom,chatname:newChatName});
-      let message="changed the subject to "+`${newChatName}`;
+      let message="changed the subject to "+ newChatName ;
       let noty=await createNoty(Profile._id,message);
       socket.emit("new_message",noty);
       socket.emit("update_Chatlist",noty);
@@ -225,7 +274,31 @@ function Details(props) {
         setDropdown(true);
     }
   }
+  
 
+  const setGroupChat=(element)=>{
+    if(chatroom._id !== element._id){
+      accessGroupChat(element._id);
+  
+     setrecentChats(recentChats.map(chat=>{
+           if(chat._id===element._id){
+                 chat.users.map(members=>{
+                     if(members.user._id===logUser._id){
+                        members.unseenMsg=0;
+                     }
+                 })
+
+                 return chat;
+           }else{
+              return chat;
+           }
+     }))  
+     
+    }
+  }
+
+
+  
   
 
   return (
@@ -246,19 +319,20 @@ function Details(props) {
           <div className="relative group flex justify-center items-center ">
             <img
               alt=""
-              className="w-44 group rounded-full h-44"
+              className="w-44 cursor-pointer group rounded-full h-44"
               src={Profile.isGroupChat?groupPic:Profile.avtar}
+              onClick={onOpen}
             ></img>
             {loading&&<Spinner size='xl' color="white" thickness='3px' className="absolute" />}
-            {Profile.isGroupChat&& checkUserExist()&& (
-              <input
-                onChange={changeProfile}
-                className=" inputFile absolute top-16 z-40 left-14 h-7 w-40 cursor-pointer  opacity-0
-           text-white   justify-center items-center check"
-                type="file"
-              ></input>
-            )}
-            {Profile.isGroupChat&& checkUserExist()&&<div id="hoverImg" onClick={toggleDropdown} className="absolute  hidden text-white group-hover:flex text-center py-14 bg-black w-44 space-y-1 h-44 opacity-70 rounded-full 
+
+            <Modal isOpen={isOpen} onClose={onClose}>
+              <ModalOverlay />
+              <ModalContent borderRadius={"20px"}>
+                  <img className="h-[70vh] rounded-lg" src={Profile.isGroupChat?Profile.profilePic:Profile.avtar} ></img>
+              </ModalContent>
+            </Modal>
+           
+            {Profile.isGroupChat&& isUserExist&&<div id="hoverImg" onClick={toggleDropdown} className="absolute  hidden text-white group-hover:flex text-center py-14 bg-black w-44 space-y-1 h-44 opacity-70 rounded-full 
             flex-col justify-center items-center">
                 <i className="fa-solid text-lg fa-camera"></i>
                 <div className="  text-xs font-semibold ">
@@ -282,7 +356,7 @@ function Details(props) {
               maxLength="25"
               onChange={ (e)=>{setnewChatName(e.target.value)}}
               ></input> 
-              {!enabled&&checkUserExist()&&<i onClick={editName} className="absolute group-hover:opacity-100 opacity-0 cursor-pointer text-[rgb(87,87,87)]  right-0 fa-solid fa-pen"></i>}
+              {!enabled&&isUserExist&&<i onClick={editName} className="absolute group-hover:opacity-100 opacity-0 cursor-pointer text-[rgb(87,87,87)]  right-0 fa-solid fa-pen"></i>}
                 {enabled&&newChatName&&<i onClick={changeName} className="absolute cursor-pointer text-[rgb(87,87,87)]  right-0 fa-solid fa-circle-check"></i>}
               </div>
             :<div className="font-semibold text-lg mt-1 w-52 pb-2 text-center">
@@ -301,6 +375,7 @@ function Details(props) {
                   <div
                  className="flex cursor-pointer items-center space-x-2"
                   key={group._id}
+                  onClick={(e)=>{setGroupChat(group)}}
                   >
                     <img className="w-11 rounded-full h-11  " alt="" src={group.profilePic}></img>
                     <div>
@@ -319,9 +394,9 @@ function Details(props) {
           />
         )}
 
-        {Profile.isGroupChat&&checkUserExist()&&logUser._id!==Profile.admin._id&&<div className="bg-[rgb(27,27,27)] 
+        {Profile.isGroupChat&&isUserExist&&logUser._id!==Profile.admin._id&&<div className="bg-[rgb(27,27,27)] 
         my-3 w-80 h-3"></div>}
-        {Profile.isGroupChat&&checkUserExist()&&Profile.admin._id!==logUser._id&&<div onClick={exitGroup}
+        {Profile.isGroupChat&&isUserExist&&Profile.admin._id!==logUser._id&&<div onClick={exitGroup}
          className="text-[rgb(227,92,109)] items-center px-6 text-base space-x-2 flex cursor-pointer">
         <i className="fa-solid fa-arrow-right-from-bracket"></i>
           <p className="">
@@ -332,9 +407,18 @@ function Details(props) {
     </div>
     {dropdown&&
               <div onClick={toggleDropdown} className="absolute w-[100%]  h-[100vh] right-0 ">
-              <div className="text-white  border-[1px] border-[rgb(44,44,44)] right-7 top-28 absolute w-40  bg-[rgb(36,36,36)] ">
-                   <p onClick={()=>{ setDropdown(false) }} className="cursor-pointer border-b-[1px] border-[rgb(44,44,44)] hover:bg-[rgb(44,44,44)]  py-1 px-4 ">Upload photo</p>
-                   <p onClick={()=>{ }} className="cursor-pointer hover:bg-[rgb(44,44,44)] py-1  px-4 ">View profile</p>
+              <div className="text-white  border-[1px] border-[rgb(75,75,75)] right-7 top-32 absolute w-36  bg-[rgb(49,49,49)] ">
+                    {Profile.isGroupChat&& isUserExist&& (
+                      <input
+                        onChange={changeProfile}
+                        className=" inputFile  h-8 w-36 cursor-pointer border-[rgb(75,75,75)]  border-b-[1px] opacity-100 hover:bg-[rgb(58,58,58)]
+                        text-white  text-center"
+                        type="file"
+                        id="fileUpload"
+                        title=""
+                        ></input>
+                      )}
+                   <p onClick={onOpen} className="cursor-pointer hover:bg-[rgb(58,58,58)] py-1  px-4 ">View profile</p>
               </div>
                 </div>}
     </>

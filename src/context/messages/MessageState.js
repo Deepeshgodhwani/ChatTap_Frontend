@@ -1,11 +1,10 @@
 
 import React from 'react'
-import { useState } from 'react';
 import MessageContext from "./MessageContext";
 
 import CryptoJS from "crypto-js"
 
-const secretPass = "XkhZG4fW2t2W";
+const secretPass = "BzPi6160pZN4zntChzolLTDaehObkroJ";
 
 function MessageState(props) {
 
@@ -21,7 +20,9 @@ function MessageState(props) {
         const bytes = CryptoJS.AES.decrypt(message, secretPass);
         const data = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
         return data;
-      };
+    };
+
+
 
      
   return (

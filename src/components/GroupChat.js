@@ -4,6 +4,7 @@ import Loading from "./Loading";
 
 import { FormControl } from "@chakra-ui/react";
 import RenderGroupMessages from "./RenderGroupMessages";
+import MessageContext from "../context/messages/MessageContext";
 
 
 
@@ -16,6 +17,8 @@ let processRecieve=true;
 
 function GroupChat(props) {
   const context = useContext(ChatContext);
+  const msgContext = useContext(MessageContext);
+
   const { toggleProfileView, details ,socket} = props;
   const [isTyping, setisTyping] = useState(false);
   const [TypingUser, setTypingUser] = useState([]);
@@ -37,6 +40,8 @@ function GroupChat(props) {
     setrecentChats,
     setloading,
   } = context;
+
+  const {encryptData,decryptData}=msgContext;
   const [newMessage, setnewMessage] = useState("");
   const [userExist, setuserExist] = useState(true);
   const [dropdown, setDropdown] = useState(false)
@@ -99,6 +104,7 @@ function GroupChat(props) {
     if (  condition && newMessage && processSend) {
       processSend=false;
       socket.emit("toggleTyping",{chat:chatroom,status:false,user:logUser})
+      let encryptedMessage=await encryptData(newMessage);
       let token = localStorage.getItem("token");
       const response = await fetch(`http://localhost:7000/api/chat/message`, {
         method: "POST",
@@ -107,7 +113,7 @@ function GroupChat(props) {
           "Content-Type": "application/json",
           "auth-token": token,
         },
-        body: JSON.stringify({ content: newMessage, chatId: chatroom._id }),
+        body: JSON.stringify({ content: encryptedMessage, chatId: chatroom._id }),
       });
 
       const data = await response.json();
@@ -160,6 +166,20 @@ function GroupChat(props) {
   }
 
 
+
+  const isTypingUser =data=>{
+    if(data.chat._id===chatroom._id){
+      if(data.status){
+        setisTyping(true)
+        setTypingUser(data.user)
+      }else{
+          setisTyping(false);
+          setTypingUser([]);
+      }
+    }
+  }
+
+
   useEffect(() => {
    
    if(!socket)return
@@ -179,18 +199,10 @@ function GroupChat(props) {
       } 
     })
 
-    socket.on('isTyping',data=>{
-      console.log(data.chat._id," and ",selectedChatCompare._id);
-      if(data.chat._id===chatroom._id){
-        if(data.status){
-          setisTyping(true)
-          setTypingUser(data.user)
-        }else{
-            setisTyping(false);
-            setTypingUser([]);
-        }
-      }
-    })
+    socket.on('isTyping',isTypingUser);
+     
+    return ()=>{socket.off('isTyping')}
+
   }, [chatroom]);
 
 

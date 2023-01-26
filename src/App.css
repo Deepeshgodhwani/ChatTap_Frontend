@@ -14,17 +14,19 @@
         display: none;
     }
 
-    .inputFile::-webkit-file-upload-button{
-       visibility: hidden;
-    }
 
     
 
     .inputFile::before{
         color: white;
+        content: "Upload photo";
+        padding-left: 16px;
+        font-size: 0.9rem;
     }
 
-    .inputFile::-webkit-input-placeholder{
+    
+
+    .inputFile::-webkit-file-upload-button{
          visibility: hidden;
     }
 

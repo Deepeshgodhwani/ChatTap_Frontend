@@ -32,6 +32,7 @@ const ChatState = (props) => {
 
     let data = await response.json();
     setchatroom(data);
+    return data;
   };
 
   const accessGroupChat = async (chatId) => {

@@ -11,6 +11,7 @@ import { useContext } from 'react';
 import ChatContext from '../context/chat/ChatContext';
 
 
+
     
 
 
@@ -21,17 +22,20 @@ function GroupMembers(props) {
     const initialRef = React.useRef(null)
     const context = useContext(ChatContext);
     const {logUser,createNoty,groupMessages,setgroupMessages,recentChats,
-      setrecentChats,chatroom,groupMembers,setgroupMembers}=context;
+      setrecentChats,groupMembers,setgroupMembers,accessChat}=context;
     const finalRef = React.useRef(null)
     const [search, setsearch] = useState("")
     const [users, setusers] = useState([]);
     const [selectedUsers, setselectedUsers] = useState([]);
     const [selectedUsersId, setselectedUsersId] = useState([]);
     const[renderMembers, setrenderMembers] = useState([]);
+
     const toast = useToast(); 
 
-      
+       
+ 
 
+    
 
      useEffect(() => {
         if(groupMembers.length>4){
@@ -39,19 +43,31 @@ function GroupMembers(props) {
         }else{
            setrenderMembers(groupMembers);
         }
-          
-        if(!socket) return ;
-        socket.on("updateUsers",data=>{
-           console.log(data.group._id," and ",chatroom._id)
-           if(data.group._id===chatroom._id){
-               data.status==="add"?setgroupMembers(groupMembers.concat(data.members)):
-                setgroupMembers(groupMembers.filter((member)=>{
-                return member.user._id!==data.members._id;
-            }));
-           }
-        })
-
      }, [groupMembers])
+       
+
+
+     const updateUsers=data=>{
+      console.log(data.members);
+      console.log(data.group._id," and ",Profile._id)
+      if(Profile&&data.group._id===Profile._id ){
+          data.status==="add"?setgroupMembers(groupMembers.concat(data.members)):
+           setgroupMembers(groupMembers.filter((member)=>{
+           return member.user._id!==data.members._id;
+       }));
+      }
+    }
+
+
+     useEffect(() => {
+      if(!socket) return ;
+      socket.on("updateUsers",updateUsers);
+
+      return ()=>{socket.off("updateUsers",updateUsers)};
+
+       // eslint-disable-next-line
+     }, [])
+     
 
 
     const onChange =async(e)=>{
@@ -80,7 +96,6 @@ function GroupMembers(props) {
     let isExist=false;
        
     groupMembers.forEach(members=>{
-       console.log(members.user ,"and",selectedUser._id);
       if(members.user._id===selectedUser._id){
           isExist=true;
       } 
@@ -117,6 +132,9 @@ function GroupMembers(props) {
       return User!==user._id;
     }))
   }
+
+
+ 
   
 
   
@@ -148,7 +166,7 @@ function GroupMembers(props) {
        let noty=await createNoty(Profile._id,message);
        socket.emit("new_message",noty);
        socket.emit("update_Chatlist",noty);
-       let status={users:selectedUsersId,chat:chatroom,status:"add"};
+       let status={users:selectedUsersId,chat:Profile,status:"add"};
        socket.emit("member_status",status);
        let dataSend={group:Profile,members:selectedUsers,status:"add"};
        setgroupMembers(groupMembers.concat(selectedUsers));  
@@ -180,7 +198,7 @@ function GroupMembers(props) {
     noty.removedUserId=User._id;
     socket.emit("new_message",noty);
     socket.emit("update_Chatlist",noty);
-     let status={users:[{user:User._id}],chat:chatroom,status:"remove"};
+     let status={users:[{user:User._id}],chat:Profile,status:"remove"};
     socket.emit("member_status",status);
     let dataSend={group:Profile,members:User,status:"remove"};
     socket.emit("change_users",dataSend);
@@ -203,6 +221,26 @@ function GroupMembers(props) {
     }
   }
 
+
+  const setSingleChat=async(User)=>{
+       let element=await accessChat(User._id);
+        setrecentChats(recentChats.map(chat=>{
+        if(chat._id===element._id){
+              chat.users.map(members=>{
+                  if(members.user._id===logUser._id){
+                      members.unseenMsg=0;
+                  }
+              })
+
+              return chat;
+        }else{
+            return chat;
+        }
+      })) 
+   
+  }
+
+
   return (
     <div>
          <div className='flex pt-4 px-8 justify-between'>
@@ -210,7 +248,7 @@ function GroupMembers(props) {
                 <img alt='' className='w-5 h-5' src={grpLogo}></img>
                 <p className='text-[rgb(167,169,171)] text-sm font-semibold'>MEMBER ({groupMembers.length})</p>
                </div>
-               {groupMembers.length>4&&<List groupMembers={groupMembers} setgroupMembers={setgroupMembers} Profile={Profile} logUser={logUser}/>}
+               {groupMembers.length>4&&<List groupMembers={groupMembers} socket={socket} setgroupMembers={setgroupMembers} Profile={Profile} logUser={logUser}/>}
               </div>
               <div className='  max-h-60   chatBox mt-4  text-[rgb(240,240,240)]'>
                 {logUser._id===Profile.admin._id&&<div onClick={()=>{
@@ -257,7 +295,7 @@ function GroupMembers(props) {
                     </ModalBody>
                   </ModalContent>
              </Modal>
-              <div className='flex relative py-[5px] px-4 hover:bg-[rgb(44,44,44)]  space-x-2 items-center'>
+              <div onClick={()=>{logUser._id!==Profile.admin._id&&setSingleChat(Profile.admin)}} className='flex cursor-pointer relative py-[5px] px-4 hover:bg-[rgb(44,44,44)]  space-x-2 items-center'>
                     <img alt='' className='w-11 rounded-full h-11' src={Profile.admin.avtar}></img>
                     <div className='flex'>
                     <p className=' text-base font-semibold'>{logUser._id===Profile.admin._id?"You":Profile.admin.name}</p>
@@ -266,7 +304,7 @@ function GroupMembers(props) {
                     </div>
                </div>
                 {renderMembers.map((members)=>{
-                   return !members.isRemoved&&members.user._id!==Profile.admin._id?(<div key={members.user._id} className='flex hover:bg-[rgb(44,44,44)] group cursor-pointer space-x-2 
+                   return !members.isRemoved&&members.user._id!==Profile.admin._id?(<div key={members.user._id} onClick={()=>{setSingleChat(members.user)}} className='flex hover:bg-[rgb(44,44,44)] group cursor-pointer space-x-2 
                    relative py-[5px] px-4 items-center'>
                     <img alt='' className='w-11 rounded-full h-11' src={members.user.avtar}></img>
                     <p className=' text-sm font-semibold'>{logUser._id===members.user._id?"You":members.user.name}</p>
@@ -274,10 +312,6 @@ function GroupMembers(props) {
                     {logUser._id===Profile.admin._id&&<div className=' cursor-pointer group-hover:flex hidden right-4 absolute'>
                        <i onClick={()=>{removeFromGroup(members.user)}} className=" text-white fa-solid fa-ellipsis"></i>
                     </div>}
-
-                   {/* <div  className=' dropdown bg-[rgb(53,55,59)] hidden   right-1 -bottom-3 absolute px-7  py-1 '>
-                    <p className='text-sm font-semibold'>Remove</p>
-                    </div> */}
                   </div>):(<div key=""></div>)
                 })}
                 </div>

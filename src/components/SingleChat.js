@@ -140,7 +140,7 @@ export default function SingleChat(props) {
 
     useEffect(() => {
       socket.on('isTyping',data=>{
-        if(data.chat._id===chatroom._id){
+        if(data.chat._id===selectedChatCompare._id){
           if(data.status){
               setisTyping(true)
           }else{
@@ -148,8 +148,7 @@ export default function SingleChat(props) {
           }
         }
       })
-       // eslint-disable-next-line
-    }, [])
+    }, [isTyping])
     
 
        
