@@ -2,9 +2,13 @@ import React, { useContext, useEffect, useState } from "react";
 import ChatContext from "../context/chat/ChatContext";
 import Loading from "./Loading";
 
-import { FormControl } from "@chakra-ui/react";
+import {  FormControl,useDisclosure } from "@chakra-ui/react";
 import RenderGroupMessages from "./RenderGroupMessages";
 import MessageContext from "../context/messages/MessageContext";
+import {
+  Popover,
+  PopoverContent,
+} from '@chakra-ui/react'
 
 
 
@@ -18,10 +22,10 @@ let processRecieve=true;
 function GroupChat(props) {
   const context = useContext(ChatContext);
   const msgContext = useContext(MessageContext);
-
   const { toggleProfileView, details ,socket} = props;
   const [isTyping, setisTyping] = useState(false);
   const [TypingUser, setTypingUser] = useState([]);
+  const { onOpen, onClose, isOpen } = useDisclosure()
   
 
   const {
@@ -41,7 +45,7 @@ function GroupChat(props) {
     setloading,
   } = context;
 
-  const {encryptData,decryptData}=msgContext;
+  const {encryptData}=msgContext;
   const [newMessage, setnewMessage] = useState("");
   const [userExist, setuserExist] = useState(true);
   const [dropdown, setDropdown] = useState(false)
@@ -104,7 +108,7 @@ function GroupChat(props) {
     if (  condition && newMessage && processSend) {
       processSend=false;
       socket.emit("toggleTyping",{chat:chatroom,status:false,user:logUser})
-      let encryptedMessage=await encryptData(newMessage);
+      let encryptedMessage= encryptData(newMessage);
       let token = localStorage.getItem("token");
       const response = await fetch(`http://localhost:7000/api/chat/message`, {
         method: "POST",
@@ -221,8 +225,10 @@ function GroupChat(props) {
 
   const toggleDropdown= ()=>{
         if(dropdown){
+         onClose();
           setDropdown(false);
         }else{
+          onOpen();
             setDropdown(true);
         }
   }
@@ -257,22 +263,26 @@ function GroupChat(props) {
           </div>}
             </div>
         </div> 
-            <div className="relative ">
-              <i onClick={toggleDropdown} className="border-2  cursor-pointer border-[rgb(136,136,136)] px-1  text-sm rounded-full fa-solid text-[rgb(136,136,136)] fa-ellipsis"></i>
-              {dropdown&&<div className="text-white  border-[1px] border-[rgb(44,44,44)] right-2 w-44 top-9 bg-[rgb(36,36,36)] absolute">
-                   <p onClick={()=>{ setDropdown(false)
-                     props.toggleProfileView(true);}} className="cursor-pointer hover:bg-[rgb(44,44,44)]  py-1 px-4 ">View details</p>
-                   <p onClick={()=>{ props.toggleProfileView(false)
-                     setchatroom({})}} className="cursor-pointer hover:bg-[rgb(44,44,44)] py-1  px-4 ">Close chat</p>
-              </div>}
-            </div>
+            <Popover isOpen={isOpen}
+            onOpen={onOpen}
+            onClose={onClose}>              
+                  <i onClick={toggleDropdown}  className="border-2  cursor-pointer border-[rgb(136,136,136)] px-1  text-sm rounded-full fa-solid text-[rgb(136,136,136)] fa-ellipsis"></i>
+                  <PopoverContent className='focus:outline-none' marginRight={"12"} 
+                  bg={"rgb(49,49,49)"} outline="none" textAlign={"center"} borderColor={"rgb(75,75,75)"} width={"40"} >
+                  <p onClick={()=>{
+                    onClose()
+                    props.toggleProfileView(true)}} className=' border-[rgb(75,75,75)] cursor-pointer hover:bg-[rgb(58,58,58)]  border-b-[1px] py-1 '>View details</p>
+                  <p onClick={()=>{ props.toggleProfileView(false)
+                     setchatroom({})}}  className='hover:bg-[rgb(58,58,58)]  cursor-pointer py-1'>Close chat</p> 
+                </PopoverContent>
+           </Popover>
         
       </div>
       <div className={`chatBox py-2 px-4  h-[77vh]`}>
         {loading && <Loading></Loading>}
 
         {!loading && (
-          <RenderGroupMessages socket={socket} messages={groupMessages} user={logUser} />
+          <RenderGroupMessages details={details} socket={socket} messages={groupMessages} user={logUser} />
         )}
       </div>
       {userExist?<FormControl

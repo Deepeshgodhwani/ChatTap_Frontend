@@ -112,12 +112,12 @@ function Profile() {
   }
 
   const changePic = async (e) => {
+    setloading(true);
     if (
       e.target.files[0] &&
       (e.target.files[0].type === "image/jpeg" ||
       e.target.files[0].type === "image/png")
       ) {
-      setloading(true);
       const formData = new FormData();
       formData.append("file", e.target.files[0]);
       formData.append("upload_preset", "chat_app");
@@ -151,8 +151,7 @@ function Profile() {
         updatedUser.avtar=picture
         localStorage.setItem("user",JSON.stringify(updatedUser));
       }
-      setloading(false);
-   }
+    }
    setloading(false);
    e.target.value = null;
   }
@@ -161,6 +160,7 @@ function Profile() {
     <div>
       <img
         ref={btnRef}
+        title="Profile"
         alt=""
         onClick={updateUser}
         src={logUser.avtar}
@@ -181,20 +181,24 @@ function Profile() {
             </div>
              </DrawerHeader>
           <div className="flex h-[90vh] px-2 flex-col bg-[rgb(27,27,27)] ">
-            <div className="flex group  items-center relative justify-center py-8">
+            <div className="flex justify-center items-start  py-8">
+              <div className="flex group items-center relative justify-center rounded-full">
+
               <img
                 alt=""
-                className="rounded-full h-48 w-48"
+                className="rounded-full  h-48 w-48"
                 src={logUser.avtar}
-              ></img>
-               {loading&&<Spinner className="absolute" />}
+                ></img>
+               {loading&&<Spinner size='xl' color="white" thickness='3px' className="absolute" />}
               <input
                 onChange={changePic}
-                className=" flex z-50 inputFile absolute top-8 h-48 opacity-0
-           text-white rounded-full justify-center items-center  bg-black w-48"
+                className=" flex z-50 inputFile  absolute top-0 h-48 opacity-0
+                text-white rounded-full justify-center items-center  bg-black w-48"
                 type="file"
+                title=""
               ></input>
-              <div className="absolute hidden group-hover:flex text-center py-14 bg-black w-48 space-y-1 h-48 opacity-70 rounded-full flex-col justify-center items-center">
+              <div id="hoverImg" className=" absolute top-0 hidden group-hover:flex text-center 
+              py-14 bg-black w-48 space-y-1 h-48 opacity-70 rounded-full flex-col justify-center items-center">
                 <i className="fa-solid text-lg fa-camera"></i>
                 <div className="  text-xs font-semibold ">
                  <p>UPLOAD</p>
@@ -202,6 +206,7 @@ function Profile() {
                 </div>
               </div>
             </div>
+                </div>
             <div className="flex px-2 flex-col space-y-1">
               <p className="text-[rgb(9,128,93)] font-semibold">Your name</p>
               <div className="justify-center  flex relative">

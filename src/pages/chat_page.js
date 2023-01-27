@@ -20,6 +20,7 @@ function Chat_page() {
   const [profileView, setprofileView] = useState(false);
   const [details, setdetails] = useState({});
   const context = useContext(ChatContext);
+  const [toggleSearch, settoggleSearch] = useState(false);
   const {chatroom,logUser,setlogUser}=context;
 
 
@@ -66,10 +67,14 @@ function Chat_page() {
          }
     }
 
+    const ToggleSearch=(value)=>{
+         settoggleSearch(value);
+    }
+
   return (
     <div className='flex h-[100vh] '>
-    <Navbar socket={socket}/>
-    <Chatlist socket={socket} />
+    <Navbar socket={socket} settoggleSearch={ToggleSearch} toggleSearch={toggleSearch}/>
+    <Chatlist socket={socket} settoggleSearch={ToggleSearch} />
     <Chat toggleProfileView={toggleProfileView} details={profileView} socket={socket} />
     {profileView &&<Profile toggleProfileView={toggleProfileView} 
     socket={socket} Profile={details} />} 

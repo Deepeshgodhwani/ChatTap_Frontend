@@ -7,20 +7,24 @@ import ChatContext from '../context/chat/ChatContext';
 import { FormControl } from '@chakra-ui/react';
 import ScrollableChat from './ScrollableChat';
 import Loading from './Loading';
+import MessageContext from '../context/messages/MessageContext';
 var selectedChatCompare;
 let delay=true;
 
 
 export default function SingleChat(props) {
-     const {toggleProfileView,details,socket}=props;
+       const {toggleProfileView,details,socket}=props;
        const [messages, setmessages] = useState([]);
        const [newMessage, setnewMessage] = useState("");
        const context = useContext(ChatContext);
+       const msgContext = useContext(MessageContext);
        const [secondUser, setsecondUser] = useState({});
        const [loading, setloading] = useState(false);
        const {logUser,chatroom,setchatroom,recentChats,setrecentChats}=context;
        const [dropdown, setDropdown] = useState(false);
        const [isTyping, setisTyping] = useState(false);
+       const {encryptData}=msgContext;
+
       
 
 
@@ -57,7 +61,6 @@ export default function SingleChat(props) {
                 let data=await response.json();
                 setmessages(data);
                 setloading(false);
-                // socket.emit('join chat',chatroom._id);
               }
              fetchMessage();
              selectedChatCompare=chatroom;
@@ -74,7 +77,8 @@ export default function SingleChat(props) {
                }
          if( condition && newMessage && delay){
                 delay=false;
-                socket.emit("toggleTyping",{chat:chatroom,status:false,user:logUser})    
+                socket.emit("toggleTyping",{chat:chatroom,status:false,user:logUser})
+                 let encryptedMessage=encryptData(newMessage);    
                 let token =localStorage.getItem('token');
                 const response=await fetch(`http://localhost:7000/api/chat/message`,
                   {
@@ -84,7 +88,7 @@ export default function SingleChat(props) {
                       'Content-Type':'application/json',
                       'auth-token':token
                     },
-                    body:JSON.stringify({content:newMessage,chatId:chatroom._id})
+                    body:JSON.stringify({content:encryptedMessage,chatId:chatroom._id})
                   }) 
 
                   const data=await response.json();

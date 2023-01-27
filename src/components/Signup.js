@@ -26,47 +26,49 @@ function Signup(props) {
         duration: 9000,
         isClosable: true,
       });
-    }
+      setcredentials({ name: "", email: "", password: "", confPassword: "" });
+    }else{
 
-    const response = await fetch("http://localhost:7000/api/auth/createUser", {
-      method: "POST",
-      mode: "cors",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        name: credentials.name,
-        email: credentials.email,
-        password: credentials.password,
-      }),
-    });
-
-    let data = await response.json();
-    setcredentials({ name: "", email: "", password: "", confPassword: "" });
-    if (!data.error) {
-      localStorage.setItem("token", data.authToken);
-      const User = await fetch("http://localhost:7000/api/auth/getUser", {
-        method: "GET",
+      const response = await fetch("http://localhost:7000/api/auth/createUser", {
+        method: "POST",
         mode: "cors",
         headers: {
           "Content-Type": "application/json",
-          "auth-token": data.authToken,
         },
+        body: JSON.stringify({
+          name: credentials.name,
+          email: credentials.email,
+          password: credentials.password,
+        }),
       });
-
-      let user = await User.json();
-      localStorage.setItem("user", JSON.stringify(user));
-      if (user) {
-        history.push("/chat");
+      
+      let data = await response.json();
+      setcredentials({ name: "", email: "", password: "", confPassword: "" });
+      if (!data.error) {
+        localStorage.setItem("token", data.authToken);
+        const User = await fetch("http://localhost:7000/api/auth/getUser", {
+          method: "GET",
+          mode: "cors",
+          headers: {
+            "Content-Type": "application/json",
+            "auth-token": data.authToken,
+          },
+        });
+        
+        let user = await User.json();
+        localStorage.setItem("user", JSON.stringify(user));
+        if (user) {
+          history.push("/chat");
+        }
+      } else {
+        toast({
+          title: "Error",
+          description: data.error,
+          status: "warning",
+          duration: 9000,
+          isClosable: true,
+        });
       }
-    } else {
-      toast({
-        title: "Error",
-        description: data.error,
-        status: "warning",
-        duration: 9000,
-        isClosable: true,
-      });
     }
   };
 
@@ -87,6 +89,7 @@ function Signup(props) {
           className="border-2 py-2 px-4 bg-transparent outline-none rounded-lg "
           type="text"
           placeholder="Enter Your Name"
+          maxLength={30}
           required
         ></input>
         <p className="text-base  text-[rgb(194,194,194)] font-bold">Email address</p>

@@ -26,6 +26,8 @@
 
     
 
+    
+
     .inputFile::-webkit-file-upload-button{
          visibility: hidden;
     }
@@ -40,6 +42,31 @@
 .chatBox{
     scrollbar-width: none;   
 }
+
+
+/* Scrollbar styling */
+
+/* Works on Firefox */
+.styleScroll{
+	scrollbar-width: thin;
+	scrollbar-color: rgb(70, 70, 70) auto;
+}
+
+/* Works on Chrome, Edge, and Safari */
+.styleScroll::-webkit-scrollbar {
+	width: 7px;
+}
+
+.styleScroll::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+.styleScroll::-webkit-scrollbar-thumb {
+	background-color:rgb(104, 104, 104);
+    border-radius: 10px;
+}
+
+/* End scrollbar styling*/
 
 
 

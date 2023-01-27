@@ -1,13 +1,16 @@
 import React ,{ useContext,useEffect,useState }from "react";
 import chatContext from "../context/chat/ChatContext";
+import MessageContext from "../context/messages/MessageContext";
 
 let currentChat;
 let delay=true;
 
 export default function Chatlist(props) {
   const context = useContext(chatContext);
-  const {socket}=props;
+  const contextMsg = useContext(MessageContext);
+  const {socket,settoggleSearch}=props;
   const [groupsView, setgroupsView] = useState(false);
+  const {decryptData}=contextMsg;
   
 
   const {
@@ -46,12 +49,11 @@ export default function Chatlist(props) {
   }
   
 
-  const updateLatestMessage= (data) => {
+  const updateLatestMessage= async(data) => {
     delay=false;
     let message=data.message;
     let updatedUsers;
     if(currentChat && currentChat._id===message.chatId._id){
-      console.log("reached");
       DissmissCount(message.chatId._id);
     }else{
       updatedUsers=data.users;
@@ -88,7 +90,6 @@ export default function Chatlist(props) {
     currentChat=chatroom;
     if (!socket ) return;
     socket.once("latest_message",updateLatestMessage) 
-
     socket.on("toggleImage",(data)=>{
       console.log(data);
       let updatedChat;
@@ -137,21 +138,21 @@ export default function Chatlist(props) {
       if (user._id === logUser._id) {
         if (user._id === chat.users[0].user._id) {
           let string = chat.users[1].user.name;
-          if (string.length > 21) {
-            return string.slice(0, 21) + "..";
+          if (string.length > 23) {
+            return string.slice(0, 23) + "..";
           }
           return string;
         } else {
           let string = chat.users[0].user.name;
-          if (string.length > 21) {
-            return string.slice(0, 21) + "..";
+          if (string.length > 23) {
+            return string.slice(0, 23) + "..";
           }
           return string;
         }
       } else {
         let string = user.name;
-        if (string.length > 21) {
-          return string.slice(0, 21) + "..";
+        if (string.length > 23) {
+          return string.slice(0, 23) + "..";
         }
         return string;
       }
@@ -258,15 +259,25 @@ export default function Chatlist(props) {
   } 
 
 
+
+  const filterMessage =(encryptedMessage,isGroup)=>{
+      let message=decryptData(encryptedMessage)
+      let compressedMessage=isGroup? message.length>12?message.slice(0,12)+'..':message:
+      message.length>23?message.slice(0,25)+"..":message;
+      return compressedMessage;
+        
+  }
+
+
   return (
-    <div className="bg-[rgb(36,36,36)]   text-white w-80 h-[100%] flex flex-col space-y-2">
+    <div  className="bg-[rgb(36,36,36)]   text-white w-80 h-[100%] flex flex-col space-y-2">
       <div className="flex justify-between pb-[11px] pt-4  items-center  px-7 ">
         <div className="flex space-x-2 items-center">
       <p className="font-semibold  font-[calibri] text-3xl ">
         Messages
       </p>
         </div>
-      <i  className=" text-[rgb(39,102,76)]  text-lg cursor-pointer fa-regular fa-pen-to-square"></i>
+      <i onClick={()=>{settoggleSearch(true)}} className=" text-[rgb(53,139,103)]  text-xl cursor-pointer fa-regular fa-pen-to-square"></i>
       </div>
       <div className="bg-[rgb(26,26,26)] relative justify-between py-1 px-1 mx-4 rounded-lg flex">
         <p onClick={()=>{changeListView(false)}} className={`${!groupsView?"bg-[rgb(36,36,36)]":""}  cursor-pointer  text-center rounded-md font-semibold py-1 w-[49%] `}>All</p>
@@ -304,9 +315,7 @@ export default function Chatlist(props) {
                     <div className="flex justify-between">
                     <p className={`${countMsgs(element.users)>0?"text-[rgb(223,223,223)]":"text-[rgb(146,145,148)]"} text-sm`}>
                       {checkUserName(element.latestMessage.sender)} {": "}
-                      {element.latestMessage.content.length > 10
-                        ? element.latestMessage.content.slice(0, 10) + "..."
-                        : element.latestMessage.content}
+                      {filterMessage(element.latestMessage.content,true)}
                     </p>
                     </div>
                    
@@ -350,9 +359,7 @@ export default function Chatlist(props) {
                       </div>
                       <div className="flex justify-between">
                       <p className={`${countMsgs(element.users)>0?"text-white":"text-[rgb(146,145,148)]"} text-sm`}>
-                      {element.latestMessage.content.length > 33
-                        ? element.latestMessage.content.slice(0, 33) + "..."
-                        : element.latestMessage.content}
+                      {filterMessage(element.latestMessage.content)}
                       </p>
                       
                       </div>

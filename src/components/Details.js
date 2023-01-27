@@ -4,15 +4,13 @@ import ChatContext from "../context/chat/ChatContext";
 import GroupMembers from "./GroupMembers";
 import { Spinner } from "@chakra-ui/react";
 import { useToast } from "@chakra-ui/react";
+import MessageContext from '../context/messages/MessageContext';
+
 
 import {
   Modal,
   ModalOverlay,
   ModalContent,
-  ModalHeader,
-  ModalFooter,
-  ModalBody,
-  ModalCloseButton,
   useDisclosure
 } from '@chakra-ui/react'
 
@@ -30,7 +28,8 @@ function Details(props) {
   const [enabled, setenabled] = useState(false);
   const toast = useToast();
   const [commonGroups, setcommonGroups] = useState([]);
-
+  const contextMsg=useContext(MessageContext);
+  const {encryptData}=contextMsg;
   const { isOpen, onOpen, onClose } = useDisclosure()
   
 
@@ -104,7 +103,8 @@ function Details(props) {
         setgroupPic(picture);
         setchatroom({...chatroom,profilePic:picture});
         let message="changed this group's icon";
-        let noty=await createNoty(Profile._id,message);
+        let encryptedMessage=encryptData(message);
+        let noty=await createNoty(Profile._id,encryptedMessage);
         socket.emit("new_message",noty);
         socket.emit("update_Chatlist",noty);
         let updatedChat;
@@ -151,8 +151,10 @@ function Details(props) {
     let data=await response.json();
 
      try { 
+          if (!data.success) return ;
           let message="left"
-          let noty=await createNoty(Profile._id,message);
+          let encryptedMessage=encryptData(message);
+          let noty=await createNoty(Profile._id,encryptedMessage);
           noty.removedUserId=logUser._id;
           socket.emit("new_message",noty);
           socket.emit("update_Chatlist",noty);
@@ -238,10 +240,10 @@ function Details(props) {
        setgroupName(newChatName);
        setchatroom({...chatroom,chatname:newChatName});
       let message="changed the subject to "+ newChatName ;
-      let noty=await createNoty(Profile._id,message);
+      let encryptedMessage=encryptData(message);
+      let noty=await createNoty(Profile._id,encryptedMessage);
       socket.emit("new_message",noty);
       socket.emit("update_Chatlist",noty);
-      // input.placeholder=newChatName;
       input.disabled=false;
       setenabled(true);
       let updatedChat;
@@ -314,7 +316,7 @@ function Details(props) {
           className="cursor-pointer mt-1 fa-solid fa-xmark"
         ></i>
       </div>
-      <div className="py-2 chatBox overflow-y-scroll  ">
+      <div className="py-2 chatBox overflow-x-hidden   overflow-y-scroll  ">
         <div className="flex space-y-2 mt-3  py-2 flex-col items-center">
           <div className="relative group flex justify-center items-center ">
             <img
@@ -328,7 +330,7 @@ function Details(props) {
             <Modal isOpen={isOpen} onClose={onClose}>
               <ModalOverlay />
               <ModalContent borderRadius={"20px"}>
-                  <img className="h-[70vh] rounded-lg" src={Profile.isGroupChat?Profile.profilePic:Profile.avtar} ></img>
+                  <img alt="" className="h-[70vh] rounded-lg" src={Profile.isGroupChat?Profile.profilePic:Profile.avtar} ></img>
               </ModalContent>
             </Modal>
            
@@ -347,33 +349,33 @@ function Details(props) {
               {Profile.isGroupChat ? 
               <div className="relative group mt-1 mb-1">
               <input
-              className={`bg-transparent ${enabled?"border-b-2":"border-b-0 text-center"} cursor-pointer text-white px-3 font-semibold  placeholder:text-white  pb-2 
-              border-[rgb(53,55,59)] outline-none  w-60`}
+              className={`bg-transparent ${enabled?"border-b-2":"border-b-0 text-center"} cursor-pointer text-[rgb(170,170,170)] px-3 font-semibold  
+              placeholder:text-[rgb(211,211,211)]  text-lg pb-2 
+              border-[rgb(34,134,92)] outline-none  w-60`}
               type={"text"}
               disabled
               id="inputName"
-              placeholder={groupName}
-              maxLength="25"
+              placeholder={groupName.length>20?groupName.slice(0,23)+'..':groupName}
+              maxLength="30"
               onChange={ (e)=>{setnewChatName(e.target.value)}}
               ></input> 
               {!enabled&&isUserExist&&<i onClick={editName} className="absolute group-hover:opacity-100 opacity-0 cursor-pointer text-[rgb(87,87,87)]  right-0 fa-solid fa-pen"></i>}
                 {enabled&&newChatName&&<i onClick={changeName} className="absolute cursor-pointer text-[rgb(87,87,87)]  right-0 fa-solid fa-circle-check"></i>}
               </div>
             :<div className="font-semibold text-lg mt-1 w-52 pb-2 text-center">
-              {Profile.name}
+              {Profile.name.length>23?Profile.name.slice(0,23)+'..':Profile.name}
             </div> 
             }
-            
           </div>
         </div>
         <div className="bg-[rgb(27,27,27)]  w-80 h-3"></div>
-            {!Profile.isGroupChat&&<div className="  py-3 text-white w-64">
+            {!Profile.isGroupChat&&<div className="  py-3  text-white ">
                <p className="text-[rgb(167,169,171)] px-5 font-semibold">Groups in common</p>
-               <div className="flex h-56  overflow-y-scroll px-3 chatBox mt-3 flex-col space-y-3">
+               <div className="flex h-56  overflow-y-scroll  chatBox mt-3 flex-col ">
               {commonGroups.map((group) => {
                 return (
                   <div
-                 className="flex cursor-pointer items-center space-x-2"
+                 className="flex cursor-pointer hover:bg-[rgb(44,44,44)] py-[6px] px-3 items-center space-x-2"
                   key={group._id}
                   onClick={(e)=>{setGroupChat(group)}}
                   >
@@ -406,15 +408,14 @@ function Details(props) {
       </div>
     </div>
     {dropdown&&
-              <div onClick={toggleDropdown} className="absolute w-[100%]  h-[100vh] right-0 ">
-              <div className="text-white  border-[1px] border-[rgb(75,75,75)] right-7 top-32 absolute w-36  bg-[rgb(49,49,49)] ">
+      <div onClick={toggleDropdown} className="absolute w-[100%]  h-[100vh] right-0 ">
+              <div className="text-white  border-[1px] border-[rgb(75,75,75)] rounded-md right-7 top-32 absolute w-36  bg-[rgb(49,49,49)] ">
                     {Profile.isGroupChat&& isUserExist&& (
                       <input
-                        onChange={changeProfile}
+                        onInput={changeProfile}
                         className=" inputFile  h-8 w-36 cursor-pointer border-[rgb(75,75,75)]  border-b-[1px] opacity-100 hover:bg-[rgb(58,58,58)]
                         text-white  text-center"
                         type="file"
-                        id="fileUpload"
                         title=""
                         ></input>
                       )}

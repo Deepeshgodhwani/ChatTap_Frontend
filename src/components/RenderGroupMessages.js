@@ -7,13 +7,13 @@ import "../App.css";
 import MessageContext from "../context/messages/MessageContext";
 
 function RenderGroupMessages(props) {
-  const { messages, user } = props;
+  const { messages, user,details } = props;
   const context = useContext(ChatContext);
   const contextMsg = useContext(MessageContext);
   const {logUser}=context;
   const {decryptData}=contextMsg
  
-//  console.log(decryptData("deepesh"));
+
 
   const checkUser = (User) => {
     if (User._id === user._id) {
@@ -27,10 +27,9 @@ function RenderGroupMessages(props) {
 
   
   const checkSelf=(element)=>{
-        //  console.log(messages.length);
          if(messages.length<2) return ;
         let index=messages.indexOf(element);
-         if(messages[index-1].sender._id!==element.sender._id){
+         if(messages[index-1].noty||messages[index-1].sender._id!==element.sender._id){
            return true;
          }else{
              return false;
@@ -38,9 +37,9 @@ function RenderGroupMessages(props) {
   }
 
 
-  const filterMessage=(message)=>{
-        
-        return message.replace(logUser.name,"you");
+  const filterMessage=(encryptedMessage)=>{
+      let message =decryptData(encryptedMessage);
+      return message.replace(logUser.name,"you");
   }
 
 
@@ -53,7 +52,7 @@ function RenderGroupMessages(props) {
           if (message.noty) {
             return (
               <div key={message._id} className="flex  justify-center">
-                <span className="bg-[rgb(36,36,36)] px-4 text-[rgb(199,199,199)] py-1 rounded-lg text-sm">
+                <span className={`bg-[rgb(36,36,36)] ${details?"max-w-sm":"max-w-md"} text-center px-4 text-[rgb(199,199,199)] py-1 rounded-lg text-sm`}>
                   <span className=" text-xs capitalize">
                     {checkUser(message.sender)}
                   </span>
@@ -71,7 +70,7 @@ function RenderGroupMessages(props) {
               >
                 <span
                   className={` flex px-2  text-white py-[6px] text-sm max-w-xs  break-all   bg-[rgb(38,141,97)] rounded-lg `}>
-                  {message.content}
+                  {decryptData(message.content)}
                 </span>
               </div>
             );
@@ -89,17 +88,16 @@ function RenderGroupMessages(props) {
                     src={message.sender.avtar}
                   ></img>}
                   <div className="space-y-1 ">
-                    <div className="flex space-x-3">
-                      {checkSelf(message)&&<p className="text-xs font-semibold">
+                    {checkSelf(message)?<div className="px-2 max-w-xs  break-all  space-y-1  text-white  py-[6px]   rounded-tr-lg  rounded-br-lg rounded-bl-lg bg-[rgb(53,55,59)] text-sm">
+                    {checkSelf(message)&&<p className="text-xs text-[rgb(206,206,206)] font-semibold">
                         {message.sender.name}
                       </p>}
+                       <p>
+                       {decryptData(message.content)}
+                        </p> 
                     </div>
-                    {checkSelf(message)?<div className="px-2 max-w-xs  break-all   text-white  py-[6px]   space-y-1 rounded-tr-lg  rounded-br-lg rounded-bl-lg bg-[rgb(53,55,59)] text-sm">
-                        {message.content}
-                        
-                    </div>
-                    :<div className="px-2 bg-[rgb(53,55,59)] max-w-xs  break-all    py-[6px]  text-sm rounded-lg text-white ml-10   ">
-                      {message.content}
+                    :<div className="px-2 bg-[rgb(53,55,59)] max-w-xs  break-all     py-[6px]  text-sm rounded-lg text-white ml-12   ">
+                      {decryptData(message.content)}
                     </div>}
                   </div>
                 </div>

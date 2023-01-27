@@ -2,8 +2,7 @@ import React, { useState,useContext,} from 'react'
 import { useToast } from "@chakra-ui/react";
 
 import {
-    useDisclosure,FormControl,
-    Input,Spinner} from '@chakra-ui/react'
+    useDisclosure,FormControl,Spinner} from '@chakra-ui/react'
 
     import {
       Drawer,
@@ -14,10 +13,8 @@ import {
       
     } from '@chakra-ui/react'
 import createGroupLogo from '../images/createGroup.png';
-
-
-
 import ChatContext from '../context/chat/ChatContext'
+import MessageContext from '../context/messages/MessageContext';
 
 
 
@@ -32,17 +29,16 @@ function GroupCreation(props) {
     const [search, setsearch] = useState("")
     const [users, setusers] = useState([]);
     const [loading, setloading] = useState(false);
-  const [result, setresult] = useState(true);
-  const context = useContext(ChatContext);
-  const {setchatroom,setrecentChats,recentChats,createNoty,setgroupPic,setgroupName}=context;
+    const [result, setresult] = useState(true);
+    const context = useContext(ChatContext);
+    const contextMsg=useContext(MessageContext);
+    const {encryptData}=contextMsg;
+    const {setchatroom,setrecentChats,recentChats,createNoty,setgroupPic,setgroupName,setgroupMembers}=context;
     const [groupPicture, setgroupPicture] = useState("https://cdn6.aptoide.com/imgs/1/2/2/1221bc0bdd2354b42b293317ff2adbcf_icon.png");
     const [chatName, setchatName] = useState("");
     const [phase, setphase] = useState(1);
     const [isPicture, setisPicture] = useState(false);
     const toast = useToast();
-   
-
-    
     const [selectedUsers, setselectedUsers] = useState([]);
     const [selectedUsersId, setselectedUsersId] = useState([]);
 
@@ -153,14 +149,17 @@ function GroupCreation(props) {
               body:JSON.stringify({chatName,selectedUsersId,groupPicture})
             })
             
-            let data=await response.json();
-            let message="created group "+data.chatname;
-          let latestMessage=await createNoty(data._id,message);
+          let data=await response.json();
+          let message="created group "+data.chatname;
+          let encrytMessage=encryptData(message);
+          let latestMessage=await createNoty(data._id,encrytMessage);
           data.latestMessage=latestMessage;
           setchatroom(data);
+          setgroupMembers(data.users);  
           setgroupPic(data.profilePic);
           setgroupName(data.chatname);
           socket.emit("group_created",data);
+          socket.emit("update_Chatlist",latestMessage);
           setrecentChats([data,...recentChats]);
           setselectedUsers([]);
           setselectedUsersId([]);
@@ -224,7 +223,7 @@ function GroupCreation(props) {
       
   return (
     <div>
-        <img onClick={onOpen} alt='' className='w-8 cursor-pointer' src={createGroupLogo}></img>
+        <img title='Create group' onClick={onOpen} alt='' className='w-8 cursor-pointer' src={createGroupLogo}></img>
         <Drawer
         isOpen={isOpen}
         placement='left'
@@ -232,34 +231,35 @@ function GroupCreation(props) {
         finalFocusRef={btnRef}
       >
         <DrawerOverlay />
-        <DrawerContent  bg={"rgb(27,27,27)"}  color={"white"}>
+        <DrawerContent  bg={"rgb(27,27,27)"}   color={"white"}>
           <DrawerHeader bg={"rgb(36,36,36)"}>
-            <div className="flex space-x-4 text-lg items-center font-semibold pt-2 ">
+            <div className="flex space-x-4 text-lg relative items-center font-semibold pt-2 ">
           <i onClick={changePage} className="fa-solid cursor-pointer fa-arrow-left"></i>
             {phase===1&&<p>Add group members</p>}
             {phase===2&&<p>New group</p>}
-            </div></DrawerHeader>
+            </div>
+            </DrawerHeader>
 
-          <DrawerBody overflow={"hidden"} position={"relative"} paddingTop={"5"}>
+          <DrawerBody overflow={"hidden"} padding={0} position={"relative"} paddingTop={""}>
            
-           {phase===1&&<div className='overflow-y-scroll  chatBox'>
+           {phase===1&&<div className='overflow-y-scroll mt-4 chatBox'>
 
-          <div className='flex flex-wrap max-h-20 overflow-y-scroll chatBox gap-y-1 gap-x-1'>{selectedUsers.map((user)=>{
+          <div className=' styleScroll flex flex-wrap max-h-20  px-4 overflow-y-scroll  gap-y-1 gap-x-1'>{selectedUsers.map((user)=>{
             return(<div className='px-2 py-1   space-x-2  items-center flex  rounded-lg text-xs text-white 
             bg-[rgb(61,61,61)]' key={user._id}><p>{user.name}</p><i onClick={(e)=>{removeUser(user)}} className=" mt-1 cursor-pointer fa-solid fa-xmark"></i></div>)
           })}</div>
         <FormControl mt={4}>
-          {/* <FormLabel>Add members</FormLabel> */}
-          <Input onChange={onChange} value={search} placeholder='Enter names or email address...' />
+          <input onChange={onChange} value={search}  className=" border-[rgb(156,150,150)]  px-4 outline-none w-[17rem] py-2
+                    rounded-lg border-2  bg-transparent mx-4 text-white" placeholder='Enter names or email address'></input>
         </FormControl>
         {loading&&<div className="h-[50vh] absolute mx-28 flex justify-center items-center">
               <Spinner />
             </div>}
-            {!loading&&result&&<div className="flex   h-[50vh] overflow-y-scroll chatBox mt-6 flex-col space-y-3">
+            {!loading&&result&&<div className="flex  h-[27rem]  overflow-y-scroll styleScroll mt-6 flex-col ">
               {users.map((user) => {
                 return (
                   <div
-                  onClick={(e)=>{collectUser(user)}} className="flex cursor-pointer  items-center space-x-2"
+                  onClick={(e)=>{collectUser(user)}} className="flex hover:bg-[rgb(58,58,58)]   cursor-pointer px-4 py-[6px]  items-center space-x-2"
                   key={user._id}
                   >
                     <img className="w-12 rounded-full h-12" alt="" src={user.avtar}></img>
@@ -270,30 +270,34 @@ function GroupCreation(props) {
             </div>}
             {!result&&<div className="text-white h-[52vh] mx-20 absolute flex justify-center items-center">No result found</div>}
            </div>}
-            {(selectedUsers.length>0||chatName)&&<div onClick={changePhase} className={`bg-[rgb(34,134,92)] cursor-pointer mx-28 my-3 absolute ${phase==1?"bottom-6":"bottom-20"} z-20 rounded-full w-10 h-10 flex justify-center items-center`}>
-
+            {(selectedUsers.length>0||chatName)&&<div onClick={changePhase} className={`bg-[rgb(34,134,92)] cursor-pointer my-3 absolute
+             ${phase===1?"bottom-6":"bottom-20"}  ${phase===1?"right-7":"right-36"} z-20 rounded-full w-10 h-10 flex justify-center items-center`}>
             <i className="fa-sharp fa-solid fa-arrow-right"></i>
             </div>}
-             {phase===2&&<div className='flex flex-col  gap-y-2 items-center'>
+             {phase===2&&<div className='flex flex-col py-8  gap-y-2 items-center'>
                 <div className='flex group w-52 h-52 cursor-pointer items-center relative justify-center py-8 rounded-full'>
-                <img alt='' className='w-52 h-52 rounded-full ' src={groupPicture}></img>
+                <img alt='' className='w-52 h-52 check rounded-full ' src={groupPicture}></img>
                 <input
                       onChange={UploadPic}
-                      className="  inputFile absolute top-2 h-48
-                text-white rounded-full z-10 justify-center cursor-pointer items-center opacity-0 w-48"
+                      className="  inputFile absolute  h-48
+                text-white rounded-full z-10 justify-center  cursor-pointer items-center opacity-0 w-48"
                       type="file"
                     ></input>
-                     {loading&&<Spinner className="absolute z-50" />}
+                     {loading&&<Spinner size='xl' color="white" thickness='3px' className="absolute z-50" />}
  
-                    {!isPicture&&<div className="absolute top-2  flex text-center cursor-pointer py-14 bg-black w-48 space-y-1 h-48 opacity-70 rounded-full flex-col justify-center items-center">
-                      <i className="fa-solid text-lg fa-camera"></i>
+                    {!isPicture&&<div className="absolute   flex text-center cursor-pointer py-14 bg-black w-48 
+                    space-y-1 h-48 opacity-70 rounded-full flex-col justify-center items-center">
+                      <i className="fa-solid text-lg fa-camera"></i> 
                       <div className="  text-xs font-semibold ">
                       <p>ADD</p>
                       <p>GROUP PHOTO</p>
                     </div>
               </div>}
                 </div>
-                <input className='w-64 outline-none bg-transparent px-1 my-2  border-[rgb(9,128,93)] border-b-2' onChange={(e)=>{setchatName(e.target.value)}} value={chatName} placeholder='Group name' /> 
+                <input className='w-64 pb-2 outline-none bg-transparent px-4 my-6  border-[rgb(9,128,93)] border-b-2'
+                 onChange={(e)=>{setchatName(e.target.value)}} value={chatName} 
+                 maxLength={30}
+                 placeholder='Group name' /> 
               </div>}
      </DrawerBody>
       
