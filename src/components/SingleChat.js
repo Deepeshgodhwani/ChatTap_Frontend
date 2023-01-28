@@ -28,7 +28,6 @@ export default function SingleChat(props) {
       
 
 
-
   // To estaiblish connection //
 
         useEffect(() => {
@@ -40,7 +39,8 @@ export default function SingleChat(props) {
             
           }
           connectUser();
-        },[chatroom,logUser])
+          document.title=`ChatTap • ${secondUser.name}`
+        },[chatroom,logUser,secondUser])
 
   //To join room //
 
@@ -64,6 +64,7 @@ export default function SingleChat(props) {
               }
              fetchMessage();
              selectedChatCompare=chatroom;
+            
           }, [chatroom])
 
     
@@ -77,7 +78,7 @@ export default function SingleChat(props) {
                }
          if( condition && newMessage && delay){
                 delay=false;
-                socket.emit("toggleTyping",{chat:chatroom,status:false,user:logUser})
+                 socket.emit("toggleTyping",{chat:chatroom,status:false,user:logUser})
                  let encryptedMessage=encryptData(newMessage);    
                 let token =localStorage.getItem('token');
                 const response=await fetch(`http://localhost:7000/api/chat/message`,
@@ -174,6 +175,7 @@ export default function SingleChat(props) {
                    <p onClick={()=>{ setDropdown(false)
                      props.toggleProfileView(true);}} className="cursor-pointer hover:bg-[rgb(44,44,44)]  py-1 px-4">View details</p>
                    <p onClick={()=>{ props.toggleProfileView(false)
+                    document.title="ChatTap"
                      setchatroom({})}} className="cursor-pointer hover:bg-[rgb(44,44,44)]  py-1 px-4">Close chat</p>
               </div>}
             </div>

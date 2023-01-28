@@ -7,6 +7,8 @@ import Profile from '../components/Details';
 import ChatContext from '../context/chat/ChatContext';
 import { useContext } from 'react';
 import io from "socket.io-client";
+import { Spinner } from '@chakra-ui/react';
+import Loading from '../components/Loading';
 const ENDPOINT = "http://localhost:4000";
 var socket;
 
@@ -22,6 +24,7 @@ function Chat_page() {
   const context = useContext(ChatContext);
   const [toggleSearch, settoggleSearch] = useState(false);
   const {chatroom,logUser,setlogUser}=context;
+  const [loading, setloading] = useState(true);
 
 
  
@@ -45,7 +48,10 @@ function Chat_page() {
     }, [])
 
 
-   
+   const toggleLoading =()=>{
+      console.log("hey");
+      setloading(false);
+   }
 
 
     const toggleProfileView=(value)=>{
@@ -72,12 +78,17 @@ function Chat_page() {
     }
 
   return (
-    <div className='flex h-[100vh] '>
-    <Navbar socket={socket} settoggleSearch={ToggleSearch} toggleSearch={toggleSearch}/>
-    <Chatlist socket={socket} settoggleSearch={ToggleSearch} />
-    <Chat toggleProfileView={toggleProfileView} details={profileView} socket={socket} />
-    {profileView &&<Profile toggleProfileView={toggleProfileView} 
-    socket={socket} Profile={details} />} 
+    <div onLoad={toggleLoading} className='flex h-[100vh] '>
+      {loading&&
+      <div className='absolute flex z-50 justify-center bg-[rgb(26,26,26)] w-full h-[100vh] items-center '>
+      <Spinner className='' color='white' size='xl' thickness='10px'/> 
+        </div>}
+      <Navbar socket={socket} settoggleSearch={ToggleSearch} toggleSearch={toggleSearch}/>
+      <Chatlist socket={socket} settoggleSearch={ToggleSearch} />
+      <Chat toggleProfileView={toggleProfileView} details={profileView} socket={socket} />
+      {profileView &&<Profile toggleProfileView={toggleProfileView} 
+      socket={socket} Profile={details} />} 
+  
   </div>
   )
 }

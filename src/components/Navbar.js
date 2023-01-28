@@ -2,7 +2,7 @@ import React from "react";
 import { useContext } from "react";
 import GroupCreation from './GroupCreation';
 import {  Spinner } from '@chakra-ui/react'
-import appLogo from '../images/app logo.png'
+import logo from '../images/logo.png'
 import {
   Drawer,
   DrawerBody,
@@ -86,7 +86,7 @@ export default function Navbar(props) {
   return (
     <nav className="flex flex-col  items-center justify-center  w-20  py-10 text-white  bg-[rgb(27,27,27)] ">
       <div className="bg-[rgb(36,36,36)] w-14 space-y-4 pb-5 pt-2 rounded-lg flex flex-col  items-center justify-center">
-        <img alt="" className="h-14 w-14 rounded-full -mb-2" src={appLogo}></img>
+        <img alt="" className="w-10  " src={logo}></img>
       <i title="Search"  onClick={onOpen}  className=" text-[rgb(111,111,111)]  text-xl cursor-pointer fa-solid fa-magnifying-glass"></i>
       <Drawer
         isOpen={isOpen}

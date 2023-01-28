@@ -32,6 +32,7 @@ function GroupChat(props) {
     groupMessages,
     setgroupMessages,
     groupMembers,
+    setgroupMembers,
     chatroom,
     setchatroom,
     groupPic,
@@ -52,6 +53,7 @@ function GroupChat(props) {
 
   // To estaiblish connection //
 
+
   useEffect(() => {
     const connectUser = () => {
       if (chatroom.users) {
@@ -64,6 +66,7 @@ function GroupChat(props) {
         };
     };
     connectUser();
+    document.title=`ChatTap • ${chatroom.chatname}`
   }, [chatroom]);
 
   //To join room //
@@ -222,6 +225,29 @@ function GroupChat(props) {
   }, [groupMembers])
   
 
+  const updateUsers=data=>{
+    console.log(data.group._id," and ",selectedChatCompare._id)
+    console.log(data.members);
+    if(data.group._id===selectedChatCompare._id ){
+        data.status==="add"?setgroupMembers(groupMembers.concat(data.members)):
+         setgroupMembers(groupMembers.filter((member)=>{
+         return member.user._id!==data.members._id;
+     }));
+    }
+  }
+
+  
+
+
+   useEffect(() => {
+    if(!socket) return ;
+    socket.on("updateUsers",updateUsers);
+
+    return ()=>{socket.off("updateUsers",updateUsers)};
+
+     // eslint-disable-next-line
+   }, [])
+
 
   const toggleDropdown= ()=>{
         if(dropdown){
@@ -273,6 +299,7 @@ function GroupChat(props) {
                     onClose()
                     props.toggleProfileView(true)}} className=' border-[rgb(75,75,75)] cursor-pointer hover:bg-[rgb(58,58,58)]  border-b-[1px] py-1 '>View details</p>
                   <p onClick={()=>{ props.toggleProfileView(false)
+                    document.title="ChatTap"
                      setchatroom({})}}  className='hover:bg-[rgb(58,58,58)]  cursor-pointer py-1'>Close chat</p> 
                 </PopoverContent>
            </Popover>

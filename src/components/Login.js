@@ -65,8 +65,6 @@ function Login(props) {
   };
 
   return (
-    // right-28 top-32 absolute
-    // 0 25px 50px -12px rgb(0 0 0 / 0.25)
     <form  className=" bg-[rgb(27,27,27)] justify-center items-center flex  h-[80vh]  w-[70%]     " onSubmit={formHandler}>
       <div className="  flex w-96  relative flex-col z-10 px-9 py-6  justify-between  ">
          <p className="text-base pb-2 text-[rgb(194,194,194)] font-bold">Email</p>

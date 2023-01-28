@@ -59,6 +59,8 @@ export default function Chatlist(props) {
       updatedUsers=data.users;
     } 
 
+    console.log(updatedUsers);
+
     let updatedChat;
     let chats = recentChats;
     let check=true;
@@ -77,6 +79,9 @@ export default function Chatlist(props) {
     if(check){
           let chat=message.chatId;
           chat.latestMessage=message;
+          if(updatedUsers){
+            chat.users=updatedUsers;
+          }
           setrecentChats([chat,...recentChats]);
     }else{
           setrecentChats([updatedChat, ...chats]);
@@ -188,13 +193,7 @@ export default function Chatlist(props) {
   };
   
   
-  const checkUserName = (User) => {
-    if (User._id === logUser._id) {
-      return "You";
-    } else {
-      return User.name;
-    }
-  };
+ 
 
 
   const countMsgs =(members)=>{
@@ -205,10 +204,7 @@ export default function Chatlist(props) {
                   mssgCount=member.unseenMsg;
              }
          })
-           
-
-             return mssgCount;
-           
+       return mssgCount;   
   }
 
 
@@ -216,7 +212,7 @@ export default function Chatlist(props) {
     if(chatroom._id !== element._id){
       accessGroupChat(element._id);
   
-     setrecentChats(recentChats.map(chat=>{
+      setrecentChats(recentChats.map(chat=>{
            if(chat._id===element._id){
                  chat.users.map(members=>{
                      if(members.user._id===logUser._id){
@@ -259,13 +255,18 @@ export default function Chatlist(props) {
   } 
 
 
-
-  const filterMessage =(encryptedMessage,isGroup)=>{
+  const filterMessage =(encryptedMessage,isGroup,user)=>{
       let message=decryptData(encryptedMessage)
-      let compressedMessage=isGroup? message.length>12?message.slice(0,12)+'..':message:
-      message.length>23?message.slice(0,25)+"..":message;
-      return compressedMessage;
-        
+      let compressedMessage;
+        if(isGroup){
+         let name=user._id===logUser._id?"you":user.name;
+         compressedMessage= message.replace(logUser.name,"you");;
+         let finalmessage= name+' : '+compressedMessage;
+         return finalmessage.length>23?finalmessage.slice(0,26)+"..":finalmessage ;
+        }else{
+          compressedMessage= message.length>23?message.slice(0,25)+"..":message;
+        }
+        return compressedMessage;   
   }
 
 
@@ -314,15 +315,14 @@ export default function Chatlist(props) {
                     </div>
                     <div className="flex justify-between">
                     <p className={`${countMsgs(element.users)>0?"text-[rgb(223,223,223)]":"text-[rgb(146,145,148)]"} text-sm`}>
-                      {checkUserName(element.latestMessage.sender)} {": "}
-                      {filterMessage(element.latestMessage.content,true)}
+                      {filterMessage(element.latestMessage.content,true,element.latestMessage.sender)}
                     </p>
                     </div>
                    
                   </div>
                   {countMsgs(element.users)>0&&(<p className="bg-[rgb(197,73,69)] absolute right-2 top-6 rounded-full font-bold flex justify-center 
                     items-center text-[0.7rem] h-5 w-5">
-                        {countMsgs(element.users)}
+                        {countMsgs(element.users)>99?'99+':countMsgs(element.users)}
                       </p>)}
                   </div>
                 </div>
@@ -366,7 +366,7 @@ export default function Chatlist(props) {
                     </div>
                     {countMsgs(element.users)>0&&<p className="bg-[rgb(197,73,69)] absolute right-2 top-6 rounded-full font-bold flex justify-center 
                        items-center text-[0.7rem] h-5 w-5">
-                        {countMsgs(element.users)}
+                        {countMsgs(element.users)>99?'99+':countMsgs(element.users)}
                       </p>}
                     </div>
                   </div>

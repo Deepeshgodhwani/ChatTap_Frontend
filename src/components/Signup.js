@@ -88,6 +88,7 @@ function Signup(props) {
           value={credentials.name}
           className="border-2 py-2 px-4 bg-transparent outline-none rounded-lg "
           type="text"
+          autoComplete='off'
           placeholder="Enter Your Name"
           maxLength={30}
           required
@@ -97,6 +98,7 @@ function Signup(props) {
           onChange={onChange}
           name="email"
           value={credentials.email}
+          autoComplete='off'
           className="border-2 py-2 px-4 bg-transparent outline-none rounded-lg "
           type="text"
           placeholder="Enter Your Email Address"
@@ -110,6 +112,7 @@ function Signup(props) {
           className="border-2 py-2 px-4 bg-transparent outline-none rounded-lg "
           type="password"
           placeholder="Enter Password"
+          autoComplete='off'
           required
         ></input>
         <p className="text-base  text-[rgb(194,194,194)] font-bold">Password confirm</p>
@@ -120,6 +123,7 @@ function Signup(props) {
           className="border-2 py-2  px-4 bg-transparent outline-none rounded-lg"
           type="password"
           placeholder="Confirm Password"
+          autoComplete='off'
           required
         ></input>
         <input
@@ -129,9 +133,9 @@ function Signup(props) {
         ></input>
          <div onClick={()=>{togglePage(true)}} className="cursor-pointer justify-center text-center mt-2 flex text-sm" >
           <p>
-            Need an account?
+            Already have an account?  
             </p>&nbsp;
-            <p className="underline">Sign up</p>
+            <p className="underline">Sign in</p>
           </div>
       </div>
     </form>

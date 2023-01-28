@@ -14,6 +14,7 @@ import {
 import { useContext } from 'react';
 import ChatContext from '../context/chat/ChatContext';
 import MessageContext from '../context/messages/MessageContext';
+let delay=true;
 
 
 
@@ -51,27 +52,6 @@ function GroupMembers(props) {
         }
      }, [groupMembers])
 
-     const updateUsers=data=>{
-      console.log(data.members);
-      console.log(data.group._id," and ",Profile._id)
-      if(Profile&&data.group._id===Profile._id ){
-          data.status==="add"?setgroupMembers(groupMembers.concat(data.members)):
-           setgroupMembers(groupMembers.filter((member)=>{
-           return member.user._id!==data.members._id;
-       }));
-      }
-    }
-
-
-     useEffect(() => {
-      if(!socket) return ;
-      socket.on("updateUsers",updateUsers);
-
-      return ()=>{socket.off("updateUsers",updateUsers)};
-
-       // eslint-disable-next-line
-     }, [])
-     
 
 
     const onChange =async(e)=>{
@@ -100,7 +80,6 @@ function GroupMembers(props) {
 
  const collectUser =(selectedUser)=>{
     let isExist=false;
-       
     groupMembers.forEach(members=>{
       if(members.user._id===selectedUser._id){
           isExist=true;
@@ -127,20 +106,23 @@ function GroupMembers(props) {
       setusers([]);
     }
   }
+
   
   const removeUser =(user)=>{
     setselectedUsers(selectedUsers.filter((members)=>{
         return members.user._id!==user._id;
     }))
   
-    setselectedUsersId(selectedUsersId.filter((User)=>{
-      return User!==user._id;
+    setselectedUsersId(selectedUsersId.filter((members)=>{
+      return members.user!==user._id;
     }))
   }
   
   
   const addUsers=async()=>{
-    
+    if(!delay) return ;
+    delay=false;
+    onClose();
     let token =localStorage.getItem('token');
     console.log("checking at add user");
     const response=await fetch(`http://localhost:7000/api/chat/addUser`,
@@ -175,8 +157,8 @@ function GroupMembers(props) {
        socket.emit("change_users",dataSend);
        setselectedUsers([]);
        setselectedUsersId([]);
-       onClose();
-    }
+      }
+     delay=true;
   }
    
   
