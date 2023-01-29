@@ -17,6 +17,7 @@ import {
 var selectedChatCompare;
 let processSend=true;
 let processRecieve=true;
+let dropdown=false;
 
 
 function GroupChat(props) {
@@ -49,7 +50,6 @@ function GroupChat(props) {
   const {encryptData}=msgContext;
   const [newMessage, setnewMessage] = useState("");
   const [userExist, setuserExist] = useState(true);
-  const [dropdown, setDropdown] = useState(false)
 
   // To estaiblish connection //
 
@@ -236,8 +236,6 @@ function GroupChat(props) {
     }
   }
 
-  
-
 
    useEffect(() => {
     if(!socket) return ;
@@ -252,18 +250,18 @@ function GroupChat(props) {
   const toggleDropdown= ()=>{
         if(dropdown){
          onClose();
-          setDropdown(false);
+         dropdown=false;
         }else{
           onOpen();
-            setDropdown(true);
+          dropdown=true;
         }
   }
 
 
 
   return (
-    <div className={`bg-[rgb(27,27,27)] text-white ${details?"w-[47.5%]":"w-[71%]"}`}>
-      <div className="flex justify-between  items-center h-16 border-[1px] border-[rgb(42,42,42)] py-3 space-x-4 px-10 bg-[rgb(36,36,36)] ">
+    <div className={`bg-[rgb(27,27,27)] overflow-hidden  text-white ${details?"w-[47.5%]":"w-[71%]"}`}>
+      <div className="flex justify-between   items-center h-16 border-[1px] border-[rgb(42,42,42)] py-3 space-x-4 px-10 bg-[rgb(36,36,36)] ">
         <div className="flex space-x-4 items-center ">
           <img
             onClick={() => {
@@ -289,20 +287,23 @@ function GroupChat(props) {
           </div>}
             </div>
         </div> 
+            <div className="relative">
             <Popover isOpen={isOpen}
             onOpen={onOpen}
             onClose={onClose}>              
-                  <i onClick={toggleDropdown}  className="border-2  cursor-pointer border-[rgb(136,136,136)] px-1  text-sm rounded-full fa-solid text-[rgb(136,136,136)] fa-ellipsis"></i>
-                  <PopoverContent className='focus:outline-none' marginRight={"12"} 
-                  bg={"rgb(49,49,49)"} outline="none" textAlign={"center"} borderColor={"rgb(75,75,75)"} width={"40"} >
+                  <i onClick={toggleDropdown}  className="border-2  cursor-pointer border-[rgb(136,136,136)] px-1  text-sm rounded-full fa-solid text-[rgb(136,136,136)] fa-ellipsis">
+                  </i>
+                  <PopoverContent className='focus:outline-none' 
+                  bg={"rgb(49,49,49)"} outline="none" top={"2rem"} right={'8rem'} textAlign={"center"} borderColor={"rgb(75,75,75)"} width={"40"} >
                   <p onClick={()=>{
                     onClose()
                     props.toggleProfileView(true)}} className=' border-[rgb(75,75,75)] cursor-pointer hover:bg-[rgb(58,58,58)]  border-b-[1px] py-1 '>View details</p>
                   <p onClick={()=>{ props.toggleProfileView(false)
                     document.title="ChatTap"
-                     setchatroom({})}}  className='hover:bg-[rgb(58,58,58)]  cursor-pointer py-1'>Close chat</p> 
+                    setchatroom({})}}  className='hover:bg-[rgb(58,58,58)]  cursor-pointer py-1'>Close chat</p> 
                 </PopoverContent>
            </Popover>
+             </div>
         
       </div>
       <div className={`chatBox py-2 px-4  h-[77vh]`}>

@@ -1,5 +1,4 @@
 import React ,{ useState ,useEffect} from 'react'
-import createGroupLogo from '../images/add-user.png';
 import grpLogo from "../images/group.png";
 import List from "../components/List";
 
@@ -15,7 +14,6 @@ import { useContext } from 'react';
 import ChatContext from '../context/chat/ChatContext';
 import MessageContext from '../context/messages/MessageContext';
 let delay=true;
-
 
 
 function GroupMembers(props) {
@@ -35,50 +33,54 @@ function GroupMembers(props) {
     const [loading, setloading] = useState(false);
     const contextMsg=useContext(MessageContext);
     const {encryptData}=contextMsg;
-    
-
     const toast = useToast(); 
 
        
- 
-
     
 
-     useEffect(() => {
+    useEffect(() => {
         if(groupMembers.length>4){
           setrenderMembers(groupMembers.slice(0,4));
         }else{
            setrenderMembers(groupMembers);
         }
-     }, [groupMembers])
-
+    }, [groupMembers])
 
 
     const onChange =async(e)=>{
-      setloading(true);
+        setloading(true);
         setsearch(e.target.value); 
-        let token =localStorage.getItem('token');
-        const response=await fetch(`http://localhost:7000/api/chat/searchUser?search=${e.target.value}`,
-        {
-          method:'GET',
-          mode:"cors" ,
-          headers: {
-            'Content-Type':'application/json',
-            'auth-token':token
-          },
-        })
-    
-        let userrs= await response.json();
-        setusers(userrs);
-        if(!e.target.value){
-          setusers([]);
+        try {
+          let token =localStorage.getItem('token');
+          const response=await fetch(`http://localhost:7000/api/chat/searchUser?search=${e.target.value}`,
+          {
+            method:'GET',
+            mode:"cors" ,
+            headers: {
+              'Content-Type':'application/json',
+              'auth-token':token
+            },
+          })
+      
+          let userrs= await response.json();
+          setusers(userrs);
+          if(!e.target.value){
+            setusers([]);
+          } 
+          
+        } catch (error) {
+          toast({
+            description: "Internal server error",
+            status: 'warning',
+            duration: 1000,
+            isClosable: true,
+          })  
         }
-
         setloading(false);
-     }
+    }
+   
 
-
- const collectUser =(selectedUser)=>{
+    const collectUser =(selectedUser)=>{
     let isExist=false;
     groupMembers.forEach(members=>{
       if(members.user._id===selectedUser._id){
@@ -105,133 +107,147 @@ function GroupMembers(props) {
       setsearch("");
       setusers([]);
     }
-  }
-
-  
-  const removeUser =(user)=>{
-    setselectedUsers(selectedUsers.filter((members)=>{
-        return members.user._id!==user._id;
-    }))
-  
-    setselectedUsersId(selectedUsersId.filter((members)=>{
-      return members.user!==user._id;
-    }))
-  }
-  
-  
-  const addUsers=async()=>{
-    if(!delay) return ;
-    delay=false;
-    onClose();
-    let token =localStorage.getItem('token');
-    console.log("checking at add user");
-    const response=await fetch(`http://localhost:7000/api/chat/addUser`,
-    {
-      method:'POST',
-      mode:"cors" ,
-      headers: {
-        'Content-Type':'application/json',
-        'auth-token':token
-      },
-      body:JSON.stringify({chatId:Profile._id,usersId:selectedUsersId})
-    })
-  
-    let data=await response.json();
-    if(data.success){
-      let message="added ";
-      selectedUsers.forEach(member=>{
-        message=message.concat(member.user.name);
-        message= message.concat(', ');
-      })
-
-       message=message.slice(0,message.length-2);
-       let encryptedMessage=encryptData(message);
-       let noty=await createNoty(Profile._id,encryptedMessage);
-       socket.emit("new_message",noty);
-       socket.emit("update_Chatlist",noty);
-       let status={users:selectedUsersId,chat:Profile,status:"add"};
-       socket.emit("member_status",status);
-       let dataSend={group:Profile,members:selectedUsers,status:"add"};
-       setgroupMembers(groupMembers.concat(selectedUsers));  
-       setgroupMessages([...groupMessages,noty]);
-       socket.emit("change_users",dataSend);
-       setselectedUsers([]);
-       setselectedUsersId([]);
-      }
-     delay=true;
-  }
-   
-  
-  const removeFromGroup= async(User)=>{
-    console.log("checking at remove user");
-    let token =localStorage.getItem('token');
-    const response=await fetch(`http://localhost:7000/api/chat/removeUser?chatId=${Profile._id}&userId=${User._id}`,
-    {
-      method:'GET',
-      mode:"cors" ,
-      headers: {
-        'Content-Type':'application/json',
-        'auth-token':token
-      },
-    })
-  
-    let data=await response.json();
-    let message="removed "+ User.name;
-    let encryptedMessage=encryptData(message);
-    let noty=await createNoty(Profile._id,encryptedMessage);
-    noty.removedUserId=User._id;
-    socket.emit("new_message",noty);
-    socket.emit("update_Chatlist",noty);
-     let status={users:[{user:User._id}],chat:Profile,status:"remove"};
-    socket.emit("member_status",status);
-    let dataSend={group:Profile,members:User,status:"remove"};
-    socket.emit("change_users",dataSend);
-    let updatedChat;
-          let chats=recentChats;
-          chats=chats.filter((Chat)=>{
-          if(Chat._id===noty.chatId._id){
-               Chat.latestMessage=noty;
-               updatedChat=Chat;
-          }
-           return Chat._id!==noty.chatId._id;
-         });
-    setrecentChats([updatedChat,...chats]);
-    setgroupMessages([...groupMessages,noty]);
-    
-    if(data.success){
-         setgroupMembers(groupMembers.filter((member)=>{
-             return member.user._id!==User._id;
-         }))
     }
-  }
 
+  
+    const removeUser =(user)=>{
+      setselectedUsers(selectedUsers.filter((members)=>{
+          return members.user._id!==user._id;
+      }))
+    
+      setselectedUsersId(selectedUsersId.filter((members)=>{
+        return members.user!==user._id;
+      }))
+    }
+    
+    
+    const addUsers=async()=>{
+      if(!delay) return ;
+      delay=false;
+      onClose();
 
-  const setSingleChat=async(User)=>{
-       let element=await accessChat(User._id);
-        setrecentChats(recentChats.map(chat=>{
-        if(chat._id===element._id){
-              chat.users.map(members=>{
-                  if(members.user._id===logUser._id){
-                      members.unseenMsg=0;
-                  }
-              })
-
-              return chat;
-        }else{
-            return chat;
+      try {
+        let token =localStorage.getItem('token');
+        const response=await fetch(`http://localhost:7000/api/chat/addUser`,
+        {
+          method:'POST',
+          mode:"cors" ,
+          headers: {
+            'Content-Type':'application/json',
+            'auth-token':token
+          },
+          body:JSON.stringify({chatId:Profile._id,usersId:selectedUsersId})
+        })
+      
+        let data=await response.json();
+        if(data.success){
+          let message="added ";
+          selectedUsers.forEach(member=>{
+            message=message.concat(member.user.name);
+            message= message.concat(', ');
+          })
+    
+          message=message.slice(0,message.length-2);
+          let encryptedMessage=encryptData(message);
+          let noty=await createNoty(Profile._id,encryptedMessage);
+          socket.emit("new_message",noty);
+          socket.emit("update_Chatlist",noty);
+          let status={users:selectedUsersId,chat:Profile,status:"add"};
+          socket.emit("member_status",status);
+          let dataSend={group:Profile,members:selectedUsers,status:"add"};
+          setgroupMembers(groupMembers.concat(selectedUsers));  
+          setgroupMessages([...groupMessages,noty]);
+          socket.emit("change_users",dataSend);
+          setselectedUsers([]);
+          setselectedUsersId([]);
         }
-      })) 
-  }
+      } catch (error) {
+        toast({
+          description: "Internal server error",
+          status: 'warning',
+          duration: 1000,
+          isClosable: true,
+        })   
+      }
+      delay=true;
+    }
+    
+    
+    const removeFromGroup= async(User)=>{
+      try {
+        
+      } catch (error) {
+        
+      }
+      let token =localStorage.getItem('token');
+      const response=await fetch(`http://localhost:7000/api/chat/removeUser?chatId=${Profile._id}&userId=${User._id}`,
+      {
+        method:'GET',
+        mode:"cors" ,
+        headers: {
+          'Content-Type':'application/json',
+          'auth-token':token
+        },
+      })
+    
+      let data=await response.json();
+      if(data.success){
+        let message="removed "+ User.name;
+        let encryptedMessage=encryptData(message);
+        let noty=await createNoty(Profile._id,encryptedMessage);
+        noty.removedUserId=User._id;
+        socket.emit("new_message",noty);
+        socket.emit("update_Chatlist",noty);
+        let status={users:[{user:User._id}],chat:Profile,status:"remove"};
+        socket.emit("member_status",status);
+        let dataSend={group:Profile,members:User,status:"remove"};
+        socket.emit("change_users",dataSend);
+        let updatedChat;
+              let chats=recentChats;
+              chats=chats.filter((Chat)=>{
+              if(Chat._id===noty.chatId._id){
+                  Chat.latestMessage=noty;
+                  updatedChat=Chat;
+              }
+              return Chat._id!==noty.chatId._id;
+            });
+        setrecentChats([updatedChat,...chats]);
+        setgroupMessages([...groupMessages,noty]);
+        setgroupMembers(groupMembers.filter((member)=>{
+              return member.user._id!==User._id;
+        }))
+      }
+    }
 
 
-  const closeTab =()=>{
-       setsearch("");
-       setselectedUsers([]);
-       setselectedUsersId([]);
-       setusers([])
-       setloading(false);
-       onClose();
-  }
+    const setSingleChat=async(User)=>{
+        let element=await accessChat(User._id);
+          setrecentChats(recentChats.map(chat=>{
+          if(chat._id===element._id){
+                chat.users.map(members=>{
+                    if(members.user._id===logUser._id){
+                        members.unseenMsg=0;
+                    }
+                })
+
+                return chat;
+          }else{
+              return chat;
+          }
+        })) 
+    }
+
+
+    const closeTab =()=>{
+        setsearch("");
+        setselectedUsers([]);
+        setselectedUsersId([]);
+        setusers([])
+        setloading(false);
+        onClose();
+    }
+
+
 
   return (
     <div className=''>
@@ -247,7 +263,7 @@ function GroupMembers(props) {
                   onOpen()}} className='flex hover:bg-[rgb(44,44,44)] py-[5px] px-4 items-center cursor-pointer space-x-2'>
                  
                  <div className='bg-[rgb(34,134,92)]  py-2 px-2  rounded-full'>
-                  <img className='w-6  rounded-full' alt='' src={createGroupLogo}></img>
+                  <img className='w-6  rounded-full' alt='' src={"https://res.cloudinary.com/dynjwlpl3/image/upload/v1675014391/Chat-app/add-user_zetp43.png"}></img>
                   </div>
                   
                   <p className=' text-sm font-semibold'>Add member</p>

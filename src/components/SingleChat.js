@@ -3,13 +3,18 @@ import { useContext } from 'react';
 
 
 import ChatContext from '../context/chat/ChatContext';
+import {
+  Popover,
+  PopoverContent,
+} from '@chakra-ui/react'
 
-import { FormControl } from '@chakra-ui/react';
+import { FormControl,useDisclosure } from '@chakra-ui/react';
 import ScrollableChat from './ScrollableChat';
 import Loading from './Loading';
 import MessageContext from '../context/messages/MessageContext';
 var selectedChatCompare;
 let delay=true;
+let dropdown=false;
 
 
 export default function SingleChat(props) {
@@ -21,9 +26,9 @@ export default function SingleChat(props) {
        const [secondUser, setsecondUser] = useState({});
        const [loading, setloading] = useState(false);
        const {logUser,chatroom,setchatroom,recentChats,setrecentChats}=context;
-       const [dropdown, setDropdown] = useState(false);
        const [isTyping, setisTyping] = useState(false);
        const {encryptData}=msgContext;
+       const { onOpen, onClose, isOpen } = useDisclosure()
 
       
 
@@ -135,13 +140,7 @@ export default function SingleChat(props) {
            })
         },[messages,recentChats]); 
 
-        const toggleDropdown= ()=>{
-          if(dropdown){
-            setDropdown(false);
-          }else{
-              setDropdown(true);
-          }
-    }
+        
 
     useEffect(() => {
       socket.on('isTyping',data=>{
@@ -154,13 +153,23 @@ export default function SingleChat(props) {
         }
       })
     }, [isTyping])
+
+
+    const toggleDropdown= ()=>{
+      if(dropdown){
+       onClose();
+       dropdown=false;
+      }else{
+        onOpen();
+        dropdown=true;
+      }
+    }
     
 
        
   return (
     <>
-    
-      <div className={`bg-[rgb(27,27,27)]  text-white ${details?"w-[47.5%]":"w-[71%]"} `}>
+      <div className={`bg-[rgb(27,27,27)] overflow-hidden text-white ${details?"w-[47.5%]":"w-[71%]"} `}>
         <div className='flex items-center justify-between border-[1px] border-[rgb(42,42,42)]  h-16 py-3 space-x-4 px-10 bg-[rgb(36,36,36)] '>
           <div className='flex space-x-4 items-center ' >
           <img onClick={()=>{props.toggleProfileView(true)}} alt='' className='w-10 h-10 cursor-pointer rounded-full' src={secondUser.avtar}></img>
@@ -169,16 +178,23 @@ export default function SingleChat(props) {
            {isTyping&&<p className='text-sm text-[rgb(36,141,97)]'>Typing ...</p>}
           </div>
           </div>
-          <div className="relative ">
-              <i onClick={toggleDropdown} className="border-2  cursor-pointer border-[rgb(136,136,136)] px-1  text-sm rounded-full fa-solid text-[rgb(136,136,136)] fa-ellipsis"></i>
-              {dropdown&&<div className="text-white  border-[1px] border-[rgb(44,44,44)]  right-2 w-44 top-9 bg-[rgb(36,36,36)] absolute ">
-                   <p onClick={()=>{ setDropdown(false)
-                     props.toggleProfileView(true);}} className="cursor-pointer hover:bg-[rgb(44,44,44)]  py-1 px-4">View details</p>
-                   <p onClick={()=>{ props.toggleProfileView(false)
+          <div className="relative">
+            <Popover isOpen={isOpen}
+            onOpen={onOpen}
+            onClose={onClose}>              
+                  <i onClick={toggleDropdown}  className="border-2  cursor-pointer border-[rgb(136,136,136)] px-1  text-sm rounded-full fa-solid text-[rgb(136,136,136)] fa-ellipsis">
+                  </i>
+                  <PopoverContent  
+                  bg={"rgb(49,49,49)"}  className=""  top={"2rem"} right={'8rem'} textAlign={"center"} borderColor={"rgb(75,75,75)"} width={"40"} >
+                  <p onClick={()=>{
+                    onClose()
+                    props.toggleProfileView(true)}} className=' border-[rgb(75,75,75)] cursor-pointer hover:bg-[rgb(58,58,58)]  border-b-[1px] py-1 '>View details</p>
+                  <p onClick={()=>{ props.toggleProfileView(false)
                     document.title="ChatTap"
-                     setchatroom({})}} className="cursor-pointer hover:bg-[rgb(44,44,44)]  py-1 px-4">Close chat</p>
-              </div>}
-            </div>
+                    setchatroom({})}}  className='hover:bg-[rgb(58,58,58)]  cursor-pointer py-1'>Close chat</p> 
+                </PopoverContent>
+           </Popover>
+             </div>
         </div>
         <div className={` py-2 px-4  h-[77vh]`}>
         {loading&&<Loading></Loading>}

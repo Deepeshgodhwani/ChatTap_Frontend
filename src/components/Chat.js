@@ -22,19 +22,23 @@ function Chat(props) {
           <SingleChat socket={socket} toggleProfileView={toggleProfileView} details={details} />
         )
       ) : (
-        // bg-[rgb(44,44,44)] bg-[rgb(26,26,26)]
         <div className="w-[71%] flex flex-col space-y-2 bg-[rgb(46,46,46)] pt-20 items-center text-white   ">
           <div className="flex  flex-col  justify-center items-center  rounded-xl px-4  ">
-             <img alt="" className="w-[30rem]" src={img2}></img> 
+             <img alt="" className="w-[30rem]" src={"https://res.cloudinary.com/dynjwlpl3/image/upload/v1674985395/Chat-app/.._hqgjqe.png"}></img> 
              <div className="flex items-center space-x-1">
-              <img className="w-14 rounded-full " src={logo}></img>
-             <p className="text-3xl  text-[rgb(194,194,194)] font-semibold">ChatTap</p>
+              <img className="w-14 rounded-full " src={"https://res.cloudinary.com/dynjwlpl3/image/upload/v1674985284/Chat-app/logo_rmgpil.png"}></img>
+             <div className="text-3xl flex text-[rgb(194,194,194)] font-semibold">
+                <p className='text-[rgb(79,224,165)]'>Ch</p>
+                <p className='text-[rgb(126,87,194)]'>at</p>
+                <p className='text-[rgb(254,194,0)]'>Tap</p> 
+             </div>
              </div>
              <p className="w-[26rem]  font-semibold  leading-4 mt-3 text-center text-[rgb(170,170,170)]  ">
               Connect with friends and family in real-time,
               Chat securely with our end to end encrypted chat app.
              Protect your privacy and safeguard your messages from unwated access.
              </p>
+            
              </div>
         </div>
       )}
