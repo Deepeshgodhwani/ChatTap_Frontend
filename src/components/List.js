@@ -14,7 +14,6 @@ import {
     PopoverContent,
   } from '@chakra-ui/react'
 import ChatContext from '../context/chat/ChatContext';
-import grpLogo from "../images/group.png";
 import MessageContext from '../context/messages/MessageContext';
 
 
@@ -102,7 +101,7 @@ function List(props) {
         <ModalContent width={"27rem"} overflow={"hidden"} top={"0"}  borderRadius={'md'}   bg="">
             <div className="flex  px-6 bg-[rgb(36,36,36)] py-3 justify-between">
             <div className='flex  space-x-2'>
-                <img alt='' className='w-6 h-6' src={grpLogo}></img>
+                <img alt='' className='w-6 h-6' src={"https://res.cloudinary.com/dynjwlpl3/image/upload/v1675095423/Chat-app/group_iu5tv2.png"}></img>
                 <p className='text-[rgb(167,169,171)] text-base font-semibold'>MEMBER ({groupMembers.length})</p>
             </div>
              <i onClick={onClose} className="fa-solid cursor-pointer text-[rgb(167,169,171)] text-xl  fa-xmark"></i>
@@ -111,8 +110,8 @@ function List(props) {
             <ModalBody  padding={'0'} paddingLeft={"0"} paddingRight={"0"} minHeight={"20rem"} maxHeight={"27rem"} overflowx={"hidden"} overflowY={"scroll"}
              className="styleScroll" bg={"rgb(27,27,27)"}>
             <div className='text-[rgb(240,240,240)] overflow-hidden '>
-            <div onClick={()=>{logUser._id!==Profile.admin._id&&setSingleChat(Profile.admin)}} className='flex relative  cursor-pointer  hover:bg-[rgb(44,44,44)] px-4 
-            py-[6px] space-x-2 items-center'>
+            <div onClick={()=>{logUser._id!==Profile.admin._id&&setSingleChat(Profile.admin)}} className='flex relative  cursor-pointer  hover:bg-[rgb(44,44,44)] px-8 
+            py-[8px] space-x-2 items-center'>
             <img alt='' className='w-12 rounded-full h-12' src={Profile.admin.avtar}></img>
             <div className='flex'>
             <p className=' text-base font-semibold'>{logUser._id===Profile.admin._id?"You":Profile.admin.name}</p>
@@ -122,7 +121,7 @@ function List(props) {
         </div>
         {groupMembers.map((members)=>{
   
-         return !members.isRemoved&&members.user._id!==Profile.admin._id?(<div key={members.user._id}  className='flex px-4 group py-[6px] hover:bg-[rgb(44,44,44)] cursor-pointer space-x-2 relative items-center'>
+         return !members.isRemoved&&members.user._id!==Profile.admin._id?(<div key={members.user._id}  className='flex px-8 group py-[8px] hover:bg-[rgb(44,44,44)] cursor-pointer space-x-2 relative items-center'>
             <img onClick={()=>{setSingleChat(members.user)}} alt='' className='w-12 rounded-full h-12' src={members.user.avtar}></img>
             <p onClick={()=>{setSingleChat(members.user)}} className=' text-sm font-semibold'>{logUser._id===members.user._id?"You":members.user.name}</p>
 

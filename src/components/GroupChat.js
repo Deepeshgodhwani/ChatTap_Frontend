@@ -18,6 +18,7 @@ var selectedChatCompare;
 let processSend=true;
 let processRecieve=true;
 let dropdown=false;
+let members=[];
 
 
 function GroupChat(props) {
@@ -67,6 +68,7 @@ function GroupChat(props) {
     };
     connectUser();
     document.title=`ChatTap • ${chatroom.chatname}`
+    members=chatroom.users;
   }, [chatroom]);
 
   //To join room //
@@ -141,6 +143,7 @@ function GroupChat(props) {
       processSend=true;
     }
   };
+
 
   // To receive message //
   if ( socket &&  processRecieve){
@@ -227,14 +230,19 @@ function GroupChat(props) {
 
   const updateUsers=data=>{
     console.log(data.group._id," and ",selectedChatCompare._id)
-    console.log(data.members);
     if(data.group._id===selectedChatCompare._id ){
-        data.status==="add"?setgroupMembers(groupMembers.concat(data.members)):
-         setgroupMembers(groupMembers.filter((member)=>{
-         return member.user._id!==data.members._id;
-     }));
+       if(data.status==="add"){
+          members=members.concat(data.members);
+          setgroupMembers(members);
+       }else{
+          members=members.filter((member)=>{
+            return member.user._id!==data.members._id;
+          });
+          setgroupMembers(members)
+       }  
     }
   }
+
 
 
    useEffect(() => {
@@ -260,8 +268,8 @@ function GroupChat(props) {
 
 
   return (
-    <div className={`bg-[rgb(27,27,27)] overflow-hidden  text-white ${details?"w-[47.5%]":"w-[71%]"}`}>
-      <div className="flex justify-between   items-center h-16 border-[1px] border-[rgb(42,42,42)] py-3 space-x-4 px-10 bg-[rgb(36,36,36)] ">
+    <div className={`bg-[rgb(27,27,27)]  relative overflow-hidden  text-white ${details?"md:w-[71.5%] xl:w-[50%]":"md:w-[71%] xl:w-[72%] "}`}>
+      <div className="flex justify-between  items-center h-16 border-[1px] border-[rgb(42,42,42)] py-3 space-x-4 px-10 bg-[rgb(36,36,36)] ">
         <div className="flex space-x-4 items-center ">
           <img
             onClick={() => {
@@ -287,7 +295,7 @@ function GroupChat(props) {
           </div>}
             </div>
         </div> 
-            <div className="relative">
+            <div className="relative ">
             <Popover isOpen={isOpen}
             onOpen={onOpen}
             onClose={onClose}>              
@@ -304,17 +312,15 @@ function GroupChat(props) {
                 </PopoverContent>
            </Popover>
              </div>
-        
       </div>
       <div className={`chatBox py-2 px-4  h-[77vh]`}>
         {loading && <Loading></Loading>}
-
         {!loading && (
           <RenderGroupMessages details={details} socket={socket} messages={groupMessages} user={logUser} />
         )}
       </div>
       {userExist?<FormControl
-        className="bg-[rgb(36,36,36)] border-[1px] border-[rgb(42,42,42)] relative flex justify-center items-center h-[4.9rem]"
+        className="bg-[rgb(36,36,36)]  border-[1px] border-[rgb(42,42,42)] flex justify-center items-center h-[4.9rem]"
         onKeyDown={sendMessage}
       >
         <input
@@ -323,7 +329,6 @@ function GroupChat(props) {
          border-black w-[86%] h-12 pr-16 outline-none rounded-xl py-1 px-4"
           type="text"
           onChange={(e) => {
-             
             setnewMessage(e.target.value);
             socket.emit("toggleTyping",{chat:chatroom,status:e.target.value?true:false,user:logUser})
           }}

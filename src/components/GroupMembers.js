@@ -1,5 +1,4 @@
 import React ,{ useState ,useEffect} from 'react'
-import grpLogo from "../images/group.png";
 import List from "../components/List";
 
 import {
@@ -158,6 +157,16 @@ function GroupMembers(props) {
           setgroupMembers(groupMembers.concat(selectedUsers));  
           setgroupMessages([...groupMessages,noty]);
           socket.emit("change_users",dataSend);
+          let updatedChat;
+          let chats=recentChats;
+          chats=chats.filter((Chat)=>{
+          if(Chat._id===noty.chatId._id){
+              Chat.latestMessage=noty;
+              updatedChat=Chat;
+          }
+          return Chat._id!==noty.chatId._id;
+         });
+          setrecentChats([updatedChat,...chats]);
           setselectedUsers([]);
           setselectedUsersId([]);
         }
@@ -253,7 +262,7 @@ function GroupMembers(props) {
     <div className=''>
          <div className='flex pt-4 px-8   justify-between'>
                <div className='flex   space-x-2'>
-                <img alt='' className='w-5 h-5' src={grpLogo}></img>
+                <img alt='' className='w-5 h-5' src={"https://res.cloudinary.com/dynjwlpl3/image/upload/v1675095423/Chat-app/group_iu5tv2.png"}></img>
                 <p className='text-[rgb(167,169,171)] text-sm font-semibold'>MEMBER ({groupMembers.length})</p>
                </div>
                {groupMembers.length>4&&<List groupMembers={groupMembers} socket={socket} setgroupMembers={setgroupMembers} Profile={Profile} logUser={logUser}/>}

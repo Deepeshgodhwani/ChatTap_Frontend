@@ -9,6 +9,7 @@ import { useContext } from 'react';
 import io from "socket.io-client";
 import { Spinner } from '@chakra-ui/react';
 import logo from '../images/logo.png'
+import DetailsDrawers from '../components/DetailsDrawers';
 const ENDPOINT = "http://localhost:4000";
 
 var socket;
@@ -97,8 +98,8 @@ function Chat_page() {
       <Navbar socket={socket} settoggleSearch={ToggleSearch} toggleSearch={toggleSearch}/>
       <Chatlist socket={socket} settoggleSearch={ToggleSearch} />
       <Chat toggleProfileView={toggleProfileView} details={profileView} socket={socket} />
-      {profileView &&<Profile toggleProfileView={toggleProfileView} 
-      socket={socket} Profile={details} />} 
+      {profileView &&<Profile  toggleProfileView={toggleProfileView} socket={socket} Profile={details} />} 
+      {/* {profileView && <DetailsDrawers  toggleProfileView={toggleProfileView} socket={socket} Profile={details}   />} */}
   
   </div>
   )

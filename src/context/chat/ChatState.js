@@ -14,6 +14,7 @@ const ChatState = (props) => {
   const [groupMessages, setgroupMessages] = useState([]);
   const [loading, setloading] = useState(false);
   const [groupMembers, setgroupMembers] = useState([]);
+  const [chatlistLoading, setchatlistLoading] = useState(false);
 
 
   const accessChat = async (userId) => {
@@ -34,6 +35,7 @@ const ChatState = (props) => {
     setchatroom(data);
     return data;
   };
+  
 
   const accessGroupChat = async (chatId) => {
     let token = localStorage.getItem("token");
@@ -56,7 +58,10 @@ const ChatState = (props) => {
     setgroupMembers(data.users);
   };
 
+
+
   const fetchRecentChats = async () => {
+    setchatlistLoading(true);
     let token = localStorage.getItem("token");
     const response = await fetch("http://localhost:7000/api/chat/fetchChats", {
       method: "GET",
@@ -69,7 +74,10 @@ const ChatState = (props) => {
 
     let chat = await response.json();
     setrecentChats(chat);
+    setchatlistLoading(false);
   };
+
+
 
   const createNoty = async (Id, message) => {
     let token = localStorage.getItem("token");
@@ -110,6 +118,7 @@ const ChatState = (props) => {
         groupPic,
         setgroupName,
         groupName,
+        chatlistLoading
       }}
     >
       {props.children}

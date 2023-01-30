@@ -1,57 +1,64 @@
-import React from "react";
-import { useContext, useState, useEffect } from "react";
+
+import React, { useContext, useState, useEffect } from "react";
 import ChatContext from "../context/chat/ChatContext";
 import GroupMembers from "./GroupMembers";
 import { Spinner } from "@chakra-ui/react";
 import { useToast } from "@chakra-ui/react";
 import MessageContext from "../context/messages/MessageContext";
-
 import {
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  useDisclosure,
-} from "@chakra-ui/react";
+    Drawer,
+    DrawerBody,
+    DrawerFooter,
+    DrawerHeader,
+    DrawerOverlay,
+    DrawerContent,
+    DrawerCloseButton,
+    useDisclosure
+  } from '@chakra-ui/react'
+
+
+function DetailsDrawers(props) {
+    const { isOpen, onOpen, onClose } = useDisclosure()
+    const btnRef = React.useRef()
+    const { Profile, toggleProfileView, socket } = props;
+    const context = useContext(ChatContext);
+    const [loading, setloading] = useState(false);
+
+    const {
+      logUser,
+      setgroupPic,
+      createNoty,
+      recentChats,
+      setrecentChats,
+      chatroom,
+      setchatroom,
+      groupPic,
+      setgroupName,
+      groupName,
+      groupMembers,
+      setgroupMembers,
+      groupMessages,
+      setgroupMessages,
+      accessGroupChat,
+    } = context;
+    const [dropdown, setDropdown] = useState(false);
+    const [isUserExist, setisUserExist] = useState(true);
+    const [newChatName, setnewChatName] = useState("");
+    const [enabled, setenabled] = useState(false);
+    const toast = useToast();
+    const [commonGroups, setcommonGroups] = useState([]);
+    const contextMsg = useContext(MessageContext);
+    const { encryptData } = contextMsg;
+
+
+    useEffect(() => {
+        onOpen();
+        // eslint-disable-next-line
+    }, [])
 
 
 
-
-function Details(props) {
-
-  const { Profile, toggleProfileView, socket } = props;
-  const context = useContext(ChatContext);
-  const [loading, setloading] = useState(false);
-  const {
-    logUser,
-    setgroupPic,
-    createNoty,
-    recentChats,
-    setrecentChats,
-    chatroom,
-    setchatroom,
-    groupPic,
-    setgroupName,
-    groupName,
-    groupMembers,
-    setgroupMembers,
-    groupMessages,
-    setgroupMessages,
-    accessGroupChat,
-  } = context;
-  const [dropdown, setDropdown] = useState(false);
-  const [isUserExist, setisUserExist] = useState(true);
-  const [newChatName, setnewChatName] = useState("");
-  const [enabled, setenabled] = useState(false);
-  const toast = useToast();
-  const [commonGroups, setcommonGroups] = useState([]);
-  const contextMsg = useContext(MessageContext);
-  const { encryptData } = contextMsg;
-  const { isOpen, onOpen, onClose } = useDisclosure();
-
-
-
- 
-  // feching mutual groups of loguser and usetwo 
+     // feching mutual groups of loguser and usetwo 
   const getCommonGroups = async () => {
     try {
       let token = localStorage.getItem("token");
@@ -360,18 +367,23 @@ function Details(props) {
   };
 
 
+    
 
   return (
-    <>
-      <div   className="w-80  bg-[rgb(36,36,36)]  flex flex-col">
+    <Drawer
+    isOpen={isOpen}
+    placement='right'
+    onClose={onClose}
+    finalFocusRef={btnRef}
+  >
+    <DrawerOverlay />
+    <DrawerContent display={"flex"} flexDirection={"column"} backgroundColor={"rgb(36,36,36)"}>
         <div className="text-[rgb(233,233,233)] pt-4  px-5 text-xl font-semibold flex justify-between ">
-          <p>Details</p>
-          <i
-            onClick={() => {
-              toggleProfileView(false);
-            }}
-            className="cursor-pointer mt-1 fa-solid fa-xmark"
-          ></i>
+            <p>Details</p>
+            <i
+                onClick={onClose}
+                className="cursor-pointer mt-1 fa-solid fa-xmark"
+            ></i>
         </div>
         <div className="py-2 chatBox overflow-x-hidden overflow-y-scroll  ">
           <div className="flex space-y-2  mt-3  py-2 flex-col items-center">
@@ -380,7 +392,7 @@ function Details(props) {
                 alt=""
                 className="w-44 cursor-pointer group rounded-full h-44"
                 src={Profile.isGroupChat ? groupPic : Profile.avtar}
-                onClick={onOpen}
+                // onClick={onOpen}
               ></img>
               {loading && (
                 <Spinner
@@ -391,7 +403,7 @@ function Details(props) {
                 />
               )}
 
-              <Modal isOpen={isOpen} onClose={onClose}>
+              {/* <Modal isOpen={isOpen} onClose={onClose}>
                 <ModalOverlay />
                 <ModalContent borderRadius={"20px"}>
                   <img
@@ -402,7 +414,7 @@ function Details(props) {
                     }
                   ></img>
                 </ModalContent>
-              </Modal>
+              </Modal> */}
 
               {Profile.isGroupChat && isUserExist && (
                 <div
@@ -426,9 +438,9 @@ function Details(props) {
                   <input
                     className={`bg-transparent ${
                       enabled ? "border-b-2" : "border-b-0 text-center"
-                    } cursor-pointer text-[rgb(170,170,170)] px-3 font-semibold  
-              placeholder:text-[rgb(211,211,211)]  text-lg pb-2 
-              border-[rgb(34,134,92)] outline-none  w-60`}
+                            } cursor-pointer text-[rgb(170,170,170)] px-3 font-semibold  
+                    placeholder:text-[rgb(211,211,211)]  text-lg pb-2 
+                    border-[rgb(34,134,92)] outline-none  w-60`}
                     type={"text"}
                     disabled
                     id="inputName"
@@ -521,37 +533,9 @@ function Details(props) {
               </div>
             )}
         </div>
-      </div>
-      {dropdown && (
-        <div className="absolute w-[100%]  h-[100vh] right-0 ">
-          <div onClick={toggleDropdown} className=" h-[100vh]"></div>
-          <div className="text-white  border-[1px] border-[rgb(75,75,75)] rounded-md right-7 top-32 absolute w-36  bg-[rgb(49,49,49)] ">
-            {Profile.isGroupChat && isUserExist && (
-              <input
-                onChange={(e) => {
-                  changeProfile(e);
-                  toggleDropdown();
-                }}
-                className=" inputFile z-50  h-8 w-36 cursor-pointer border-[rgb(75,75,75)]  border-b-[1px] opacity-100 hover:bg-[rgb(58,58,58)]
-                        text-white  text-center"
-                type="file"
-                title=""
-              ></input>
-            )}
-            <p
-              onClick={() => {
-                onOpen();
-                toggleDropdown();
-              }}
-              className="cursor-pointer hover:bg-[rgb(58,58,58)] py-1  px-4 "
-            >
-              View profile
-            </p>
-          </div>
-        </div>
-      )}
-    </>
-  );
+    </DrawerContent>
+  </Drawer>
+  )
 }
 
-export default Details;
+export default DetailsDrawers
