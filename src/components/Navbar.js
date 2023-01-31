@@ -84,7 +84,7 @@ export default function Navbar(props) {
 
 
   return (
-    <nav className="flex flex-col  items-center justify-center  w-20  py-10 text-white  bg-[rgb(27,27,27)] ">
+    <nav className="flex-col  hidden md:flex  items-center justify-center  w-20  py-10 text-white  bg-[rgb(27,27,27)] ">
       <div className="bg-[rgb(36,36,36)] w-14 space-y-4 pb-5 pt-2 rounded-lg flex flex-col  items-center justify-center">
         <img alt="" className="w-10  " src={logo}></img>
       <i title="Search"  onClick={onOpen}  className=" text-[rgb(111,111,111)]  text-xl cursor-pointer fa-solid fa-magnifying-glass"></i>

@@ -7,14 +7,11 @@ import { useToast } from "@chakra-ui/react";
 import MessageContext from "../context/messages/MessageContext";
 import {
     Drawer,
-    DrawerBody,
-    DrawerFooter,
-    DrawerHeader,
     DrawerOverlay,
     DrawerContent,
-    DrawerCloseButton,
     useDisclosure
   } from '@chakra-ui/react'
+import ViewProfile from "./ViewProfile";
 
 
 function DetailsDrawers(props) {
@@ -49,6 +46,7 @@ function DetailsDrawers(props) {
     const [commonGroups, setcommonGroups] = useState([]);
     const contextMsg = useContext(MessageContext);
     const { encryptData } = contextMsg;
+    const [view, setview] = useState(false);
 
 
     useEffect(() => {
@@ -335,7 +333,6 @@ function DetailsDrawers(props) {
 
 
   const toggleDropdown = () => {
-    console.log("..");
     if (dropdown) {
       setDropdown(false);
     } else {
@@ -365,23 +362,24 @@ function DetailsDrawers(props) {
       );
     }
   };
+ 
 
-
-    
 
   return (
     <Drawer
     isOpen={isOpen}
     placement='right'
-    onClose={onClose}
+    onClose={()=>{toggleProfileView()
+      onClose()}}
     finalFocusRef={btnRef}
   >
     <DrawerOverlay />
-    <DrawerContent display={"flex"} flexDirection={"column"} backgroundColor={"rgb(36,36,36)"}>
+    <DrawerContent display={"flex"}  flexDirection={"column"} backgroundColor={"rgb(36,36,36)"}>
         <div className="text-[rgb(233,233,233)] pt-4  px-5 text-xl font-semibold flex justify-between ">
             <p>Details</p>
             <i
-                onClick={onClose}
+                onClick={()=>{toggleProfileView()
+                  onClose()}}
                 className="cursor-pointer mt-1 fa-solid fa-xmark"
             ></i>
         </div>
@@ -402,19 +400,8 @@ function DetailsDrawers(props) {
                   className="absolute"
                 />
               )}
-
-              {/* <Modal isOpen={isOpen} onClose={onClose}>
-                <ModalOverlay />
-                <ModalContent borderRadius={"20px"}>
-                  <img
-                    alt=""
-                    className="h-[70vh] rounded-lg"
-                    src={
-                      Profile.isGroupChat ? Profile.profilePic : Profile.avtar
-                    }
-                  ></img>
-                </ModalContent>
-              </Modal> */}
+  
+              <ViewProfile Profile={Profile} view={view} setview={setview}/>            
 
               {Profile.isGroupChat && isUserExist && (
                 <div
@@ -533,6 +520,34 @@ function DetailsDrawers(props) {
               </div>
             )}
         </div>
+        {dropdown && (
+        <div className="absolute w-[100%]  h-[100vh] right-0 ">
+          <div onClick={toggleDropdown} className=" h-[100vh]"></div>
+          <div className="text-white  border-[1px] border-[rgb(75,75,75)] rounded-md right-7 top-32 absolute w-36  bg-[rgb(49,49,49)] ">
+            {Profile.isGroupChat && isUserExist && (
+              <input
+                onChange={(e) => {
+                  changeProfile(e);
+                  toggleDropdown();
+                }}
+                className=" inputFile z-50  h-8 w-36 cursor-pointer border-[rgb(75,75,75)]  border-b-[1px] opacity-100 hover:bg-[rgb(58,58,58)]
+                        text-white  text-center"
+                type="file"
+                title=""
+              ></input>
+            )}
+            <p
+              onClick={() => {
+                setview(true);
+                toggleDropdown();
+              }}
+              className="cursor-pointer hover:bg-[rgb(58,58,58)] py-1  px-4 "
+            >
+              View profile
+            </p>
+          </div>
+        </div>
+      )}
     </DrawerContent>
   </Drawer>
   )

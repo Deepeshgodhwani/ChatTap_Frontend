@@ -7,14 +7,9 @@ import Profile from '../components/Details';
 import ChatContext from '../context/chat/ChatContext';
 import { useContext } from 'react';
 import io from "socket.io-client";
-import { Spinner } from '@chakra-ui/react';
-import logo from '../images/logo.png'
 import DetailsDrawers from '../components/DetailsDrawers';
 const ENDPOINT = "http://localhost:4000";
-
 var socket;
-
-
 
 
 
@@ -25,8 +20,11 @@ function Chat_page() {
   const [details, setdetails] = useState({});
   const context = useContext(ChatContext);
   const [toggleSearch, settoggleSearch] = useState(false);
-  const {chatroom,logUser,setlogUser}=context;
+  const {chatroom,logUser,setlogUser,setchatroom}=context;
   const [loading, setloading] = useState(true);
+  const [manageScreen, setmanageScreen] = useState(false);
+  const [enableChatlist, setenableChatlist] = useState(true);
+  const [enableChat, setenableChat] = useState(true);
 
 
  
@@ -46,6 +44,7 @@ function Chat_page() {
 
     useEffect(() => {
         redirectPage();
+        checkScreen();
         // eslint-disable-next-line
     }, [])
 
@@ -56,7 +55,13 @@ function Chat_page() {
 
 
     const toggleProfileView=(value)=>{
-      
+           
+          setprofileView(value);
+          if(!value){
+            setdetails({});
+            return ;
+          }
+
          if(chatroom.isGroupChat){
              setdetails(chatroom);
          }else{
@@ -68,18 +73,41 @@ function Chat_page() {
              }
          }
 
-         setprofileView(value);
-         if(!value){
-            setdetails({});
-         }
+         
     }
 
     const ToggleSearch=(value)=>{
          settoggleSearch(value);
     }
 
+    // below 1280 details section turns into drawer 
+    const checkScreen=()=>{
+         if(window.innerWidth>1280){
+             setmanageScreen(false)
+         }else{
+             setmanageScreen(true);
+         }
+
+
+         if(window.innerWidth>740 && window.innerWidth<768){
+            setenableChat(false);
+            toggleProfileView(false);
+            setchatroom({});
+            document.title="ChatTap"
+         }
+
+
+         if(window.innerWidth>768){
+          setenableChatlist(true);
+          setenableChat(true);
+         }
+    }
+
+    window.onresize=checkScreen;
+
+
   return (
-    <div onLoad={toggleLoading} className='flex h-[100vh] '>
+    <div onLoad={toggleLoading} className='bg-[rgb(26,26,26)] justify-center flex h-[100vh] '>
       {loading&&
       <div className='absolute flex flex-col z-50 pt-44 bg-[rgb(26,26,26)] w-full h-[100vh] items-center '>
             <img className='w-52' alt='' src={"https://res.cloudinary.com/dynjwlpl3/image/upload/v1674985284/Chat-app/logo_rmgpil.png"}></img>
@@ -96,11 +124,10 @@ function Chat_page() {
                 </div>
         </div>}
       <Navbar socket={socket} settoggleSearch={ToggleSearch} toggleSearch={toggleSearch}/>
-      <Chatlist socket={socket} settoggleSearch={ToggleSearch} />
-      <Chat toggleProfileView={toggleProfileView} details={profileView} socket={socket} />
-      {profileView &&<Profile  toggleProfileView={toggleProfileView} socket={socket} Profile={details} />} 
-      {/* {profileView && <DetailsDrawers  toggleProfileView={toggleProfileView} socket={socket} Profile={details}   />} */}
-  
+      {enableChatlist &&<Chatlist setenableChatlist={setenableChatlist}  setenableChat={setenableChat}  socket={socket} settoggleSearch={ToggleSearch} />}
+      {enableChat&&<Chat setenableChatlist={setenableChatlist} setenableChat={setenableChat} toggleProfileView={toggleProfileView} details={profileView} socket={socket} />}
+      {profileView && !manageScreen && <Profile  toggleProfileView={toggleProfileView} socket={socket} Profile={details} />} 
+      {profileView &&  manageScreen && <DetailsDrawers  toggleProfileView={toggleProfileView} socket={socket} Profile={details}   />}
   </div>
   )
 }

@@ -22,7 +22,7 @@ const ScrollableChat = (props) => {
               key={message._id}
             >
               <span
-                className={`px-2 py-[6px] space-x-2 flex  max-w-xs  break-all  text-white  pt-1 text-sm    rounded-lg ${message.sender._id === user._id ? "bg-[rgb(38,141,97)]": "bg-[rgb(53,55,59)]"}`}>
+                className={`px-2 py-[6px] space-x-2 flex max-w-[12rem] xs:max-w-[16rem] sm:max-w-xs  break-all  text-white  pt-1 text-sm    rounded-lg ${message.sender._id === user._id ? "bg-[rgb(38,141,97)]": "bg-[rgb(53,55,59)]"}`}>
                      {decryptData(message.content)}
               </span>
             </div>

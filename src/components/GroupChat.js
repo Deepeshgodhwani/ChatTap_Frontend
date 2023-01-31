@@ -24,7 +24,7 @@ let members=[];
 function GroupChat(props) {
   const context = useContext(ChatContext);
   const msgContext = useContext(MessageContext);
-  const { toggleProfileView, details ,socket} = props;
+  const { toggleProfileView, details ,socket,setenableChatlist,setenableChat} = props;
   const [isTyping, setisTyping] = useState(false);
   const [TypingUser, setTypingUser] = useState([]);
   const { onOpen, onClose, isOpen } = useDisclosure()
@@ -67,7 +67,7 @@ function GroupChat(props) {
         };
     };
     connectUser();
-    document.title=`ChatTap • ${chatroom.chatname}`
+    window.innerWidth>768?document.title=`ChatTap • ${chatroom.chatname}`:document.title="ChatTap"
     members=chatroom.users;
   }, [chatroom]);
 
@@ -104,6 +104,7 @@ function GroupChat(props) {
 
   // To send message //
   const sendMessage = async (e) => {
+    console.log("yrr")
     let condition=false;
     if(e===true){
         condition=true;
@@ -268,9 +269,13 @@ function GroupChat(props) {
 
 
   return (
-    <div className={`bg-[rgb(27,27,27)]  relative overflow-hidden  text-white ${details?"md:w-[71.5%] xl:w-[50%]":"md:w-[71%] xl:w-[72%] "}`}>
-      <div className="flex justify-between  items-center h-16 border-[1px] border-[rgb(42,42,42)] py-3 space-x-4 px-10 bg-[rgb(36,36,36)] ">
+    <div className={`bg-[rgb(27,27,27)] h-[100vh]  relative overflow-hidden w-full  text-white ${details?"md:w-[71.5%] xl:w-[50%]":"md:w-[71%] xl:w-[72%] "}`}>
+      <div className="flex justify-between  items-center h-[10vh] check border-[1px] border-[rgb(42,42,42)] py-3 space-x-4 px-10 bg-[rgb(36,36,36)] ">
         <div className="flex space-x-4 items-center ">
+        <i onClick={()=>{setenableChatlist(true)
+             setenableChat(false)
+             setchatroom("") }} className="fa-sharp md:hidden text-[rgb(136,136,136)] -ml-4 mr-2  fa-solid fa-arrow-left"></i>
+
           <img
             onClick={() => {
               props.toggleProfileView(true);
@@ -319,14 +324,15 @@ function GroupChat(props) {
           <RenderGroupMessages details={details} socket={socket} messages={groupMessages} user={logUser} />
         )}
       </div>
-      {userExist?<FormControl
-        className="bg-[rgb(36,36,36)]  border-[1px] border-[rgb(42,42,42)] flex justify-center items-center h-[4.9rem]"
+      {userExist?<div className="absolute bottom-[1px] w-full">
+        <FormControl
+        className="bg-[rgb(36,36,36)]  border-[1px] border-[rgb(42,42,42)] flex justify-center items-center h-[13vh]"
         onKeyDown={sendMessage}
       >
-        <input
+        <input  
           placeholder="Your messages..."
           className="bg-[rgb(53,55,59)] 
-         border-black w-[86%] h-12 pr-16 outline-none rounded-xl py-1 px-4"
+         border-black w-[86%] h-10 md:h-12 pr-16 outline-none rounded-xl py-1 px-4"
           type="text"
           onChange={(e) => {
             setnewMessage(e.target.value);
@@ -334,9 +340,9 @@ function GroupChat(props) {
           }}
           value={newMessage}
         ></input>
-        <i onClick={(e)=>{sendMessage(true)}} className={`fa-solid absolute text-xl ${details?"right-20":"right-24"}  cursor-pointer 
+        <i onClick={(e)=>{sendMessage(true)}} className={`fa-solid absolute right-12 text-xl ${details?"md:right-20":"md:right-24"}  cursor-pointer 
          text-[rgb(36,141,97)]   fa-paper-plane`}></i>
-      </FormControl>:<div className="text-[rgb(146,145,148)] text-sm border-[1px] border-[rgb(42,42,42)] flex justify-center items-center bg-[rgb(36,36,36)] mt-[14px] h-[4rem]">You can't send message to this group because you're no longer a member</div>}
+      </FormControl></div>:<div className="text-[rgb(146,145,148)] text-sm border-[1px] border-[rgb(42,42,42)] flex justify-center items-center bg-[rgb(36,36,36)] mt-[14px] h-[4rem]">You can't send message to this group because you're no longer a member</div>}
     </div>
   );
 }

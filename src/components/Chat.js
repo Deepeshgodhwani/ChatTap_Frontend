@@ -6,7 +6,7 @@ import SingleChat from "./SingleChat";
 
 function Chat(props) {
   const context = useContext(ChatContext);
-  const { toggleProfileView, details, socket } = props;
+  const { toggleProfileView, details, socket ,setenableChatlist,setenableChat } = props;
   const { chatroom } = context;
 
   return (
@@ -17,20 +17,24 @@ function Chat(props) {
             socket={socket}
             toggleProfileView={toggleProfileView}
             details={details}
+            setenableChatlist={setenableChatlist}  
+            setenableChat={setenableChat}
           />
         ) : (
           <SingleChat
             socket={socket}
             toggleProfileView={toggleProfileView}
             details={details}
+            setenableChatlist={setenableChatlist}  
+            setenableChat={setenableChat}
           />
         )
       ) : (
-        <div className="w-[71%] flex flex-col space-y-2 bg-[rgb(46,46,46)] pt-20 items-center text-white   ">
+        <div className="w-[71%] hidden  md:flex flex-col space-y-2 bg-[rgb(46,46,46)] pt-20 items-center text-white   ">
           <div className="flex  flex-col  justify-center items-center  rounded-xl px-4  ">
             <img
               alt=""
-              className="w-[30rem]"
+              className=" w-[25rem] lg:w-[30rem]"
               src={
                 "https://res.cloudinary.com/dynjwlpl3/image/upload/v1674985395/Chat-app/.._hqgjqe.png"
               }
@@ -49,7 +53,7 @@ function Chat(props) {
                 <p className="text-[rgb(254,194,0)]">Tap</p>
               </div>
             </div>
-            <p className="w-[26rem]  font-semibold  leading-4 mt-3 text-center text-[rgb(170,170,170)]  ">
+            <p className=" w-[20rem] lg:w-[26rem]  font-semibold  leading-4 mt-3 text-center text-[rgb(170,170,170)]  ">
               Connect with friends and family in real-time, Chat securely with
               our end to end encrypted chat app. Protect your privacy and
               safeguard your messages from unwated access.

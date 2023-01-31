@@ -328,7 +328,6 @@ function Details(props) {
 
 
   const toggleDropdown = () => {
-    console.log("..");
     if (dropdown) {
       setDropdown(false);
     } else {

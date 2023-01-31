@@ -18,7 +18,7 @@ let dropdown=false;
 
 
 export default function SingleChat(props) {
-       const {toggleProfileView,details,socket}=props;
+       const {toggleProfileView,details,socket,setenableChatlist,setenableChat}=props;
        const [messages, setmessages] = useState([]);
        const [newMessage, setnewMessage] = useState("");
        const context = useContext(ChatContext);
@@ -44,7 +44,7 @@ export default function SingleChat(props) {
             
           }
           connectUser();
-          document.title=`ChatTap • ${secondUser.name}`
+          window.innerWidth>768?document.title=`ChatTap • ${secondUser.name}`:document.title="ChatTap"
         },[chatroom,logUser,secondUser])
 
   //To join room //
@@ -169,9 +169,13 @@ export default function SingleChat(props) {
        
   return (
     <>
-      <div className={`bg-[rgb(27,27,27)] overflow-hidden text-white ${details?"md:w-[47.5%] xl:w-[50%]":"md:w-[71%] xl:w-[72%] "} `}>
+      <div className={`bg-[rgb(27,27,27)] h-[100vh] w-full relative overflow-hidden text-white ${details?"md:w-[47.5%] xl:w-[50%]":"md:w-[71%] xl:w-[72%] "} `}>
         <div className='flex items-center justify-between border-[1px] border-[rgb(42,42,42)]  h-16 py-3 space-x-4 px-10 bg-[rgb(36,36,36)] '>
           <div className='flex space-x-4 items-center ' >
+           <i onClick={()=>{setenableChatlist(true)
+             setenableChat(false)
+             setchatroom("") }} className="fa-sharp md:hidden text-[rgb(136,136,136)] -ml-4 mr-2  fa-solid fa-arrow-left"></i>
+
           <img onClick={()=>{props.toggleProfileView(true)}} alt='' className='w-10 h-10 cursor-pointer rounded-full' src={secondUser.avtar}></img>
           <div className='-space-y-1'>
            <p className=' font-semibold cursor-pointer' onClick={()=>{props.toggleProfileView(true)}}>{secondUser.name}</p>
@@ -200,16 +204,18 @@ export default function SingleChat(props) {
         {loading&&<Loading></Loading>}
            {!loading&&<ScrollableChat className="" messages={messages} user={logUser}/> }
         </div>
-        <FormControl className='bg-[rgb(36,36,36)] border-[1px] border-[rgb(42,42,42)] relative flex justify-center items-center h-[4.9rem]' onKeyDown={sendMessage}>
+        <div className='absolute bottom-[1px] w-full'>
+        <FormControl className='bg-[rgb(36,36,36)] border-[1px] border-[rgb(42,42,42)] relative flex justify-center items-center h-[13vh]' onKeyDown={sendMessage}>
             <input placeholder='Your messages...' className='bg-[rgb(53,55,59)] 
              border-black w-[86%] h-12  pr-16 outline-none rounded-xl py-1 px-4' type="text"
-              onChange={(e)=>{
-                setnewMessage(e.target.value)
-                socket.emit("toggleTyping",{chat:chatroom,status:e.target.value?true:false,user:logUser})
-                 
-                }} value={newMessage} ></input>
-              <i onClick={(e)=>{sendMessage(true)}} className={`fa-solid absolute text-xl ${details?"right-20":"right-24"}  cursor-pointer text-[rgb(36,141,97)] fa-paper-plane`}></i>
+             onChange={(e)=>{
+               setnewMessage(e.target.value)
+               socket.emit("toggleTyping",{chat:chatroom,status:e.target.value?true:false,user:logUser})
+               
+              }} value={newMessage} ></input>
+              <i onClick={(e)=>{sendMessage(true)}} className={`fa-solid  right-12 xs:right-16 absolute text-xl ${details?"md:right-20":"md:right-24"}  cursor-pointer text-[rgb(36,141,97)] fa-paper-plane`}></i>
         </FormControl>
+              </div>
       </div>
   </>
   )

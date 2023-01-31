@@ -271,22 +271,22 @@ function GroupCreation(props) {
             {!result&&<div className="text-white h-[52vh] mx-20 absolute flex justify-center items-center">No result found</div>}
            </div>}
             {(selectedUsers.length>0||chatName)&&<div onClick={changePhase} className={`bg-[rgb(34,134,92)] cursor-pointer my-3 absolute
-             ${phase===1?"bottom-6":"bottom-20"}  ${phase===1?"right-7":"right-36"} z-20 rounded-full w-10 h-10 flex justify-center items-center`}>
+             ${phase===1?"bottom-6":"md:bottom-20"} bottom-6  ${phase===1?"right-7":"right-36"} z-20 rounded-full w-10 h-10 flex justify-center items-center`}>
             <i className="fa-sharp fa-solid fa-arrow-right"></i>
             </div>}
              {phase===2&&<div className='flex flex-col py-8  gap-y-2 items-center'>
-                <div className='flex group w-52 h-52 cursor-pointer items-center relative justify-center py-8 rounded-full'>
-                <img alt='' className='w-52 h-52 check rounded-full ' src={groupPicture}></img>
+                <div className='flex group w-44 h-44 md:w-52 md:h-52 cursor-pointer items-center relative justify-center py-8 rounded-full'>
+                <img alt='' className='md:w-52 md:h-52 w-44 h-44 check rounded-full ' src={groupPicture}></img>
                 <input
                       onChange={UploadPic}
-                      className="  inputFile absolute  h-48
-                text-white rounded-full z-10 justify-center  cursor-pointer items-center opacity-0 w-48"
+                      className="  inputFile absolute  md:h-48
+                text-white rounded-full z-10 justify-center w-40 h-40 cursor-pointer items-center opacity-0 md:w-48"
                       type="file"
                     ></input>
                      {loading&&<Spinner size='xl' color="white" thickness='3px' className="absolute z-50" />}
  
-                    {!isPicture&&<div className="absolute   flex text-center cursor-pointer py-14 bg-black w-48 
-                    space-y-1 h-48 opacity-70 rounded-full flex-col justify-center items-center">
+                    {!isPicture&&<div className="absolute   flex text-center cursor-pointer py-14 bg-black md:w-48 
+                    space-y-1 md:h-48 w-40 h-40 opacity-70 rounded-full flex-col justify-center items-center">
                       <i className="fa-solid text-lg fa-camera"></i> 
                       <div className="  text-xs font-semibold ">
                       <p>ADD</p>

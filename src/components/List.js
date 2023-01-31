@@ -97,8 +97,8 @@ function List(props) {
     <div>
         <p onClick={onOpen} className='text-[rgb(36,141,97)] cursor-pointer font-semibold text-sm underline '>Show all</p>
         <Modal isOpen={isOpen} onClose={onClose}>
-        <ModalOverlay />
-        <ModalContent width={"27rem"} overflow={"hidden"} top={"0"}  borderRadius={'md'}   bg="">
+        <ModalOverlay  />
+        <ModalContent width={`${window.innerWidth<768?"22rem":"27rem"}`}  top={"0"}  borderRadius={'md'}   bg="">
             <div className="flex  px-6 bg-[rgb(36,36,36)] py-3 justify-between">
             <div className='flex  space-x-2'>
                 <img alt='' className='w-6 h-6' src={"https://res.cloudinary.com/dynjwlpl3/image/upload/v1675095423/Chat-app/group_iu5tv2.png"}></img>
@@ -107,10 +107,10 @@ function List(props) {
              <i onClick={onClose} className="fa-solid cursor-pointer text-[rgb(167,169,171)] text-xl  fa-xmark"></i>
             </div>
             {/* paddingBottom={'2'} */}
-            <ModalBody  padding={'0'} paddingLeft={"0"} paddingRight={"0"} minHeight={"20rem"} maxHeight={"27rem"} overflowx={"hidden"} overflowY={"scroll"}
-             className="styleScroll" bg={"rgb(27,27,27)"}>
-            <div className='text-[rgb(240,240,240)] overflow-hidden '>
-            <div onClick={()=>{logUser._id!==Profile.admin._id&&setSingleChat(Profile.admin)}} className='flex relative  cursor-pointer  hover:bg-[rgb(44,44,44)] px-8 
+            <ModalBody  padding={'0'} paddingLeft={"0"} paddingRight={"0"} minHeight={"20rem"} maxHeight={"26rem"} overflowX={"hidden"}  overflowY={"scroll"}
+             className={`${window.innerWidth>768&&"styleScroll"}`} bg={"rgb(27,27,27)"}>
+            <div className='text-[rgb(240,240,240)] '>
+            <div onClick={()=>{logUser._id!==Profile.admin._id&&setSingleChat(Profile.admin)}} className='flex  relative  cursor-pointer  hover:bg-[rgb(44,44,44)] px-8 
             py-[8px] space-x-2 items-center'>
             <img alt='' className='w-12 rounded-full h-12' src={Profile.admin.avtar}></img>
             <div className='flex'>

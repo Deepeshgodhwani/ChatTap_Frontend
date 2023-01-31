@@ -158,6 +158,7 @@ function Profile() {
 
   return (
     <div>
+
       <img
         ref={btnRef}
         title="Profile"
@@ -186,7 +187,7 @@ function Profile() {
 
               <img
                 alt=""
-                className="rounded-full  h-48 w-48"
+                className="rounded-full w-40 h-40  md:h-48 md:w-48"
                 src={logUser.avtar}
                 ></img>
                {loading&&<Spinner size='xl' color="white" thickness='3px' className="absolute" />}

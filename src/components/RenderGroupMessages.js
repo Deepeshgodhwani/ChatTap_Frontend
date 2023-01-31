@@ -46,13 +46,13 @@ function RenderGroupMessages(props) {
  
 
   return (
-    <ScrollableFeed className="chatBox flex flex-col py-2  px-2 overflow-y-scroll space-y-2">
+    <ScrollableFeed className="chatBox   flex flex-col py-2  px-2 overflow-y-scroll space-y-2">
       {messages &&
         messages.map((message, i) => {
           if (message.noty) {
             return (
               <div key={message._id} className="flex  justify-center">
-                <span className={`bg-[rgb(36,36,36)] ${details?"max-w-sm":"max-w-md"} text-center px-4 text-[rgb(199,199,199)] py-1 rounded-lg text-sm`}>
+                <span className={`bg-[rgb(36,36,36)] ${details?"lg:max-w-sm":" lg:max-w-md"} max-w-[14rem] xs:max-w-[18rem] sm:max-w-xs text-center px-4 text-[rgb(199,199,199)] py-1 rounded-lg text-sm`}>
                   <span className=" text-xs capitalize">
                     {checkUser(message.sender)}
                   </span>
@@ -69,7 +69,7 @@ function RenderGroupMessages(props) {
                         justify-end"
               >
                 <span
-                  className={` flex px-2  text-white py-[6px] text-sm max-w-xs  break-all   bg-[rgb(38,141,97)] rounded-lg `}>
+                  className={` flex px-2  text-white py-[6px] text-sm max-w-[12rem] xs:max-w-[16rem] sm:max-w-xs  break-all   bg-[rgb(38,141,97)] rounded-lg `}>
                   {decryptData(message.content)}
                 </span>
               </div>
@@ -88,7 +88,7 @@ function RenderGroupMessages(props) {
                     src={message.sender.avtar}
                   ></img>}
                   <div className="space-y-1 ">
-                    {checkSelf(message)?<div className="px-2 max-w-xs  break-all  space-y-1  text-white  py-[6px]   rounded-tr-lg  rounded-br-lg rounded-bl-lg bg-[rgb(53,55,59)] text-sm">
+                    {checkSelf(message)?<div className="px-2 sm:max-w-xs  break-all  max-w-[12rem] xs:max-w-[16rem] space-y-1  text-white  py-[6px]   rounded-tr-lg  rounded-br-lg rounded-bl-lg bg-[rgb(53,55,59)] text-sm">
                     {checkSelf(message)&&<p className="text-xs text-[rgb(206,206,206)] font-semibold">
                         {message.sender.name}
                       </p>}

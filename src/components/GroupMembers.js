@@ -284,7 +284,8 @@ function GroupMembers(props) {
                   onClose={closeTab}
                 >
                   <ModalOverlay />
-                  <ModalContent bg={"rgb(27,27,27)"} top={`${selectedUsers.length?"-5":"4"}`} position="relative" textColor="white" minHeight={"26rem"}  maxHeight={'35rem'} width={'26rem'}>
+                  <ModalContent bg={"rgb(27,27,27)"} top={`${selectedUsers.length?"-5":"4"}`} position="relative" textColor="white" minHeight={"26rem"}  maxHeight={'35rem'}
+                   width={`${window.innerWidth<768?"21rem":"26rem"}`}>
                     <div className='flex bg-[rgb(36,36,36)] py-2  text-xl px-4 items-center space-x-6 '>
                     <i onClick={closeTab} className=" cursor-pointer text-[rgb(111,111,111)] fa-solid fa-xmark"></i>
                       <p className='font-semibold'>Add members</p>
@@ -298,8 +299,9 @@ function GroupMembers(props) {
                           {<i onClick={(e)=>{removeUser(members.user)}} className="cursor-pointer mt-1 fa-solid fa-xmark"></i>}
                           </div>):(<div></div>)
                       })}</div>
-                   <input onChange={onChange} value={search}  className="mx-6 border-[rgb(156,150,150)] px-4 outline-none w-[22.5rem] py-2
-                    rounded-lg border-2  bg-transparent text-white"   placeholder='Enter names or email address'></input>
+                   <input onChange={onChange} value={search}  className={`mx-6 border-[rgb(156,150,150)] px-4 outline-none 
+                   ${window.innerWidth<768?"w-[18rem]":"w-[22.5rem]"} py-2
+                    rounded-lg border-2  bg-transparent text-white`}   placeholder='Enter names or email address'></input>
                       </FormControl>
                       {loading&&<div className=' absolute top-48 left-44 '>
                         <Spinner size={'lg'}/>
