@@ -1,11 +1,7 @@
-import { useToast } from "@chakra-ui/react";
 import React, { useContext, useEffect, useState } from "react";
 import chatContext from "../context/chat/ChatContext";
 import MessageContext from "../context/messages/MessageContext";
-import {
-  Skeleton,
-  SkeletonCircle,
-} from "@chakra-ui/react";
+import { Skeleton, SkeletonCircle, useToast } from "@chakra-ui/react";
 import Profile from "./Profile";
 import GroupCreation from "./GroupCreation";
 let currentChat;
@@ -13,7 +9,7 @@ let currentChat;
 export default function Chatlist(props) {
   const context = useContext(chatContext);
   const contextMsg = useContext(MessageContext);
-  const { socket, settoggleSearch ,setenableChat,setenableChatlist} = props;
+  const { socket, settoggleSearch, setenableChat, setenableChatlist } = props;
   const [groupsView, setgroupsView] = useState(false);
   const { decryptData } = contextMsg;
   const toast = useToast();
@@ -111,7 +107,6 @@ export default function Chatlist(props) {
 
     //updating group image of chat in recent chatlist //
     socket.on("toggleImage", (data) => {
-      console.log(data);
       let updatedChat;
       let chats = recentChats;
       chats = chats.filter((Chat) => {
@@ -226,15 +221,21 @@ export default function Chatlist(props) {
   //  fetching group chat //
   const setGroupChat = (element) => {
     if (chatroom._id !== element._id) {
-      if(window.innerWidth<768){setenableChatlist(false)
-         setenableChat(true)}
+      if (window.innerWidth < 768) {
+        setenableChatlist(false);
+        setenableChat(true);
+      }
+
       accessGroupChat(element._id);
       setrecentChats(
         recentChats.map((chat) => {
           if (chat._id === element._id) {
-            chat.users.map((members) => {
+            chat.users = chat.users.map((members) => {
               if (members.user._id === logUser._id) {
                 members.unseenMsg = 0;
+                return members;
+              } else {
+                return members;
               }
             });
 
@@ -250,15 +251,20 @@ export default function Chatlist(props) {
   //fetching single chat //
   const setSingleChat = (element) => {
     if (element._id !== chatroom._id) {
-      if(window.innerWidth<768){setenableChatlist(false)
-        setenableChat(true)}
+      if (window.innerWidth < 768) {
+        setenableChatlist(false);
+        setenableChat(true);
+      }
       accessChat(checkUserId(element.latestMessage.sender, element));
       setrecentChats(
         recentChats.map((chat) => {
           if (chat._id === element._id) {
-            chat.users.map((members) => {
+            chat.users = chat.users.map((members) => {
               if (members.user._id === logUser._id) {
                 members.unseenMsg = 0;
+                return members;
+              } else {
+                return members;
               }
             });
 
@@ -295,27 +301,29 @@ export default function Chatlist(props) {
 
   return (
     <div className="bg-[rgb(36,36,36)]   text-white w-full xs:w-96  md:w-80 h-[100%] flex flex-col space-y-2">
-      <div className="flex justify-between pb-[11px] pt-4  items-center  px-7 ">
+      <div className="flex justify-between pb-[11px] pt-4  items-center  px-10 ">
         <div className="flex space-x-2 items-center">
-          <p className="font-semibold hidden md:flex font-[calibri] text-3xl ">Messages</p>
+          <p className="font-semibold hidden md:flex font-[calibri] text-3xl ">
+            Messages
+          </p>
           <div className="flex md:hidden">
-             <Profile/>
-            </div> 
+            <Profile />
+          </div>
         </div>
-      
+
         <div className="flex space-x-4">
           <div className="flex md:hidden">
-             <GroupCreation  socket={socket} />
+            <GroupCreation socket={socket} />
           </div>
-        <i
-          onClick={() => {
-            settoggleSearch(true);
-          }}
-          className="text-[rgb(111,111,111)]  md:text-[rgb(53,139,103)]  text-xl cursor-pointer fa-regular fa-pen-to-square"
+          <i
+            onClick={() => {
+              settoggleSearch(true);
+            }}
+            className="text-[rgb(111,111,111)]  md:text-[rgb(53,139,103)]  text-xl cursor-pointer fa-regular fa-pen-to-square"
           ></i>
-          </div>
+        </div>
       </div>
-      <div className="bg-[rgb(26,26,26)] relative justify-between py-1 px-1 mx-4 xs:mx-8 rounded-lg flex">
+      <div className="bg-[rgb(26,26,26)] relative justify-between py-1 px-1  mx-10 md:mx-6 rounded-lg flex">
         <p
           onClick={() => {
             changeListView(false);
@@ -338,11 +346,8 @@ export default function Chatlist(props) {
           Groups
         </p>
       </div>
-      {/* <p className="font-semibold pl-10 pt-2 md:hidden font-[calibri] text-[rgb(158,158,158)] text-[1.5rem] ">
-   
-        All messages</p> */}
-     {!chatlistLoading && (
-        <div className=" h-[78vh]  items-center md:py-3 py-0 overflow-y-scroll chatBox  flex  flex-col">
+      {!chatlistLoading && (
+        <div className=" h-[78vh] pt-4  items-center md:py-3 py-0 overflow-y-scroll chatBox  flex  flex-col">
           {recentChats.length > 0 &&
             recentChats.map((element) => {
               if (element.isGroupChat) {
@@ -359,7 +364,7 @@ export default function Chatlist(props) {
                     } 
                       px-4   text-white `}
                   >
-                    <div className="flex space-x-2  md:px-0 py-2 w-72 relative border-b-[1px] border-[rgb(42,42,42)]">
+                    <div key={element._id} className="flex space-x-2  md:px-0 py-2 w-72 relative border-b-[1px] border-[rgb(42,42,42)]">
                       <img
                         alt=""
                         className="w-12 h-12 rounded-[50%]"
@@ -460,8 +465,15 @@ export default function Chatlist(props) {
                 } else {
                   return <div key={""}></div>;
                 }
+              } else {
+                return <div></div>;
               }
             })}
+          {recentChats.length === 0 && (
+            <div className="h-96 text-[rgb(111,111,111)] flex items-center text-lg">
+              No recent chats
+            </div>
+          )}
         </div>
       )}
       {chatlistLoading && (
@@ -476,7 +488,7 @@ export default function Chatlist(props) {
               <Skeleton
                 startColor="rgb(46,46,46)"
                 endColor="rgb(56,56,56)"
-                width={`${window.innerWidth<768?'15rem':'13rem'}`}
+                width={`${window.innerWidth < 768 ? "15rem" : "13rem"}`}
                 height="10px"
               />
               <Skeleton
@@ -501,7 +513,7 @@ export default function Chatlist(props) {
               <Skeleton
                 startColor="rgb(46,46,46)"
                 endColor="rgb(56,56,56)"
-                width={`${window.innerWidth<768?'15rem':'13rem'}`}
+                width={`${window.innerWidth < 768 ? "15rem" : "13rem"}`}
                 height="10px"
               />
               <Skeleton
@@ -526,7 +538,7 @@ export default function Chatlist(props) {
               <Skeleton
                 startColor="rgb(46,46,46)"
                 endColor="rgb(56,56,56)"
-                width={`${window.innerWidth<768?'15rem':'13rem'}`}
+                width={`${window.innerWidth < 768 ? "15rem" : "13rem"}`}
                 height="10px"
               />
               <Skeleton
@@ -551,7 +563,7 @@ export default function Chatlist(props) {
               <Skeleton
                 startColor="rgb(46,46,46)"
                 endColor="rgb(56,56,56)"
-                width={`${window.innerWidth<768?'15rem':'13rem'}`}
+                width={`${window.innerWidth < 768 ? "15rem" : "13rem"}`}
                 height="10px"
               />
               <Skeleton
@@ -576,7 +588,7 @@ export default function Chatlist(props) {
               <Skeleton
                 startColor="rgb(46,46,46)"
                 endColor="rgb(56,56,56)"
-                width={`${window.innerWidth<768?'15rem':'13rem'}`}
+                width={`${window.innerWidth < 768 ? "15rem" : "13rem"}`}
                 height="10px"
               />
               <Skeleton
@@ -601,7 +613,7 @@ export default function Chatlist(props) {
               <Skeleton
                 startColor="rgb(46,46,46)"
                 endColor="rgb(56,56,56)"
-                width={`${window.innerWidth<768?'15rem':'13rem'}`}
+                width={`${window.innerWidth < 768 ? "15rem" : "13rem"}`}
                 height="10px"
               />
               <Skeleton

@@ -1,26 +1,33 @@
-import React from "react";
-import { useContext, useState, useEffect } from "react";
+import React, { useContext, useState, useEffect, useRef } from "react";
 import ChatContext from "../context/chat/ChatContext";
 import GroupMembers from "./GroupMembers";
-import { Spinner } from "@chakra-ui/react";
-import { useToast } from "@chakra-ui/react";
 import MessageContext from "../context/messages/MessageContext";
-
 import {
+  Skeleton,
+  SkeletonCircle,
   Modal,
   ModalOverlay,
   ModalContent,
   useDisclosure,
+  useToast,
+  Spinner,
 } from "@chakra-ui/react";
 
-
-
-
 function Details(props) {
-
   const { Profile, toggleProfileView, socket } = props;
   const context = useContext(ChatContext);
   const [loading, setloading] = useState(false);
+  const [dropdown, setDropdown] = useState(false);
+  const [isUserExist, setisUserExist] = useState(true);
+  const [newChatName, setnewChatName] = useState("");
+  const [enabled, setenabled] = useState(false);
+  const toast = useToast();
+  const [commonGroups, setcommonGroups] = useState([]);
+  const contextMsg = useContext(MessageContext);
+  const { encryptData } = contextMsg;
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [loadingGroup, setloadingGroup] = useState(false);
+  let ref = useRef();
   const {
     logUser,
     setgroupPic,
@@ -38,22 +45,11 @@ function Details(props) {
     setgroupMessages,
     accessGroupChat,
   } = context;
-  const [dropdown, setDropdown] = useState(false);
-  const [isUserExist, setisUserExist] = useState(true);
-  const [newChatName, setnewChatName] = useState("");
-  const [enabled, setenabled] = useState(false);
-  const toast = useToast();
-  const [commonGroups, setcommonGroups] = useState([]);
-  const contextMsg = useContext(MessageContext);
-  const { encryptData } = contextMsg;
-  const { isOpen, onOpen, onClose } = useDisclosure();
 
-
-
- 
-  // feching mutual groups of loguser and usetwo 
+  // feching mutual groups of loguser and usetwo
   const getCommonGroups = async () => {
     try {
+      setloadingGroup(true);
       let token = localStorage.getItem("token");
       const response = await fetch(
         `http://localhost:7000/api/chat/getCommonGroups?userId=${Profile._id}`,
@@ -66,9 +62,10 @@ function Details(props) {
           },
         }
       );
-  
+
       let data = await response.json();
       setcommonGroups(data);
+      setloadingGroup(false);
     } catch (error) {
       toast({
         description: "Internal server error",
@@ -77,10 +74,9 @@ function Details(props) {
         isClosable: true,
       });
     }
-    
   };
 
-  //calling getCommongroups on page rendering  
+  //calling getCommongroups on page rendering
   useEffect(() => {
     if (!Profile.isGroupChat) {
       getCommonGroups();
@@ -88,14 +84,7 @@ function Details(props) {
     // eslint-disable-next-line
   }, []);
 
-
-  //checking is user is exist in group when groupmembers are updating //
-  useEffect(() => {
-    checkUserExist();
-  }, [groupMembers]);
-
-   
-  //To change group profile picture 
+  //To change group profile picture
   const changeProfile = async (e) => {
     setloading(true);
     try {
@@ -121,7 +110,9 @@ function Details(props) {
         let data = await fetch(
           `http://localhost:7000/api/chat/changePic?isGroupChat=${
             Profile.isGroupChat ? true : false
-          }&Id=${Profile.isGroupChat ? Profile._id : logUser._id}&pic=${picture}`,
+          }&Id=${
+            Profile.isGroupChat ? Profile._id : logUser._id
+          }&pic=${picture}`,
           {
             method: "GET",
             mode: "cors",
@@ -131,13 +122,13 @@ function Details(props) {
             },
           }
         );
-  
+
         let message = await data.json();
         if (message.success) {
           setloading(false);
           setgroupPic(picture);
           setchatroom({ ...chatroom, profilePic: picture });
-          let message = "changed this group's icon";
+          let message = "changed the group photo";
           let encryptedMessage = encryptData(message);
           let noty = await createNoty(Profile._id, encryptedMessage);
           socket.emit("new_message", noty);
@@ -157,13 +148,13 @@ function Details(props) {
           let data = { chat: chatroom, picture: picture, logUser: logUser };
           socket.emit("changed_groupImage", data);
           toast({
-            title: "Profile picture is changed successfully",
+            title: "Group picture is changed successfully",
             status: "success",
             isClosable: true,
           });
         }
         e.target.value = null;
-      }else{
+      } else {
         toast({
           description: "picture format should be jpeg or png",
           status: "warning",
@@ -182,68 +173,66 @@ function Details(props) {
     setloading(false);
   };
 
-  
   // To exit from group .
   const exitGroup = async () => {
-    try { 
-        let token = localStorage.getItem("token");
-        const response = await fetch(
-          `http://localhost:7000/api/chat/removeUser?chatId=${Profile._id}&userId=${logUser._id}`,
-          {
-            method: "GET",
-            mode: "cors",
-            headers: {
-              "Content-Type": "application/json",
-              "auth-token": token,
-            },
-          }
-        );
+    try {
+      let token = localStorage.getItem("token");
+      const response = await fetch(
+        `http://localhost:7000/api/chat/removeUser?chatId=${Profile._id}&userId=${logUser._id}`,
+        {
+          method: "GET",
+          mode: "cors",
+          headers: {
+            "Content-Type": "application/json",
+            "auth-token": token,
+          },
+        }
+      );
 
-        let data = await response.json();
-        if (!data.success) return;
-        let message = "left";
-        let encryptedMessage = encryptData(message);
-        let noty = await createNoty(Profile._id, encryptedMessage);
-        noty.removedUserId = logUser._id;
-        socket.emit("new_message", noty);
-        socket.emit("update_Chatlist", noty);
-        let status = {
-          users: [{ user: logUser._id }],
-          chat: Profile,
-          status: "remove",
-        };
-        socket.emit("member_status", status);
-        let dataSend = { group: Profile, members: logUser, status: "remove" };
-        socket.emit("change_users", dataSend);
-        let updatedChat;
-        let chats = recentChats;
-        chats = chats.filter((Chat) => {
-          if (Chat._id === noty.chatId._id) {
-            Chat.latestMessage = noty;
-            updatedChat = Chat;
-          }
-          return Chat._id !== noty.chatId._id;
-        });
-        setrecentChats([updatedChat, ...chats]);
-        setgroupMessages([...groupMessages, noty]);
-        setgroupMembers(
-          groupMembers.filter((member) => {
-            return member.user._id !== logUser._id;
-          })
-        );
-        setisUserExist(false);
-      } catch (error) {
-        toast({
-          description: "Internal server error",
-          status: "warning",
-          duration: 3000,
-          isClosable: true,
-        });
-      }
+      let data = await response.json();
+      if (!data.success) return;
+      let message = "left";
+      let encryptedMessage = encryptData(message);
+      let noty = await createNoty(Profile._id, encryptedMessage);
+      noty.removedUserId = logUser._id;
+      socket.emit("new_message", noty);
+      socket.emit("update_Chatlist", noty);
+      let status = {
+        users: [{ user: logUser._id }],
+        chat: Profile,
+        status: "remove",
+      };
+      socket.emit("member_status", status);
+      let dataSend = { group: Profile, members: logUser, status: "remove" };
+      socket.emit("change_users", dataSend);
+      let updatedChat;
+      let chats = recentChats;
+      chats = chats.filter((Chat) => {
+        if (Chat._id === noty.chatId._id) {
+          Chat.latestMessage = noty;
+          updatedChat = Chat;
+        }
+        return Chat._id !== noty.chatId._id;
+      });
+      setrecentChats([updatedChat, ...chats]);
+      setgroupMessages([...groupMessages, noty]);
+      setgroupMembers(
+        groupMembers.filter((member) => {
+          return member.user._id !== logUser._id;
+        })
+      );
+      setisUserExist(false);
+    } catch (error) {
+      toast({
+        description: "Internal server error",
+        status: "warning",
+        duration: 3000,
+        isClosable: true,
+      });
+    }
   };
 
-  
-  // checking user exist in group or not 
+  // checking user exist in group or not
   const checkUserExist = () => {
     let check = false;
     groupMembers.forEach((members) => {
@@ -254,78 +243,92 @@ function Details(props) {
     setisUserExist(check);
   };
 
+  //checking is user is exist in group when groupmembers are updating //
+  ref.current = checkUserExist;
+  useEffect(() => {
+    ref.current();
+  }, [groupMembers]);
 
-   
   const editName = () => {
     let input = document.getElementById("inputName");
     input.style.borderBottomColor = "rgb(66,203,165)";
+    input.placeholder = groupName;
     input.disabled = false;
     setenabled(true);
   };
 
-
+  // To edit group name
   const changeName = async () => {
     if (newChatName === Profile.chatname) {
       toast({
         title: "Error",
         description: "it is already chatname",
         status: "warning",
-        duration: 9000,
+        duration: 3000,
         isClosable: true,
       });
     } else {
-      let token = localStorage.getItem("token");
-      const response = await fetch(
-        `http://localhost:7000/api/chat/changeName`,
-        {
-          method: "POST",
-          mode: "cors",
-          headers: {
-            "Content-Type": "application/json",
-            "auth-token": token,
-          },
-          body: JSON.stringify({
-            type: "group",
-            Id: Profile._id,
-            name: newChatName,
-          }),
-        }
-      );
+      try {
+        let token = localStorage.getItem("token");
+        const response = await fetch(
+          `http://localhost:7000/api/chat/changeName`,
+          {
+            method: "POST",
+            mode: "cors",
+            headers: {
+              "Content-Type": "application/json",
+              "auth-token": token,
+            },
+            body: JSON.stringify({
+              type: "group",
+              Id: Profile._id,
+              name: newChatName,
+            }),
+          }
+        );
 
-      let data = await response.json();
-      let input = document.getElementById("inputName");
-      input.value = "";
-      setgroupName(newChatName);
-      setchatroom({ ...chatroom, chatname: newChatName });
-      let message = "changed the subject to " + newChatName;
-      let encryptedMessage = encryptData(message);
-      let noty = await createNoty(Profile._id, encryptedMessage);
-      socket.emit("new_message", noty);
-      socket.emit("update_Chatlist", noty);
-      input.disabled = false;
-      setenabled(true);
-      let updatedChat;
-      let chats = recentChats;
-      chats = chats.filter((Chat) => {
-        if (Chat._id === noty.chatId._id) {
-          Chat.latestMessage = noty;
-          Chat.chatname = newChatName;
-          updatedChat = Chat;
-        }
-        return Chat._id !== noty.chatId._id;
-      });
-      setrecentChats([updatedChat, ...chats]);
-      let send = { chat: chatroom, name: newChatName, logUser: logUser };
-      setnewChatName("");
-      socket.emit("changed_groupName", send);
-      toast({
-        title: "Group name changed successfully",
-        status: "success",
-        isClosable: true,
-      });
+        await response.json();
+        let input = document.getElementById("inputName");
+        input.value = "";
+        setgroupName(newChatName);
+        setchatroom({ ...chatroom, chatname: newChatName });
+        let message = "named the group " + newChatName;
+        let encryptedMessage = encryptData(message);
+        let noty = await createNoty(Profile._id, encryptedMessage);
+        socket.emit("new_message", noty);
+        socket.emit("update_Chatlist", noty);
+        input.disabled = false;
+        setenabled(true);
+        let updatedChat;
+        let chats = recentChats;
+        chats = chats.filter((Chat) => {
+          if (Chat._id === noty.chatId._id) {
+            Chat.latestMessage = noty;
+            Chat.chatname = newChatName;
+            updatedChat = Chat;
+          }
+          return Chat._id !== noty.chatId._id;
+        });
+        setrecentChats([updatedChat, ...chats]);
+        let send = { chat: chatroom, name: newChatName, logUser: logUser };
+        setnewChatName("");
+        socket.emit("changed_groupName", send);
+        toast({
+          title: "Group name changed successfully",
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+        });
+      } catch (error) {
+        toast({
+          title: "Internal server error",
+          status: "warning",
+          isClosable: true,
+          duration: 3000,
+        });
+      }
     }
   };
-
 
   const toggleDropdown = () => {
     if (dropdown) {
@@ -335,34 +338,42 @@ function Details(props) {
     }
   };
 
-
   const setGroupChat = (element) => {
-    if (chatroom._id !== element._id) {
-      accessGroupChat(element._id);
+    try {
+      if (chatroom._id !== element._id) {
+        accessGroupChat(element._id);
+        setrecentChats(
+          recentChats.map((chat) => {
+            if (chat._id === element._id) {
+              chat.users = chat.users.map((members) => {
+                if (members.user._id === logUser._id) {
+                  members.unseenMsg = 0;
+                  return members;
+                } else {
+                  return members;
+                }
+              });
 
-      setrecentChats(
-        recentChats.map((chat) => {
-          if (chat._id === element._id) {
-            chat.users.map((members) => {
-              if (members.user._id === logUser._id) {
-                members.unseenMsg = 0;
-              }
-            });
-
-            return chat;
-          } else {
-            return chat;
-          }
-        })
-      );
+              return chat;
+            } else {
+              return chat;
+            }
+          })
+        );
+      }
+    } catch (error) {
+      toast({
+        description: "Internal server error",
+        status: "warning",
+        duration: 3000,
+        isClosable: true,
+      });
     }
   };
 
-
-
   return (
     <>
-      <div   className="w-80  bg-[rgb(36,36,36)]  flex flex-col">
+      <div className="w-80  bg-[rgb(36,36,36)]  flex flex-col">
         <div className="text-[rgb(233,233,233)] pt-4  px-5 text-xl font-semibold flex justify-between ">
           <p>Details</p>
           <i
@@ -437,6 +448,7 @@ function Details(props) {
                         : groupName
                     }
                     maxLength="30"
+                    autoComplete="off"
                     onChange={(e) => {
                       setnewChatName(e.target.value);
                     }}
@@ -464,7 +476,7 @@ function Details(props) {
             </div>
           </div>
           <div className="bg-[rgb(27,27,27)]  w-80 h-3"></div>
-          {!Profile.isGroupChat && (
+          {!Profile.isGroupChat && !loadingGroup && (
             <div className="  py-3  text-white ">
               <p className="text-[rgb(167,169,171)] px-5 font-semibold">
                 Groups in common
@@ -496,6 +508,111 @@ function Details(props) {
               </div>
             </div>
           )}
+          {loadingGroup && (
+            <div className="flex  items-center flex-col pt-4 space-y-2">
+              <div className="px-4 relative  flex space-x-2 items-center pt-2 ">
+                <SkeletonCircle
+                  size="14"
+                  startColor="rgb(46,46,46)"
+                  endColor="rgb(56,56,56)"
+                />
+                <div className="space-y-2 ">
+                  <Skeleton
+                    startColor="rgb(46,46,46)"
+                    endColor="rgb(56,56,56)"
+                    width={`${window.innerWidth < 768 ? "15rem" : "13rem"}`}
+                    height="10px"
+                  />
+                  <Skeleton
+                    startColor="rgb(46,46,46)"
+                    endColor="rgb(56,56,56)"
+                    height="10px"
+                  />
+                  <Skeleton
+                    startColor="rgb(46,46,46)"
+                    endColor="rgb(56,56,56)"
+                    height="10px"
+                  />
+                </div>
+              </div>
+              <div className="px-4 relative  flex space-x-2 items-center pt-4 ">
+                <SkeletonCircle
+                  size="14"
+                  startColor="rgb(46,46,46)"
+                  endColor="rgb(56,56,56)"
+                />
+                <div className="space-y-2 ">
+                  <Skeleton
+                    startColor="rgb(46,46,46)"
+                    endColor="rgb(56,56,56)"
+                    width={`${window.innerWidth < 768 ? "15rem" : "13rem"}`}
+                    height="10px"
+                  />
+                  <Skeleton
+                    startColor="rgb(46,46,46)"
+                    endColor="rgb(56,56,56)"
+                    height="10px"
+                  />
+                  <Skeleton
+                    startColor="rgb(46,46,46)"
+                    endColor="rgb(56,56,56)"
+                    height="10px"
+                  />
+                </div>
+              </div>
+              <div className="px-4 relative  flex space-x-2 items-center pt-4 ">
+                <SkeletonCircle
+                  size="14"
+                  startColor="rgb(46,46,46)"
+                  endColor="rgb(56,56,56)"
+                />
+                <div className="space-y-2 ">
+                  <Skeleton
+                    startColor="rgb(46,46,46)"
+                    endColor="rgb(56,56,56)"
+                    width={`${window.innerWidth < 768 ? "15rem" : "13rem"}`}
+                    height="10px"
+                  />
+                  <Skeleton
+                    startColor="rgb(46,46,46)"
+                    endColor="rgb(56,56,56)"
+                    height="10px"
+                  />
+                  <Skeleton
+                    startColor="rgb(46,46,46)"
+                    endColor="rgb(56,56,56)"
+                    height="10px"
+                  />
+                </div>
+              </div>
+              <div className="px-4 relative  flex space-x-2 items-center pt-4 ">
+                <SkeletonCircle
+                  size="14"
+                  startColor="rgb(46,46,46)"
+                  endColor="rgb(56,56,56)"
+                />
+                <div className="space-y-2 ">
+                  <Skeleton
+                    startColor="rgb(46,46,46)"
+                    endColor="rgb(56,56,56)"
+                    width={`${window.innerWidth < 768 ? "15rem" : "13rem"}`}
+                    height="10px"
+                  />
+                  <Skeleton
+                    startColor="rgb(46,46,46)"
+                    endColor="rgb(56,56,56)"
+                    height="10px"
+                  />
+                  <Skeleton
+                    startColor="rgb(46,46,46)"
+                    endColor="rgb(56,56,56)"
+                    height="10px"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
           {Profile.isGroupChat && (
             <GroupMembers Profile={Profile} socket={socket} />
           )}
@@ -535,6 +652,7 @@ function Details(props) {
                         text-white  text-center"
                 type="file"
                 title=""
+                autoComplete="off"
               ></input>
             )}
             <p

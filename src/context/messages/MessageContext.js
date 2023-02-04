@@ -1,5 +1,5 @@
 import { createContext } from "react";
 
- const MessageContext=createContext();
+const MessageContext = createContext();
 
- export default MessageContext;
+export default MessageContext;
