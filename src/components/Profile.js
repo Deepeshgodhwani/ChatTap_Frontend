@@ -165,6 +165,8 @@ function Profile() {
             duration: 3000,
             isClosable: true,
           });
+          setloading(false);
+          e.target.value = null;
         }
       } else {
         setloading(false);
@@ -269,7 +271,6 @@ function Profile() {
                   autoComplete="off"
                   onChange={(e) => {
                     setusername(e.target.value);
-
                   }}
                 ></input>
                 {!enabled && !logUser.isGuest && (

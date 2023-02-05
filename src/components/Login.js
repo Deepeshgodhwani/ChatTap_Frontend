@@ -49,7 +49,6 @@ function Login(props) {
         setloading(false);
         setvalue("Login");
       } else {
-        localStorage.setItem("token", data.authToken);
         const User = await fetch("http://localhost:7000/api/auth/getUser", {
           method: "GET",
           mode: "cors",
@@ -60,10 +59,30 @@ function Login(props) {
         });
 
         let user = await User.json();
-        localStorage.setItem("user", JSON.stringify(user));
-        history.push("/chat");
+        if (user.error) {
+          toast({
+            description: user.error,
+            status: "warning",
+            duration: 3000,
+            isClosable: true,
+          });
+          setcredentials({ email: "", password: "" });
+          button.value = "Login";
+          button.disabled = false;
+          setloading(false);
+          setvalue("Login");
+        } else {
+          localStorage.setItem("token", data.authToken);
+          localStorage.setItem("user", JSON.stringify(user));
+          history.push("/chat");
+        }
       }
     } catch (error) {
+      setcredentials({ email: "", password: "" });
+      button.value = "Login";
+      button.disabled = false;
+      setloading(false);
+      setvalue("Login");
       toast({
         description: "Internal server error",
         status: "warning",

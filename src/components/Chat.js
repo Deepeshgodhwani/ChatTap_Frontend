@@ -1,4 +1,4 @@
-import React ,{ useContext }from "react";
+import React, { useContext } from "react";
 import ChatContext from "../context/chat/ChatContext";
 import GroupChat from "./GroupChat";
 import SingleChat from "./SingleChat";
@@ -59,8 +59,9 @@ function Chat(props) {
               </div>
             </div>
             <p className=" w-[20rem] xl:w-[26rem]  text-sm   leading-5 mt-3 text-center text-[rgb(170,170,170)]  ">
-              Stay conneted with loved ones and colleagues through instant messaging. Enjoy the convenience and freedom
-              of real-time communication anytime, anywhere.
+              Stay conneted with loved ones and colleagues through instant
+              messaging. Enjoy the convenience and freedom of real-time
+              communication anytime, anywhere.
             </p>
           </div>
           <div className="text-[rgb(170,170,170)] text-sm pt-8 xl:pt-12 items-center  flex space-x-2">

@@ -53,7 +53,6 @@ function Signup(props) {
         let data = await response.json();
         setcredentials({ name: "", email: "", password: "", confPassword: "" });
         if (!data.error) {
-          localStorage.setItem("token", data.authToken);
           const User = await fetch("http://localhost:7000/api/auth/getUser", {
             method: "GET",
             mode: "cors",
@@ -71,8 +70,25 @@ function Signup(props) {
           });
 
           let user = await User.json();
-          localStorage.setItem("user", JSON.stringify(user));
-          if (user) {
+          if (user.error) {
+            toast({
+              description: user.error,
+              status: "warning",
+              duration: 3000,
+              isClosable: true,
+            });
+            setcredentials({
+              name: "",
+              email: "",
+              password: "",
+              confPassword: "",
+            });
+            button.disabled = false;
+            setloading(false);
+            setvalue("Login");
+          } else {
+            localStorage.setItem("token", data.authToken);
+            localStorage.setItem("user", JSON.stringify(user));
             history.push("/chat");
           }
         } else {
@@ -81,6 +97,12 @@ function Signup(props) {
             status: "warning",
             duration: 3000,
             isClosable: true,
+          });
+          setcredentials({
+            name: "",
+            email: "",
+            password: "",
+            confPassword: "",
           });
           button.value = "Login";
           button.disabled = false;

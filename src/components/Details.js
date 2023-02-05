@@ -481,33 +481,40 @@ function Details(props) {
               <p className="text-[rgb(167,169,171)] px-5 font-semibold">
                 Groups in common
               </p>
-              <div className="flex h-56  overflow-y-scroll  chatBox mt-3 flex-col ">
-                {commonGroups.map((group) => {
-                  return (
-                    <div
-                      className="flex cursor-pointer hover:bg-[rgb(44,44,44)] py-[6px] px-3 items-center space-x-2"
-                      key={group._id}
-                      onClick={(e) => {
-                        setGroupChat(group);
-                      }}
-                    >
-                      <img
-                        className="w-11 rounded-full h-11  "
-                        alt=""
-                        src={group.profilePic}
-                      ></img>
-                      <div>
-                        <p className="text-base">{group.chatname}</p>
-                        <p className="text-[rgb(146,145,148)] text-xs">
-                          {group.users.length} member
-                        </p>
+              {commonGroups.length >= 1 ? (
+                <div className="flex h-56  overflow-y-scroll  chatBox mt-3 flex-col ">
+                  {commonGroups.map((group) => {
+                    return (
+                      <div
+                        className="flex cursor-pointer hover:bg-[rgb(44,44,44)] py-[6px] px-3 items-center space-x-2"
+                        key={group._id}
+                        onClick={(e) => {
+                          setGroupChat(group);
+                        }}
+                      >
+                        <img
+                          className="w-11 rounded-full h-11  "
+                          alt=""
+                          src={group.profilePic}
+                        ></img>
+                        <div>
+                          <p className="text-base">{group.chatname}</p>
+                          <p className="text-[rgb(146,145,148)] text-xs">
+                            {group.users.length} member
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                  );
-                })}
-              </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="flex justify-center items-center h-52 text-[rgb(167,169,171)] text-sm">
+                  <p>No common groups</p>
+                </div>
+              )}
             </div>
           )}
+
           {loadingGroup && (
             <div className="flex  items-center flex-col pt-4 space-y-2">
               <div className="px-4 relative  flex space-x-2 items-center pt-2 ">

@@ -266,8 +266,6 @@ function GroupCreation(props) {
     }
   };
 
-
-  
   return (
     <div>
       <img
@@ -275,7 +273,9 @@ function GroupCreation(props) {
         onClick={onOpen}
         alt=""
         className="w-8 cursor-pointer"
-        src={"https://res.cloudinary.com/dynjwlpl3/image/upload/v1675316635/Chat-app/createGroup_togebl.png"}
+        src={
+          "https://res.cloudinary.com/dynjwlpl3/image/upload/v1675316635/Chat-app/createGroup_togebl.png"
+        }
       ></img>
       <Drawer
         isOpen={isOpen}

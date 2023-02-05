@@ -93,7 +93,7 @@ export default function Chatlist(props) {
         if (updatedUsers) {
           chat.users = updatedUsers;
         }
-        setrecentChats([chat, ...recentChats]);
+        setrecentChats([chat, ...chats]);
       } else {
         setrecentChats([updatedChat, ...chats]);
       }
@@ -364,7 +364,10 @@ export default function Chatlist(props) {
                     } 
                       px-4   text-white `}
                   >
-                    <div key={element._id} className="flex space-x-2  md:px-0 py-2 w-72 relative border-b-[1px] border-[rgb(42,42,42)]">
+                    <div
+                      key={element._id}
+                      className="flex space-x-2  md:px-0 py-2 w-72 relative border-b-[1px] border-[rgb(42,42,42)]"
+                    >
                       <img
                         alt=""
                         className="w-12 h-12 rounded-[50%]"

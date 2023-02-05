@@ -4,7 +4,7 @@ import {
   useDisclosure,
   Popover,
   PopoverContent,
-  useToast
+  useToast,
 } from "@chakra-ui/react";
 import ChatContext from "../context/chat/ChatContext";
 import Loading from "./Loading";
@@ -269,17 +269,16 @@ function GroupChat(props) {
     }
   };
 
-  
-  const closeChat=()=>{
-    if(window.innerWidth<768){ 
+  const closeChat = () => {
+    if (window.innerWidth < 768) {
       setenableChatlist(true);
       setenableChat(false);
     }
-      props.toggleProfileView(false);
-      document.title = "ChatTap";
-      setchatroom({});
-  }
-  
+    props.toggleProfileView(false);
+    document.title = "ChatTap";
+    setchatroom({});
+  };
+
   return (
     <div
       className={`bg-[rgb(27,27,27)] h-[100vh]  relative overflow-hidden w-full  text-white ${

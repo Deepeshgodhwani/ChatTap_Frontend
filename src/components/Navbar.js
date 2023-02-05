@@ -144,7 +144,7 @@ export default function Navbar(props) {
                       <div
                         onClick={() => {
                           accessChat(user._id);
-                          onClose();
+                          closeTheTab();
                         }}
                         className="flex cursor-pointer px-4 hover:bg-[rgb(58,58,58)]  py-[6px]  items-center space-x-2"
                         key={user._id}

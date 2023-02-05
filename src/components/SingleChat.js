@@ -28,13 +28,12 @@ export default function SingleChat(props) {
   const msgContext = useContext(MessageContext);
   const [secondUser, setsecondUser] = useState({});
   const [loading, setloading] = useState(false);
- const [isTyping, setisTyping] = useState(false);
+  const [isTyping, setisTyping] = useState(false);
   const { encryptData } = msgContext;
   const { onOpen, onClose, isOpen } = useDisclosure();
   const toast = useToast();
   const { logUser, chatroom, setchatroom, recentChats, setrecentChats } =
-  context;
-  
+    context;
 
   //to set second user in single chat //
   useEffect(() => {
@@ -51,7 +50,6 @@ export default function SingleChat(props) {
       ? (document.title = `ChatTap • ${secondUser.name}`)
       : (document.title = "ChatTap");
   }, [chatroom, logUser, secondUser]);
-
 
   //to fetch previous message for single chat
   useEffect(() => {
@@ -87,7 +85,6 @@ export default function SingleChat(props) {
       });
     }
   }, [chatroom]);
-
 
   // To send message //
   const sendMessage = async (e) => {
@@ -156,7 +153,6 @@ export default function SingleChat(props) {
     }
   };
 
-
   // To receive message //
   useEffect(() => {
     if (!socket) return;
@@ -174,7 +170,6 @@ export default function SingleChat(props) {
     });
   }, [messages, recentChats]);
 
-
   //toggling typing when usertwo typing //
   useEffect(() => {
     socket.on("isTyping", (data) => {
@@ -187,7 +182,6 @@ export default function SingleChat(props) {
       }
     });
   }, [isTyping]);
-
 
   const toggleDropdown = () => {
     if (dropdown) {
@@ -265,13 +259,14 @@ export default function SingleChat(props) {
                 </p>
                 <p
                   onClick={() => {
-                    if(window.innerWidth<768){ setenableChatlist(true);
-                      setenableChat(false);}
+                    if (window.innerWidth < 768) {
+                      setenableChatlist(true);
+                      setenableChat(false);
+                    }
                     props.toggleProfileView(false);
                     document.title = "ChatTap";
                     setchatroom({});
-                    
-                    }}
+                  }}
                   className="hover:bg-[rgb(58,58,58)]  cursor-pointer py-1"
                 >
                   Close chat

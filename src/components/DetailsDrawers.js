@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect,useRef  } from "react";
+import React, { useContext, useState, useEffect, useRef } from "react";
 import ChatContext from "../context/chat/ChatContext";
 import GroupMembers from "./GroupMembers";
 import MessageContext from "../context/messages/MessageContext";
@@ -30,7 +30,7 @@ function DetailsDrawers(props) {
   const contextMsg = useContext(MessageContext);
   const { encryptData } = contextMsg;
   const [view, setview] = useState(false);
-  let ref=useRef();
+  let ref = useRef();
   const {
     logUser,
     setgroupPic,
@@ -91,8 +91,6 @@ function DetailsDrawers(props) {
     }
     // eslint-disable-next-line
   }, []);
-
- 
 
   //To change group profile picture
   const changeProfile = async (e) => {
@@ -253,9 +251,9 @@ function DetailsDrawers(props) {
     setisUserExist(check);
   };
 
-   //checking if user is exist in group when groupmembers are updating //
-   ref.current=checkUserExist;
-   useEffect(() => {
+  //checking if user is exist in group when groupmembers are updating //
+  ref.current = checkUserExist;
+  useEffect(() => {
     ref.current();
   }, [groupMembers]);
 
@@ -266,7 +264,7 @@ function DetailsDrawers(props) {
     setenabled(true);
   };
 
-   // To edit group name
+  // To edit group name
   const changeName = async () => {
     if (newChatName === Profile.chatname) {
       toast({
