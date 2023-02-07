@@ -12,6 +12,7 @@ import {
   PopoverContent,
   useToast,
 } from "@chakra-ui/react";
+const url = process.env.REACT_APP_URL;
 
 function List(props) {
   const { Profile, groupMembers, setgroupMembers, socket } = props;
@@ -36,7 +37,7 @@ function List(props) {
     try {
       let token = localStorage.getItem("token");
       const response = await fetch(
-        `http://localhost:7000/api/chat/removeUser?chatId=${Profile._id}&userId=${User._id}`,
+        `${url}/api/chat/removeUser?chatId=${Profile._id}&userId=${User._id}`,
         {
           method: "GET",
           mode: "cors",
@@ -125,7 +126,7 @@ function List(props) {
         <ModalOverlay />
         <ModalContent
           width={`${window.innerWidth < 768 ? "22rem" : "27rem"}`}
-          top={"0"}
+          top={`${window.innerWidth < 1536 ? "0" : "5"}`}
           borderRadius={"md"}
           bg=""
         >

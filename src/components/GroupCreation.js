@@ -12,6 +12,7 @@ import {
   FormControl,
   Spinner,
 } from "@chakra-ui/react";
+const url = process.env.REACT_APP_URL;
 
 function GroupCreation(props) {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -51,7 +52,7 @@ function GroupCreation(props) {
       setsearch(e.target.value);
       let token = localStorage.getItem("token");
       const response = await fetch(
-        `http://localhost:7000/api/chat/searchUser?search=${e.target.value}`,
+        `${url}/api/chat/searchUser?search=${e.target.value}`,
         {
           method: "GET",
           mode: "cors",
@@ -169,24 +170,21 @@ function GroupCreation(props) {
       toast({
         description: "Please enter group name",
         status: "warning",
-        duration: 9000,
+        duration: 3000,
         isClosable: true,
       });
     } else {
       try {
         let token = localStorage.getItem("token");
-        const response = await fetch(
-          "http://localhost:7000/api/chat/createGroup",
-          {
-            method: "POST",
-            mode: "cors",
-            headers: {
-              "Content-Type": "application/json",
-              "auth-token": token,
-            },
-            body: JSON.stringify({ chatName, selectedUsersId, groupPicture }),
-          }
-        );
+        const response = await fetch(`${url}/api/chat/createGroup`, {
+          method: "POST",
+          mode: "cors",
+          headers: {
+            "Content-Type": "application/json",
+            "auth-token": token,
+          },
+          body: JSON.stringify({ chatName, selectedUsersId, groupPicture }),
+        });
 
         let data = await response.json();
         let message = "created group " + data.chatname;

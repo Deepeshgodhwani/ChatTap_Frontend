@@ -10,6 +10,7 @@ import {
   useToast,
   Spinner,
 } from "@chakra-ui/react";
+const url = process.env.REACT_APP_URL;
 
 function Profile() {
   let history = useHistory();
@@ -74,22 +75,19 @@ function Profile() {
     } else {
       try {
         let token = localStorage.getItem("token");
-        const response = await fetch(
-          `http://localhost:7000/api/chat/changeName`,
-          {
-            method: "POST",
-            mode: "cors",
-            headers: {
-              "Content-Type": "application/json",
-              "auth-token": token,
-            },
-            body: JSON.stringify({
-              type: "user",
-              Id: logUser._id,
-              name: username,
-            }),
-          }
-        );
+        const response = await fetch(`${url}/api/chat/changeName`, {
+          method: "POST",
+          mode: "cors",
+          headers: {
+            "Content-Type": "application/json",
+            "auth-token": token,
+          },
+          body: JSON.stringify({
+            type: "user",
+            Id: logUser._id,
+            name: username,
+          }),
+        });
 
         let data = await response.json();
         let input = document.getElementById("inputName1");
@@ -142,7 +140,7 @@ function Profile() {
         let picture = pic.url.toString();
         let token = localStorage.getItem("token");
         let data = await fetch(
-          `http://localhost:7000/api/chat/changePic?isGroupChat=false&Id=${logUser._id}&pic=${picture}`,
+          `${url}/api/chat/changePic?isGroupChat=false&Id=${logUser._id}&pic=${picture}`,
           {
             method: "GET",
             mode: "cors",
@@ -207,16 +205,14 @@ function Profile() {
       >
         <DrawerOverlay />
         <DrawerContent textColor={"white"} bg={"rgb(36,36,36)"}>
-          <DrawerHeader>
-            <div className="flex justify-between">
-              Profile
-              <i
-                onClick={closeTheTab}
-                className="fa-solid cursor-pointer text-xl mt-[1px] fa-xmark"
-              ></i>
-            </div>
-          </DrawerHeader>
-          <div className="flex h-[90vh] px-2 flex-col bg-[rgb(27,27,27)] ">
+          <div className="flex h-[9vh] px-6  items-center justify-between">
+            <p className="text-lg font-semibold">Profile</p>
+            <i
+              onClick={closeTheTab}
+              className="fa-solid cursor-pointer text-xl mt-[1px] fa-xmark"
+            ></i>
+          </div>
+          <div className="flex h-[83vh] px-2 flex-col bg-[rgb(27,27,27)] ">
             <div className="flex justify-center items-start  py-8">
               <div className="flex group items-center relative justify-center rounded-full">
                 <img
@@ -235,8 +231,8 @@ function Profile() {
                 {!logUser.isGuest && (
                   <input
                     onChange={changePic}
-                    className=" flex z-50 inputFile  absolute top-0 h-48 opacity-0
-                text-white rounded-full justify-center items-center  bg-black w-48"
+                    className=" flex z-50 inputFile  absolute top-0 md:h-48 opacity-0
+                text-white rounded-full justify-center items-center w-40 h-40   bg-black md:w-48"
                     type="file"
                     title=""
                     autoComplete="off"
@@ -246,7 +242,7 @@ function Profile() {
                   <div
                     id="hoverImg"
                     className=" absolute top-0 hidden group-hover:flex text-center 
-              py-14 bg-black w-48 space-y-1 h-48 opacity-70 rounded-full flex-col justify-center items-center"
+              py-14 bg-black md:w-48  w-40 h-40  space-y-1 md:h-48 opacity-70 rounded-full flex-col justify-center items-center"
                   >
                     <i className="fa-solid text-lg fa-camera"></i>
                     <div className="  text-xs font-semibold ">
@@ -257,7 +253,7 @@ function Profile() {
                 )}
               </div>
             </div>
-            <div className="flex px-2 flex-col space-y-1">
+            <div className={`flex  mt-6 px-2 flex-col    space-y-1`}>
               <p className="text-[rgb(9,128,93)] font-semibold">Your name</p>
               <div className="justify-center  flex relative">
                 <input
@@ -297,7 +293,7 @@ function Profile() {
 
           <div
             onClick={logout}
-            className="space-x-2 justify-center items-center py-2 cursor-pointer flex"
+            className="space-x-2  justify-center items-center h-[8vh] cursor-pointer flex"
           >
             <img
               alt=""

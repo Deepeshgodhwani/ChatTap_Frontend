@@ -13,6 +13,7 @@ import {
 var selectedChatCompare;
 let delay = true;
 let dropdown = false;
+const url = process.env.REACT_APP_URL;
 
 export default function SingleChat(props) {
   const {
@@ -59,7 +60,7 @@ export default function SingleChat(props) {
         if (!chatroom.users) return;
         let token = localStorage.getItem("token");
         const response = await fetch(
-          `http://localhost:7000/api/chat/fetchMessages?Id=${chatroom._id}`,
+          `${url}/api/chat/fetchMessages?Id=${chatroom._id}`,
           {
             method: "GET",
             mode: "cors",
@@ -105,7 +106,7 @@ export default function SingleChat(props) {
         });
         let encryptedMessage = encryptData(newMessage);
         let token = localStorage.getItem("token");
-        const response = await fetch(`http://localhost:7000/api/chat/message`, {
+        const response = await fetch(`${url}/api/chat/message`, {
           method: "POST",
           mode: "cors",
           headers: {
@@ -119,9 +120,10 @@ export default function SingleChat(props) {
         });
 
         const data = await response.json();
+        setnewMessage("");
+        setmessages([...messages, data]);
         socket.emit("new_message", data);
         socket.emit("update_Chatlist", data);
-        setmessages([...messages, data]);
         let updatedChat;
         let check = true;
         let chats = recentChats;
@@ -133,7 +135,6 @@ export default function SingleChat(props) {
           }
           return Chat._id !== chatroom._id;
         });
-        setnewMessage("");
         if (check) {
           let chat = chatroom;
           chat.latestMessage = data;
@@ -197,7 +198,7 @@ export default function SingleChat(props) {
     <>
       <div
         className={`bg-[rgb(27,27,27)] h-[100vh] w-full relative overflow-hidden text-white ${
-          details ? "md:w-[71.5%] xl:w-[50%]" : "md:w-[71%] xl:w-[72%] "
+          details ? "md:w-[71.5%] xl:w-[44%]" : "md:w-[71%] xl:w-[69%] "
         } `}
       >
         <div className="flex items-center justify-between border-[1px] border-[rgb(42,42,42)]  h-16 py-3 space-x-4 px-10 bg-[rgb(36,36,36)] ">

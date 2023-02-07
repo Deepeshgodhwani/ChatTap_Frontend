@@ -41,7 +41,9 @@ function RenderGroupMessages(props) {
   };
 
   return (
-    <ScrollableFeed className="chatBox   absolute w-[96.5%] bottom-2  flex flex-col py-2  px-2 overflow-y-scroll space-y-2">
+    <ScrollableFeed
+      className={`chatBox  absolute w-[96.5%] bottom-2  flex flex-col py-2  px-2 overflow-y-scroll space-y-2`}
+    >
       {messages &&
         messages.map((message, i) => {
           if (message.noty) {

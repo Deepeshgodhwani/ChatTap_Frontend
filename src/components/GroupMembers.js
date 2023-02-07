@@ -15,6 +15,8 @@ import {
   PopoverTrigger,
   PopoverContent,
 } from "@chakra-ui/react";
+const url = process.env.REACT_APP_URL;
+
 let delay = true;
 
 function GroupMembers(props) {
@@ -45,8 +47,10 @@ function GroupMembers(props) {
   } = context;
 
   useEffect(() => {
-    if (groupMembers.length > 4) {
-      setrenderMembers(groupMembers.slice(0, 4));
+    if (groupMembers.length > 5 && window.innerWidth < 1536) {
+      setrenderMembers(groupMembers.slice(0, 5));
+    } else if (groupMembers.length > 6) {
+      setrenderMembers(groupMembers.slice(0, 6));
     } else {
       setrenderMembers(groupMembers);
     }
@@ -59,7 +63,7 @@ function GroupMembers(props) {
     try {
       let token = localStorage.getItem("token");
       const response = await fetch(
-        `http://localhost:7000/api/chat/searchUser?search=${e.target.value}`,
+        `${url}/api/chat/searchUser?search=${e.target.value}`,
         {
           method: "GET",
           mode: "cors",
@@ -141,8 +145,9 @@ function GroupMembers(props) {
     onClose();
 
     try {
+      setgroupMembers(groupMembers.concat(selectedUsers));
       let token = localStorage.getItem("token");
-      const response = await fetch(`http://localhost:7000/api/chat/addUser`, {
+      const response = await fetch(`${url}/api/chat/addUser`, {
         method: "POST",
         mode: "cors",
         headers: {
@@ -159,6 +164,12 @@ function GroupMembers(props) {
           message = message.concat(member.user.name);
           message = message.concat(", ");
         });
+        toast({
+          description: "Member added in group",
+          status: "success",
+          duration: 1000,
+          isClosable: true,
+        });
 
         message = message.slice(0, message.length - 2);
         let encryptedMessage = encryptData(message);
@@ -172,7 +183,6 @@ function GroupMembers(props) {
           members: selectedUsers,
           status: "add",
         };
-        setgroupMembers(groupMembers.concat(selectedUsers));
         setgroupMessages([...groupMessages, noty]);
         socket.emit("change_users", dataSend);
         let updatedChat;
@@ -202,9 +212,14 @@ function GroupMembers(props) {
   //removing members from the group
   const removeFromGroup = async (User) => {
     try {
+      setgroupMembers(
+        groupMembers.filter((member) => {
+          return member.user._id !== User._id;
+        })
+      );
       let token = localStorage.getItem("token");
       const response = await fetch(
-        `http://localhost:7000/api/chat/removeUser?chatId=${Profile._id}&userId=${User._id}`,
+        `${url}/api/chat/removeUser?chatId=${Profile._id}&userId=${User._id}`,
         {
           method: "GET",
           mode: "cors",
@@ -242,11 +257,6 @@ function GroupMembers(props) {
         });
         setrecentChats([updatedChat, ...chats]);
         setgroupMessages([...groupMessages, noty]);
-        setgroupMembers(
-          groupMembers.filter((member) => {
-            return member.user._id !== User._id;
-          })
-        );
       }
     } catch (error) {
       toast({
@@ -291,9 +301,19 @@ function GroupMembers(props) {
     onClose();
   };
 
+  const checkUserLength = () => {
+    if (groupMembers.length > 5 && window.innerWidth < 1536) {
+      return true;
+    } else if (groupMembers.length > 6) {
+      return true;
+    } else {
+      return false;
+    }
+  };
+
   return (
     <div className="">
-      <div className="flex pt-4 px-8   justify-between">
+      <div className="flex pt-4 px-8 2xl:px-10   justify-between">
         <div className="flex   space-x-2">
           <img
             alt=""
@@ -306,7 +326,7 @@ function GroupMembers(props) {
             MEMBER ({groupMembers.length})
           </p>
         </div>
-        {groupMembers.length > 4 && (
+        {checkUserLength() && (
           <List
             groupMembers={groupMembers}
             socket={socket}
@@ -322,11 +342,11 @@ function GroupMembers(props) {
             onClick={() => {
               onOpen();
             }}
-            className="flex hover:bg-[rgb(44,44,44)] py-[5px] px-4 items-center cursor-pointer space-x-2"
+            className="flex hover:bg-[rgb(44,44,44)] py-[5px] px-4 2xl:px-6 items-center cursor-pointer space-x-2"
           >
             <div className="bg-[rgb(34,134,92)]  py-2 px-2  rounded-full">
               <img
-                className="w-6  rounded-full"
+                className="w-6 2xl:w-7  rounded-full"
                 alt=""
                 src={
                   "https://res.cloudinary.com/dynjwlpl3/image/upload/v1675014391/Chat-app/add-user_zetp43.png"
@@ -436,11 +456,11 @@ function GroupMembers(props) {
             logUser._id !== Profile.admin._id && setSingleChat(Profile.admin);
           }}
           className="flex cursor-pointer relative py-[5px]
-              px-4  hover:bg-[rgb(44,44,44)]  space-x-2 items-center"
+             px-4  2xl:px-6  hover:bg-[rgb(44,44,44)]  space-x-2 items-center"
         >
           <img
             alt=""
-            className="w-11 rounded-full h-11"
+            className="w-11 2xl:w-12 2xl:h-12 rounded-full h-11"
             src={Profile.admin.avtar}
           ></img>
           <div className="flex">
@@ -465,14 +485,14 @@ function GroupMembers(props) {
             <div
               key={members.user._id}
               className="flex hover:bg-[rgb(44,44,44)] group cursor-pointer space-x-2 
-                   relative py-[5px] px-4 items-center"
+                   relative py-[5px] px-4 2xl:px-6 items-center"
             >
               <img
                 onClick={() => {
                   setSingleChat(members.user);
                 }}
                 alt=""
-                className="w-11 rounded-full h-11"
+                className="w-11 2xl:w-12 2xl:h-12  rounded-full h-11"
                 src={members.user.avtar}
               ></img>
               <p

@@ -8,7 +8,7 @@ import ChatContext from "../context/chat/ChatContext";
 import { useContext } from "react";
 import io from "socket.io-client";
 import DetailsDrawers from "../components/DetailsDrawers";
-const ENDPOINT = "http://localhost:4000";
+const ENDPOINT = "localhost:4000";
 var socket;
 
 function Chat_page() {

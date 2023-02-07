@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Spinner, useToast } from "@chakra-ui/react";
 import { useHistory } from "react-router-dom";
+const url = process.env.REACT_APP_URL;
 
 function Login(props) {
   const toast = useToast();
@@ -23,7 +24,7 @@ function Login(props) {
     setloading(true);
 
     try {
-      const response = await fetch(`http://localhost:7000/api/auth/login/`, {
+      const response = await fetch(`${url}/api/auth/login/`, {
         method: "POST",
         mode: "cors",
         headers: {
@@ -49,7 +50,7 @@ function Login(props) {
         setloading(false);
         setvalue("Login");
       } else {
-        const User = await fetch("http://localhost:7000/api/auth/getUser", {
+        const User = await fetch(`${url}/api/auth/getUser`, {
           method: "GET",
           mode: "cors",
           headers: {
@@ -101,7 +102,7 @@ function Login(props) {
 
   return (
     <form
-      className=" bg-[rgb(27,27,27)] justify-center items-center flex  xl:h-[85vh]  xl:w-[70%]     "
+      className=" bg-[rgb(27,27,27)] justify-center items-center flex 2xl:h-[80vh]  xl:h-[85vh]  xl:w-[70%]     "
       onSubmit={formHandler}
     >
       <div className="  flex w-[23rem] relative flex-col z-10 px-9 py-6  justify-between  ">

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Spinner, useToast } from "@chakra-ui/react";
 import { useHistory } from "react-router-dom";
+const url = process.env.REACT_APP_URL;
 
 function Signup(props) {
   let history = useHistory();
@@ -35,25 +36,22 @@ function Signup(props) {
       setvalue("Login");
     } else {
       try {
-        const response = await fetch(
-          "http://localhost:7000/api/auth/createUser",
-          {
-            method: "POST",
-            mode: "cors",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              name: credentials.name,
-              email: credentials.email,
-              password: credentials.password,
-            }),
-          }
-        );
+        const response = await fetch(`${url}/api/auth/createUser`, {
+          method: "POST",
+          mode: "cors",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: credentials.name,
+            email: credentials.email,
+            password: credentials.password,
+          }),
+        });
         let data = await response.json();
         setcredentials({ name: "", email: "", password: "", confPassword: "" });
         if (!data.error) {
-          const User = await fetch("http://localhost:7000/api/auth/getUser", {
+          const User = await fetch(`${url}/api/auth/getUser`, {
             method: "GET",
             mode: "cors",
             headers: {
@@ -130,7 +128,7 @@ function Signup(props) {
 
   return (
     <form
-      className="bg-[rgb(27,27,27)]  justify-center items-center flex pb-3 xl:h-[85vh]  xl:w-[70%] "
+      className="bg-[rgb(27,27,27)]  justify-center items-center flex pb-3 xl:h-[80vh]  xl:w-[70%] "
       onSubmit={formHandler}
     >
       <div className=" w-[23rem] flex   relative flex-col z-10 px-9 pt-6  justify-between  space-y-2">

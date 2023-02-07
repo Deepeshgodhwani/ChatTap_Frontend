@@ -12,6 +12,7 @@ import {
   useToast,
   Spinner,
 } from "@chakra-ui/react";
+const url = process.env.REACT_APP_URL;
 
 function Details(props) {
   const { Profile, toggleProfileView, socket } = props;
@@ -52,7 +53,7 @@ function Details(props) {
       setloadingGroup(true);
       let token = localStorage.getItem("token");
       const response = await fetch(
-        `http://localhost:7000/api/chat/getCommonGroups?userId=${Profile._id}`,
+        `${url}/api/chat/getCommonGroups?userId=${Profile._id}`,
         {
           method: "GET",
           mode: "cors",
@@ -108,7 +109,7 @@ function Details(props) {
         let picture = pic.url.toString();
         let token = localStorage.getItem("token");
         let data = await fetch(
-          `http://localhost:7000/api/chat/changePic?isGroupChat=${
+          `${url}/api/chat/changePic?isGroupChat=${
             Profile.isGroupChat ? true : false
           }&Id=${
             Profile.isGroupChat ? Profile._id : logUser._id
@@ -176,9 +177,14 @@ function Details(props) {
   // To exit from group .
   const exitGroup = async () => {
     try {
+      setgroupMembers(
+        groupMembers.filter((member) => {
+          return member.user._id !== logUser._id;
+        })
+      );
       let token = localStorage.getItem("token");
       const response = await fetch(
-        `http://localhost:7000/api/chat/removeUser?chatId=${Profile._id}&userId=${logUser._id}`,
+        `${url}/api/chat/removeUser?chatId=${Profile._id}&userId=${logUser._id}`,
         {
           method: "GET",
           mode: "cors",
@@ -216,11 +222,6 @@ function Details(props) {
       });
       setrecentChats([updatedChat, ...chats]);
       setgroupMessages([...groupMessages, noty]);
-      setgroupMembers(
-        groupMembers.filter((member) => {
-          return member.user._id !== logUser._id;
-        })
-      );
       setisUserExist(false);
     } catch (error) {
       toast({
@@ -270,22 +271,19 @@ function Details(props) {
     } else {
       try {
         let token = localStorage.getItem("token");
-        const response = await fetch(
-          `http://localhost:7000/api/chat/changeName`,
-          {
-            method: "POST",
-            mode: "cors",
-            headers: {
-              "Content-Type": "application/json",
-              "auth-token": token,
-            },
-            body: JSON.stringify({
-              type: "group",
-              Id: Profile._id,
-              name: newChatName,
-            }),
-          }
-        );
+        const response = await fetch(`${url}/api/chat/changeName`, {
+          method: "POST",
+          mode: "cors",
+          headers: {
+            "Content-Type": "application/json",
+            "auth-token": token,
+          },
+          body: JSON.stringify({
+            type: "group",
+            Id: Profile._id,
+            name: newChatName,
+          }),
+        });
 
         await response.json();
         let input = document.getElementById("inputName");
@@ -373,7 +371,7 @@ function Details(props) {
 
   return (
     <>
-      <div className="w-80  bg-[rgb(36,36,36)]  flex flex-col">
+      <div className="w-[25%]  bg-[rgb(36,36,36)]  flex flex-col">
         <div className="text-[rgb(233,233,233)] pt-4  px-5 text-xl font-semibold flex justify-between ">
           <p>Details</p>
           <i
@@ -384,11 +382,11 @@ function Details(props) {
           ></i>
         </div>
         <div className="py-2 chatBox overflow-x-hidden overflow-y-scroll  ">
-          <div className="flex space-y-2  mt-3  py-2 flex-col items-center">
-            <div className="relative group rounded-full flex justify-center items-center ">
+          <div className="flex space-y-2  mt-3  pt-6 2xl:pt-10  py-2 flex-col items-center">
+            <div className="relative group rounded-full  flex justify-center items-center ">
               <img
                 alt=""
-                className="w-44 cursor-pointer group rounded-full h-44"
+                className="w-48 cursor-pointer group rounded-full h-48"
                 src={Profile.isGroupChat ? groupPic : Profile.avtar}
                 onClick={onOpen}
               ></img>
@@ -418,7 +416,7 @@ function Details(props) {
                 <div
                   id="hoverImg"
                   onClick={toggleDropdown}
-                  className="absolute  hidden text-white group-hover:flex text-center py-14 bg-black w-44 space-y-1 h-44 opacity-70 rounded-full 
+                  className="absolute  hidden text-white group-hover:flex text-center py-14 bg-black w-48 space-y-1 h-48 opacity-70 rounded-full 
             flex-col justify-center items-center"
                 >
                   <i className="fa-solid text-lg fa-camera"></i>
@@ -430,7 +428,6 @@ function Details(props) {
               )}
             </div>
             <div className="flex flex-col  items-center text-[rgb(233,233,233)]">
-              {/* <p className="font-[calibri] text-xl "> */}
               {Profile.isGroupChat ? (
                 <div className="relative group mt-1 mb-1">
                   <input
@@ -475,10 +472,10 @@ function Details(props) {
               )}
             </div>
           </div>
-          <div className="bg-[rgb(27,27,27)]  w-80 h-3"></div>
+          <div className="bg-[rgb(27,27,27)]  w-full h-3"></div>
           {!Profile.isGroupChat && !loadingGroup && (
             <div className="  py-3  text-white ">
-              <p className="text-[rgb(167,169,171)] px-5 font-semibold">
+              <p className="text-[rgb(167,169,171)] px-5 2xl:px-7 font-semibold">
                 Groups in common
               </p>
               {commonGroups.length >= 1 ? (
@@ -486,14 +483,14 @@ function Details(props) {
                   {commonGroups.map((group) => {
                     return (
                       <div
-                        className="flex cursor-pointer hover:bg-[rgb(44,44,44)] py-[6px] px-3 items-center space-x-2"
+                        className="flex cursor-pointer hover:bg-[rgb(44,44,44)] py-[6px] px-3 2xl:px-5 items-center space-x-2"
                         key={group._id}
                         onClick={(e) => {
                           setGroupChat(group);
                         }}
                       >
                         <img
-                          className="w-11 rounded-full h-11  "
+                          className="w-11 2xl:w-12 2xl:h-12  rounded-full h-11  "
                           alt=""
                           src={group.profilePic}
                         ></img>
@@ -517,7 +514,7 @@ function Details(props) {
 
           {loadingGroup && (
             <div className="flex  items-center flex-col pt-4 space-y-2">
-              <div className="px-4 relative  flex space-x-2 items-center pt-2 ">
+              <div className="px-0  relative  flex space-x-2 items-center pt-2 ">
                 <SkeletonCircle
                   size="14"
                   startColor="rgb(46,46,46)"
@@ -527,7 +524,13 @@ function Details(props) {
                   <Skeleton
                     startColor="rgb(46,46,46)"
                     endColor="rgb(56,56,56)"
-                    width={`${window.innerWidth < 768 ? "15rem" : "13rem"}`}
+                    width={`${
+                      window.innerWidth < 768
+                        ? "15rem"
+                        : window.innerWidth < 1536
+                        ? "14rem"
+                        : "17rem"
+                    }`}
                     height="10px"
                   />
                   <Skeleton
@@ -542,7 +545,7 @@ function Details(props) {
                   />
                 </div>
               </div>
-              <div className="px-4 relative  flex space-x-2 items-center pt-4 ">
+              <div className="px-0  relative  flex space-x-2 items-center pt-2 ">
                 <SkeletonCircle
                   size="14"
                   startColor="rgb(46,46,46)"
@@ -552,7 +555,13 @@ function Details(props) {
                   <Skeleton
                     startColor="rgb(46,46,46)"
                     endColor="rgb(56,56,56)"
-                    width={`${window.innerWidth < 768 ? "15rem" : "13rem"}`}
+                    width={`${
+                      window.innerWidth < 768
+                        ? "15rem"
+                        : window.innerWidth < 1536
+                        ? "14rem"
+                        : "17rem"
+                    }`}
                     height="10px"
                   />
                   <Skeleton
@@ -567,7 +576,7 @@ function Details(props) {
                   />
                 </div>
               </div>
-              <div className="px-4 relative  flex space-x-2 items-center pt-4 ">
+              <div className="px-0  relative  flex space-x-2 items-center pt-2 ">
                 <SkeletonCircle
                   size="14"
                   startColor="rgb(46,46,46)"
@@ -577,7 +586,13 @@ function Details(props) {
                   <Skeleton
                     startColor="rgb(46,46,46)"
                     endColor="rgb(56,56,56)"
-                    width={`${window.innerWidth < 768 ? "15rem" : "13rem"}`}
+                    width={`${
+                      window.innerWidth < 768
+                        ? "15rem"
+                        : window.innerWidth < 1536
+                        ? "14rem"
+                        : "17rem"
+                    }`}
                     height="10px"
                   />
                   <Skeleton
@@ -592,7 +607,7 @@ function Details(props) {
                   />
                 </div>
               </div>
-              <div className="px-4 relative  flex space-x-2 items-center pt-4 ">
+              <div className="px-0  relative  flex space-x-2 items-center pt-2 ">
                 <SkeletonCircle
                   size="14"
                   startColor="rgb(46,46,46)"
@@ -602,7 +617,44 @@ function Details(props) {
                   <Skeleton
                     startColor="rgb(46,46,46)"
                     endColor="rgb(56,56,56)"
-                    width={`${window.innerWidth < 768 ? "15rem" : "13rem"}`}
+                    width={`${
+                      window.innerWidth < 768
+                        ? "15rem"
+                        : window.innerWidth < 1536
+                        ? "14rem"
+                        : "17rem"
+                    }`}
+                    height="10px"
+                  />
+                  <Skeleton
+                    startColor="rgb(46,46,46)"
+                    endColor="rgb(56,56,56)"
+                    height="10px"
+                  />
+                  <Skeleton
+                    startColor="rgb(46,46,46)"
+                    endColor="rgb(56,56,56)"
+                    height="10px"
+                  />
+                </div>
+              </div>
+              <div className="px-0  relative  flex space-x-2 items-center pt-2 ">
+                <SkeletonCircle
+                  size="14"
+                  startColor="rgb(46,46,46)"
+                  endColor="rgb(56,56,56)"
+                />
+                <div className="space-y-2 ">
+                  <Skeleton
+                    startColor="rgb(46,46,46)"
+                    endColor="rgb(56,56,56)"
+                    width={`${
+                      window.innerWidth < 768
+                        ? "15rem"
+                        : window.innerWidth < 1536
+                        ? "14rem"
+                        : "17rem"
+                    }`}
                     height="10px"
                   />
                   <Skeleton
@@ -629,7 +681,7 @@ function Details(props) {
             logUser._id !== Profile.admin._id && (
               <div
                 className="bg-[rgb(27,27,27)] 
-        my-3 w-80 h-3"
+        my-3 w-full h-3"
               ></div>
             )}
           {Profile.isGroupChat &&

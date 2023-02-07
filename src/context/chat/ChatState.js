@@ -1,6 +1,9 @@
 import { useToast } from "@chakra-ui/react";
 import { useState } from "react";
 import ChatContext from "./ChatContext";
+const url=process.env.REACT_APP_URL
+
+
 
 const ChatState = (props) => {
   const [logUser, setlogUser] = useState({});
@@ -22,7 +25,7 @@ const ChatState = (props) => {
     try {
       let token = localStorage.getItem("token");
       const response = await fetch(
-        `http://localhost:7000/api/chat/accessChat?userTwo=${userId}`,
+        `${url}/api/chat/accessChat?userTwo=${userId}`,
         {
           method: "GET",
           mode: "cors",
@@ -51,7 +54,7 @@ const ChatState = (props) => {
     try {
       let token = localStorage.getItem("token");
       const response = await fetch(
-        `http://localhost:7000/api/chat/accessGroupChat?chatId=${chatId}`,
+        `${url}/api/chat/accessGroupChat?chatId=${chatId}`,
         {
           method: "GET",
           mode: "cors",
@@ -83,7 +86,7 @@ const ChatState = (props) => {
       setchatlistLoading(true);
       let token = localStorage.getItem("token");
       const response = await fetch(
-        "http://localhost:7000/api/chat/fetchChats",
+        `${url}/api/chat/fetchChats`,
         {
           method: "GET",
           mode: "cors",
@@ -111,7 +114,7 @@ const ChatState = (props) => {
   const createNoty = async (Id, message) => {
     try {
       let token = localStorage.getItem("token");
-      const response = await fetch(`http://localhost:7000/api/chat/message`, {
+      const response = await fetch(`${url}/api/chat/message`, {
         method: "POST",
         mode: "cors",
         headers: {

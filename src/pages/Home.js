@@ -55,10 +55,10 @@ function Home() {
             <p className="text-[rgb(254,194,0)]">Tap</p>
           </div>
         </div>
-        <div className="absolute shadow-black top-20 md:top-auto  sm:shadow-2xl flex xl:right-[17.2rem] xl:w-[60%]">
-          <div className="w-72 xl:flex hidden pt-28  px-8 items-center flex-col bg-[rgb(36,36,36)] h-[85vh] ">
+        <div className="absolute  shadow-black top-20 md:top-auto  sm:shadow-2xl 2xl:right-[17.8rem] flex xl:right-[17.2rem] xl:w-[60%]">
+          <div className="w-72 2xl:h-[80vh]  xl:flex hidden pt-28 2xl:pt-36  px-8 items-center flex-col bg-[rgb(36,36,36)]  h-[85vh] ">
             <img
-              className="w-40"
+              className="w-40 2xl:w-44"
               alt=""
               src={
                 "https://res.cloudinary.com/dynjwlpl3/image/upload/v1674985284/Chat-app/logo_rmgpil.png"
@@ -72,7 +72,7 @@ function Home() {
             <p className="text-center text-[rgb(170,170,170)]  leading-5 mt-4">
               Connect with friends and family in real-time.
             </p>
-            <div className="text-[rgb(170,170,170)] pt-32 text-sm items-center  flex space-x-2">
+            <div className="text-[rgb(170,170,170)] pt-32 2xl:pt-36 text-sm items-center  flex space-x-2">
               <i className="fa-solid fa-lock"></i>
               <p>End to end encrypted</p>
             </div>

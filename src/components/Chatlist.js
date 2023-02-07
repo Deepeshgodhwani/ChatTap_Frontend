@@ -5,6 +5,7 @@ import { Skeleton, SkeletonCircle, useToast } from "@chakra-ui/react";
 import Profile from "./Profile";
 import GroupCreation from "./GroupCreation";
 let currentChat;
+const url = process.env.REACT_APP_URL;
 
 export default function Chatlist(props) {
   const context = useContext(chatContext);
@@ -15,13 +16,13 @@ export default function Chatlist(props) {
   const toast = useToast();
   const {
     chatroom,
-    accessChat,
     accessGroupChat,
     setrecentChats,
     recentChats,
     fetchRecentChats,
     logUser,
     chatlistLoading,
+    setchatroom,
   } = context;
 
   useEffect(() => {
@@ -34,7 +35,7 @@ export default function Chatlist(props) {
     try {
       let token = localStorage.getItem("token");
       const response = await fetch(
-        `http://localhost:7000/api/chat/countMssg?type=dismiss&chatId=${chatId}&userId=${logUser._id}`,
+        `${url}/api/chat/countMssg?type=dismiss&chatId=${chatId}&userId=${logUser._id}`,
         {
           method: "GET",
           mode: "cors",
@@ -227,6 +228,8 @@ export default function Chatlist(props) {
       }
 
       accessGroupChat(element._id);
+      element.dummy = true;
+      setchatroom(element);
       setrecentChats(
         recentChats.map((chat) => {
           if (chat._id === element._id) {
@@ -255,7 +258,9 @@ export default function Chatlist(props) {
         setenableChatlist(false);
         setenableChat(true);
       }
-      accessChat(checkUserId(element.latestMessage.sender, element));
+
+      setchatroom(element);
+      DissmissCount(element._id);
       setrecentChats(
         recentChats.map((chat) => {
           if (chat._id === element._id) {
@@ -289,19 +294,19 @@ export default function Chatlist(props) {
       let name = user._id === logUser._id ? "you" : user.name;
       compressedMessage = message.replace(logUser.name, "you");
       let finalmessage = name + " : " + compressedMessage;
-      return finalmessage.length > 23
-        ? finalmessage.slice(0, 26) + ".."
+      return finalmessage.length > 26
+        ? finalmessage.slice(0, 27) + ".."
         : finalmessage;
     } else {
       compressedMessage =
-        message.length > 23 ? message.slice(0, 25) + ".." : message;
+        message.length > 26 ? message.slice(0, 27) + ".." : message;
     }
     return compressedMessage;
   };
 
   return (
-    <div className="bg-[rgb(36,36,36)]   text-white w-full xs:w-96  md:w-80 h-[100%] flex flex-col space-y-2">
-      <div className="flex justify-between pb-[11px] pt-4  items-center  px-10 ">
+    <div className="bg-[rgb(36,36,36)]   text-white w-full xs:w-96 md:w-80  xl:w-[25%] h-[100%] flex flex-col space-y-2">
+      <div className="flex justify-between h-[10vh] px-7 mb-2 pr-10 md:px-6  items-center  ">
         <div className="flex space-x-2 items-center">
           <p className="font-semibold hidden md:flex font-[calibri] text-3xl ">
             Messages
@@ -310,7 +315,6 @@ export default function Chatlist(props) {
             <Profile />
           </div>
         </div>
-
         <div className="flex space-x-4">
           <div className="flex md:hidden">
             <GroupCreation socket={socket} />
@@ -347,7 +351,7 @@ export default function Chatlist(props) {
         </p>
       </div>
       {!chatlistLoading && (
-        <div className=" h-[78vh] pt-4  items-center md:py-3 py-0 overflow-y-scroll chatBox  flex  flex-col">
+        <div className=" h-[79vh] pt-4   items-center md:py-3 py-0 overflow-y-scroll chatBox  flex  flex-col">
           {recentChats.length > 0 &&
             recentChats.map((element) => {
               if (element.isGroupChat) {
@@ -362,15 +366,15 @@ export default function Chatlist(props) {
                         ? "bg-[rgb(27,27,27)] border-l-2  border-[rgb(36,141,97)]"
                         : "bg-[rgb(36,36,36)] "
                     } 
-                      px-4   text-white `}
+                      px-4 justify-center  w-full text-white `}
                   >
                     <div
                       key={element._id}
-                      className="flex space-x-2  md:px-0 py-2 w-72 relative border-b-[1px] border-[rgb(42,42,42)]"
+                      className="flex space-x-2 items-center  md:px-0 py-2 w-72 2xl:w-80  relative border-b-[1px] border-[rgb(42,42,42)]"
                     >
                       <img
                         alt=""
-                        className="w-12 h-12 rounded-[50%]"
+                        className="w-12 h-12 2xl:w-[3.2rem] 2xl:h-[3.2rem] rounded-[50%]"
                         src={element.profilePic}
                       ></img>
                       <div>
@@ -422,13 +426,13 @@ export default function Chatlist(props) {
                           ? "bg-[rgb(27,27,27)] border-l-2  border-[rgb(36,141,97)]"
                           : "bg-[rgb(36,36,36)] "
                       } 
-                          cursor-pointer hover:bg-[rgb(44,44,44)]   px-4   text-white `}
+                          cursor-pointer w-full justify-center hover:bg-[rgb(44,44,44)]   px-4   text-white `}
                       key={element._id}
                     >
-                      <div className="flex space-x-2 py-2  w-72  relative  border-b-[1px] border-[rgb(42,42,42)]">
+                      <div className="flex space-x-2 py-2 items-center  w-72 2xl:w-80   relative  border-b-[1px] border-[rgb(42,42,42)]">
                         <img
                           alt=""
-                          className="w-12 h-12 rounded-[50%]"
+                          className="w-12 h-12 2xl:w-[3.2rem] 2xl:h-[3.2rem] rounded-[50%]"
                           src={checkUserAvtar(
                             element.latestMessage.sender,
                             element
@@ -469,7 +473,7 @@ export default function Chatlist(props) {
                   return <div key={""}></div>;
                 }
               } else {
-                return <div></div>;
+                return <div key={element._id}></div>;
               }
             })}
           {recentChats.length === 0 && (
@@ -480,8 +484,8 @@ export default function Chatlist(props) {
         </div>
       )}
       {chatlistLoading && (
-        <div className="flex  items-center flex-col space-y-2">
-          <div className="px-4 relative  flex space-x-2 items-center pt-4 ">
+        <div className="flex h-[79vh] overflow-y-scroll chatBox  items-center flex-col space-y-2">
+          <div className=" relative  w-72 2xl:w-80  flex space-x-2 items-center pt-4 ">
             <SkeletonCircle
               size="14"
               startColor="rgb(46,46,46)"
@@ -491,7 +495,13 @@ export default function Chatlist(props) {
               <Skeleton
                 startColor="rgb(46,46,46)"
                 endColor="rgb(56,56,56)"
-                width={`${window.innerWidth < 768 ? "15rem" : "13rem"}`}
+                width={`${
+                  window.innerWidth < 768
+                    ? "14rem"
+                    : window.innerWidth < 1536
+                    ? "13rem"
+                    : "15rem"
+                }`}
                 height="10px"
               />
               <Skeleton
@@ -506,7 +516,7 @@ export default function Chatlist(props) {
               />
             </div>
           </div>
-          <div className="px-4 relative  flex space-x-2 items-center pt-4 ">
+          <div className=" relative  w-72 2xl:w-80  flex space-x-2 items-center pt-4 ">
             <SkeletonCircle
               size="14"
               startColor="rgb(46,46,46)"
@@ -516,7 +526,13 @@ export default function Chatlist(props) {
               <Skeleton
                 startColor="rgb(46,46,46)"
                 endColor="rgb(56,56,56)"
-                width={`${window.innerWidth < 768 ? "15rem" : "13rem"}`}
+                width={`${
+                  window.innerWidth < 768
+                    ? "14rem"
+                    : window.innerWidth < 1536
+                    ? "13rem"
+                    : "15rem"
+                }`}
                 height="10px"
               />
               <Skeleton
@@ -531,7 +547,7 @@ export default function Chatlist(props) {
               />
             </div>
           </div>
-          <div className="px-4 relative  flex space-x-2 items-center pt-4 ">
+          <div className=" relative  w-72 2xl:w-80  flex space-x-2 items-center pt-4 ">
             <SkeletonCircle
               size="14"
               startColor="rgb(46,46,46)"
@@ -541,7 +557,13 @@ export default function Chatlist(props) {
               <Skeleton
                 startColor="rgb(46,46,46)"
                 endColor="rgb(56,56,56)"
-                width={`${window.innerWidth < 768 ? "15rem" : "13rem"}`}
+                width={`${
+                  window.innerWidth < 768
+                    ? "14rem"
+                    : window.innerWidth < 1536
+                    ? "13rem"
+                    : "15rem"
+                }`}
                 height="10px"
               />
               <Skeleton
@@ -556,7 +578,7 @@ export default function Chatlist(props) {
               />
             </div>
           </div>
-          <div className="px-4 relative  flex space-x-2 items-center pt-4 ">
+          <div className=" relative  w-72 2xl:w-80  flex space-x-2 items-center pt-4 ">
             <SkeletonCircle
               size="14"
               startColor="rgb(46,46,46)"
@@ -566,7 +588,13 @@ export default function Chatlist(props) {
               <Skeleton
                 startColor="rgb(46,46,46)"
                 endColor="rgb(56,56,56)"
-                width={`${window.innerWidth < 768 ? "15rem" : "13rem"}`}
+                width={`${
+                  window.innerWidth < 768
+                    ? "14rem"
+                    : window.innerWidth < 1536
+                    ? "13rem"
+                    : "15rem"
+                }`}
                 height="10px"
               />
               <Skeleton
@@ -581,7 +609,7 @@ export default function Chatlist(props) {
               />
             </div>
           </div>
-          <div className="px-4 relative  flex space-x-2 items-center pt-4 ">
+          <div className=" relative  w-72 2xl:w-80  flex space-x-2 items-center pt-4 ">
             <SkeletonCircle
               size="14"
               startColor="rgb(46,46,46)"
@@ -591,7 +619,13 @@ export default function Chatlist(props) {
               <Skeleton
                 startColor="rgb(46,46,46)"
                 endColor="rgb(56,56,56)"
-                width={`${window.innerWidth < 768 ? "15rem" : "13rem"}`}
+                width={`${
+                  window.innerWidth < 768
+                    ? "14rem"
+                    : window.innerWidth < 1536
+                    ? "13rem"
+                    : "15rem"
+                }`}
                 height="10px"
               />
               <Skeleton
@@ -606,7 +640,7 @@ export default function Chatlist(props) {
               />
             </div>
           </div>
-          <div className="px-4 relative  flex space-x-2 items-center pt-4 ">
+          <div className=" relative  w-72 2xl:w-80  flex space-x-2 items-center pt-4 ">
             <SkeletonCircle
               size="14"
               startColor="rgb(46,46,46)"
@@ -616,7 +650,75 @@ export default function Chatlist(props) {
               <Skeleton
                 startColor="rgb(46,46,46)"
                 endColor="rgb(56,56,56)"
-                width={`${window.innerWidth < 768 ? "15rem" : "13rem"}`}
+                width={`${
+                  window.innerWidth < 768
+                    ? "14rem"
+                    : window.innerWidth < 1536
+                    ? "13rem"
+                    : "15rem"
+                }`}
+                height="10px"
+              />
+              <Skeleton
+                startColor="rgb(46,46,46)"
+                endColor="rgb(56,56,56)"
+                height="10px"
+              />
+              <Skeleton
+                startColor="rgb(46,46,46)"
+                endColor="rgb(56,56,56)"
+                height="10px"
+              />
+            </div>
+          </div>
+          <div className=" relative  w-72 2xl:w-80  flex space-x-2 items-center pt-4 ">
+            <SkeletonCircle
+              size="14"
+              startColor="rgb(46,46,46)"
+              endColor="rgb(56,56,56)"
+            />
+            <div className="space-y-2 ">
+              <Skeleton
+                startColor="rgb(46,46,46)"
+                endColor="rgb(56,56,56)"
+                width={`${
+                  window.innerWidth < 768
+                    ? "14rem"
+                    : window.innerWidth < 1536
+                    ? "13rem"
+                    : "15rem"
+                }`}
+                height="10px"
+              />
+              <Skeleton
+                startColor="rgb(46,46,46)"
+                endColor="rgb(56,56,56)"
+                height="10px"
+              />
+              <Skeleton
+                startColor="rgb(46,46,46)"
+                endColor="rgb(56,56,56)"
+                height="10px"
+              />
+            </div>
+          </div>
+          <div className=" relative  w-72 2xl:w-80  flex space-x-2 items-center pt-4 ">
+            <SkeletonCircle
+              size="14"
+              startColor="rgb(46,46,46)"
+              endColor="rgb(56,56,56)"
+            />
+            <div className="space-y-2 ">
+              <Skeleton
+                startColor="rgb(46,46,46)"
+                endColor="rgb(56,56,56)"
+                width={`${
+                  window.innerWidth < 768
+                    ? "14rem"
+                    : window.innerWidth < 1536
+                    ? "13rem"
+                    : "15rem"
+                }`}
                 height="10px"
               />
               <Skeleton

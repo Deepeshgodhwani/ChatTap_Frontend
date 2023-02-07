@@ -12,6 +12,7 @@ import {
   Spinner,
   useToast,
 } from "@chakra-ui/react";
+const url = process.env.REACT_APP_URL;
 
 export default function Navbar(props) {
   const context = useContext(ChatContext);
@@ -44,7 +45,7 @@ export default function Navbar(props) {
       setsearch(e.target.value);
       let token = localStorage.getItem("token");
       const response = await fetch(
-        `http://localhost:7000/api/chat/searchUser?search=${e.target.value}`,
+        `${url}/api/chat/searchUser?search=${e.target.value}`,
         {
           method: "GET",
           mode: "cors",
@@ -88,8 +89,8 @@ export default function Navbar(props) {
   };
 
   return (
-    <nav className="flex-col  hidden md:flex  items-center justify-center  w-20  py-10 text-white  bg-[rgb(27,27,27)] ">
-      <div className="bg-[rgb(36,36,36)] w-14 space-y-4 pb-5 pt-2 rounded-lg flex flex-col  items-center justify-center">
+    <nav className="  hidden md:flex  items-center justify-center w-20  xl:w-[6%]   py-10 text-white  bg-[rgb(27,27,27)] ">
+      <div className="bg-[rgb(36,36,36)]  w-14 space-y-4 pb-5 pt-2 rounded-lg flex flex-col  items-center justify-center">
         <img
           alt=""
           className="w-10  "
@@ -123,7 +124,7 @@ export default function Navbar(props) {
                 ></i>
               </div>
             </DrawerHeader>
-            <DrawerBody padding={"0"} overflow={"hidden"}>
+            <DrawerBody padding={"0"} position="relative" overflow={"hidden"}>
               <input
                 onChange={onChange}
                 value={search}
@@ -160,8 +161,8 @@ export default function Navbar(props) {
                   })}
                 </div>
               )}
-              {!result && (
-                <div className="text-white h-96  flex justify-center items-center">
+              {!result && !loading && (
+                <div className="text-white h-[70vh] top-0 mx-20  absolute flex justify-center items-center">
                   No result found
                 </div>
               )}

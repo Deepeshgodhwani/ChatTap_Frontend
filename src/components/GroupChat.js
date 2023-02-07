@@ -1,20 +1,24 @@
 import React, { useContext, useEffect, useState } from "react";
+import ChatContext from "../context/chat/ChatContext";
+import Loading from "./Loading";
+import RenderGroupMessages from "./RenderGroupMessages";
+import MessageContext from "../context/messages/MessageContext";
 import {
   FormControl,
   useDisclosure,
   Popover,
   PopoverContent,
   useToast,
+  Skeleton,
+  SkeletonCircle,
 } from "@chakra-ui/react";
-import ChatContext from "../context/chat/ChatContext";
-import Loading from "./Loading";
-import RenderGroupMessages from "./RenderGroupMessages";
-import MessageContext from "../context/messages/MessageContext";
+
 var selectedChatCompare;
 let processSend = true;
 let processRecieve = true;
 let dropdown = false;
 let members = [];
+const url = process.env.REACT_APP_URL;
 
 function GroupChat(props) {
   const context = useContext(ChatContext);
@@ -76,10 +80,10 @@ function GroupChat(props) {
     const fetchMessage = async () => {
       setloading(true);
       try {
-        if (!chatroom.users) return;
+        if (!chatroom.users || chatroom.dummy) return;
         let token = localStorage.getItem("token");
         const response = await fetch(
-          `http://localhost:7000/api/chat/fetchMessages?Id=${chatroom._id}`,
+          `${url}/api/chat/fetchMessages?Id=${chatroom._id}`,
           {
             method: "GET",
             mode: "cors",
@@ -123,7 +127,7 @@ function GroupChat(props) {
       let encryptedMessage = encryptData(newMessage);
       try {
         let token = localStorage.getItem("token");
-        const response = await fetch(`http://localhost:7000/api/chat/message`, {
+        const response = await fetch(`${url}/api/chat/message`, {
           method: "POST",
           mode: "cors",
           headers: {
@@ -137,9 +141,10 @@ function GroupChat(props) {
         });
 
         const data = await response.json();
+        setnewMessage("");
+        setgroupMessages([...groupMessages, data]);
         socket.emit("new_message", data);
         socket.emit("update_Chatlist", data);
-        setgroupMessages([...groupMessages, data]);
         let updatedChat;
         let chats = recentChats;
         chats = chats.filter((Chat) => {
@@ -149,7 +154,6 @@ function GroupChat(props) {
           }
           return Chat._id !== chatroom._id;
         });
-        setnewMessage("");
         setrecentChats([updatedChat, ...chats]);
         processSend = true;
       } catch (error) {
@@ -225,6 +229,11 @@ function GroupChat(props) {
   }, [chatroom]);
 
   useEffect(() => {
+    if (!groupMembers.length) {
+      setuserExist(true);
+      return;
+    }
+
     let check = false;
     groupMembers.forEach((members) => {
       if (members.user._id === logUser._id) {
@@ -282,7 +291,7 @@ function GroupChat(props) {
   return (
     <div
       className={`bg-[rgb(27,27,27)] h-[100vh]  relative overflow-hidden w-full  text-white ${
-        details ? "md:w-[71.5%] xl:w-[50%]" : "md:w-[71%] xl:w-[72%] "
+        details ? "md:w-[71.5%] xl:w-[44%]" : "md:w-[71%] xl:w-[69%] "
       }`}
     >
       <div className="flex justify-between  items-center h-[10vh] check border-[1px] border-[rgb(42,42,42)] py-3 space-x-4 px-10 bg-[rgb(36,36,36)] ">
@@ -296,24 +305,51 @@ function GroupChat(props) {
             className="fa-sharp md:hidden text-[rgb(136,136,136)] -ml-4 mr-2  fa-solid fa-arrow-left"
           ></i>
 
-          <img
-            onClick={() => {
-              props.toggleProfileView(true);
-            }}
-            alt=""
-            className="w-10 h-10   cursor-pointer rounded-full"
-            src={groupPic}
-          ></img>
-
-          <div className="-space-y-1">
-            <p
-              className="cursor-pointer font-semibold"
+          {groupPic && (
+            <img
               onClick={() => {
                 props.toggleProfileView(true);
               }}
-            >
-              {groupName}
-            </p>
+              alt=""
+              className="w-10 h-10   cursor-pointer rounded-full"
+              src={groupPic}
+            ></img>
+          )}
+          {!groupPic && (
+            <SkeletonCircle
+              size="10"
+              startColor="rgb(46,46,46)"
+              endColor="rgb(56,56,56)"
+            />
+          )}
+
+          <div className="-space-y-1">
+            {groupName && (
+              <p
+                className="cursor-pointer font-semibold"
+                onClick={() => {
+                  props.toggleProfileView(true);
+                }}
+              >
+                {groupName}
+              </p>
+            )}
+            {!groupName && (
+              <div className="flex flex-col space-y-1">
+                <Skeleton
+                  startColor="rgb(46,46,46)"
+                  endColor="rgb(56,56,56)"
+                  width={"12rem"}
+                  height="10px"
+                />
+                <Skeleton
+                  startColor="rgb(46,46,46)"
+                  endColor="rgb(56,56,56)"
+                  width={"12rem"}
+                  height="10px"
+                />
+              </div>
+            )}
             {isTyping && (
               <div className="flex text-sm space-x-2">
                 <p className="text-[rgb(150,150,150)] font-semibold">
@@ -359,7 +395,7 @@ function GroupChat(props) {
           </Popover>
         </div>
       </div>
-      <div className="h-[77vh] relative">
+      <div className={` h-[77vh]  relative`}>
         <div className={`chatBox py-2 px-4  max-h-[75vh] `}>
           {loading && <Loading></Loading>}
           {!loading && (

@@ -13,6 +13,7 @@ import {
   useToast,
   Spinner,
 } from "@chakra-ui/react";
+const url = process.env.REACT_APP_URL;
 
 function DetailsDrawers(props) {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -60,7 +61,7 @@ function DetailsDrawers(props) {
       setloadingGroup(false);
       let token = localStorage.getItem("token");
       const response = await fetch(
-        `http://localhost:7000/api/chat/getCommonGroups?userId=${Profile._id}`,
+        `${url}/api/chat/getCommonGroups?userId=${Profile._id}`,
         {
           method: "GET",
           mode: "cors",
@@ -116,7 +117,7 @@ function DetailsDrawers(props) {
         let picture = pic.url.toString();
         let token = localStorage.getItem("token");
         let data = await fetch(
-          `http://localhost:7000/api/chat/changePic?isGroupChat=${
+          `${url}/api/chat/changePic?isGroupChat=${
             Profile.isGroupChat ? true : false
           }&Id=${
             Profile.isGroupChat ? Profile._id : logUser._id
@@ -184,9 +185,14 @@ function DetailsDrawers(props) {
   // To exit from group .
   const exitGroup = async () => {
     try {
+      setgroupMembers(
+        groupMembers.filter((member) => {
+          return member.user._id !== logUser._id;
+        })
+      );
       let token = localStorage.getItem("token");
       const response = await fetch(
-        `http://localhost:7000/api/chat/removeUser?chatId=${Profile._id}&userId=${logUser._id}`,
+        `${url}/api/chat/removeUser?chatId=${Profile._id}&userId=${logUser._id}`,
         {
           method: "GET",
           mode: "cors",
@@ -224,11 +230,6 @@ function DetailsDrawers(props) {
       });
       setrecentChats([updatedChat, ...chats]);
       setgroupMessages([...groupMessages, noty]);
-      setgroupMembers(
-        groupMembers.filter((member) => {
-          return member.user._id !== logUser._id;
-        })
-      );
       setisUserExist(false);
     } catch (error) {
       toast({
@@ -277,22 +278,19 @@ function DetailsDrawers(props) {
     } else {
       try {
         let token = localStorage.getItem("token");
-        const response = await fetch(
-          `http://localhost:7000/api/chat/changeName`,
-          {
-            method: "POST",
-            mode: "cors",
-            headers: {
-              "Content-Type": "application/json",
-              "auth-token": token,
-            },
-            body: JSON.stringify({
-              type: "group",
-              Id: Profile._id,
-              name: newChatName,
-            }),
-          }
-        );
+        const response = await fetch(`${url}/api/chat/changeName`, {
+          method: "POST",
+          mode: "cors",
+          headers: {
+            "Content-Type": "application/json",
+            "auth-token": token,
+          },
+          body: JSON.stringify({
+            type: "group",
+            Id: Profile._id,
+            name: newChatName,
+          }),
+        });
 
         await response.json();
         let input = document.getElementById("inputName");
