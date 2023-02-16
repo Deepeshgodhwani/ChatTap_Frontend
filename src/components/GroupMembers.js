@@ -489,7 +489,7 @@ function GroupMembers(props) {
             >
               <img
                 onClick={() => {
-                  setSingleChat(members.user);
+                  logUser._id !==members.user._id && setSingleChat(members.user);
                 }}
                 alt=""
                 className="w-11 2xl:w-12 2xl:h-12  rounded-full h-11"
@@ -497,7 +497,7 @@ function GroupMembers(props) {
               ></img>
               <p
                 onClick={() => {
-                  setSingleChat(members.user);
+                  logUser._id !==members.user._id && setSingleChat(members.user);
                 }}
                 className=" text-sm font-semibold"
               >

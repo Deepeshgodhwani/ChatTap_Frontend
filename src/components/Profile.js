@@ -41,6 +41,7 @@ function Profile() {
 
   // To logout
   const logout = () => {
+    document.title="ChatTap"
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     setchatroom({});
