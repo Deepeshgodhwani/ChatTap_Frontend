@@ -167,6 +167,32 @@ function GroupChat(props) {
     }
   };
 
+  // removing unseen message counts when chat is open (when window size is less than 768)
+  const DissmissCount = async (chatId) => {
+    try {
+      let token = localStorage.getItem("token");
+      const response = await fetch(
+        `${url}/api/chat/countMssg?type=dismiss&chatId=${chatId}&userId=${logUser._id}`,
+        {
+          method: "GET",
+          mode: "cors",
+          headers: {
+            "Content-Type": "application/json",
+            "auth-token": token,
+          },
+        }
+      );
+      await response.json();
+    } catch (error) {
+      toast({
+        description: "Internal server error",
+        status: "warning",
+        duration: 2000,
+        isClosable: true,
+      });
+    }
+  };
+
   // On  receiving  message //
   if (socket && processRecieve) {
     socket.on("message_recieved", (data) => {
@@ -178,6 +204,9 @@ function GroupChat(props) {
       ) {
       } else {
         setgroupMessages([...groupMessages, message]);
+      }
+      if (window.innerWidth < 768) {
+        DissmissCount(message.chatId._id);
       }
       processRecieve = true;
     });

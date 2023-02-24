@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext ,useEffect} from "react";
 import ChatContext from "../context/chat/ChatContext";
 import MessageContext from "../context/messages/MessageContext";
 import {
@@ -13,6 +13,7 @@ import {
   Spinner,
 } from "@chakra-ui/react";
 const url = process.env.REACT_APP_URL;
+let chats;
 
 function GroupCreation(props) {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -45,6 +46,13 @@ function GroupCreation(props) {
   const [selectedUsersId, setselectedUsersId] = useState([]);
 
   //To searching user //
+
+  
+  useEffect(() => {
+    chats=recentChats;
+    // eslint-disable-next-line
+  }, [])
+  
 
   const onChange = async (e) => {
     try {
@@ -205,7 +213,7 @@ function GroupCreation(props) {
         toast({
           description: `Created group ${chatName}`,
           status: "success",
-          duration: 9000,
+          duration: 2000,
           isClosable: true,
         });
       } catch (error) {

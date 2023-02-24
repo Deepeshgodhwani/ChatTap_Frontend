@@ -5,6 +5,7 @@ import { Skeleton, SkeletonCircle, useToast } from "@chakra-ui/react";
 import Profile from "./Profile";
 import GroupCreation from "./GroupCreation";
 let currentChat;
+let chats;
 const url = process.env.REACT_APP_URL;
 
 export default function Chatlist(props) {
@@ -70,7 +71,6 @@ export default function Chatlist(props) {
 
       //updating latest message in chatlist//
       let updatedChat;
-      let chats = recentChats;
       let check = true;
       chats = chats.filter((Chat) => {
         //finding  chat in chatlist
@@ -103,6 +103,7 @@ export default function Chatlist(props) {
 
   useEffect(() => {
     currentChat = chatroom;
+    chats=recentChats;
     if (!socket) return;
     socket.once("latest_message", updateLatestMessage);
 
@@ -229,7 +230,6 @@ export default function Chatlist(props) {
 
       accessGroupChat(element._id);
       element.dummy = true;
-      setchatroom(element);
       setrecentChats(
         recentChats.map((chat) => {
           if (chat._id === element._id) {

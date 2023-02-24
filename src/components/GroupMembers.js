@@ -47,10 +47,8 @@ function GroupMembers(props) {
   } = context;
 
   useEffect(() => {
-    if (groupMembers.length > 5 && window.innerWidth < 1536) {
+    if (groupMembers.length > 5) {
       setrenderMembers(groupMembers.slice(0, 5));
-    } else if (groupMembers.length > 6) {
-      setrenderMembers(groupMembers.slice(0, 6));
     } else {
       setrenderMembers(groupMembers);
     }
@@ -302,9 +300,7 @@ function GroupMembers(props) {
   };
 
   const checkUserLength = () => {
-    if (groupMembers.length > 5 && window.innerWidth < 1536) {
-      return true;
-    } else if (groupMembers.length > 6) {
+    if (groupMembers.length > 5) {
       return true;
     } else {
       return false;
@@ -489,7 +485,8 @@ function GroupMembers(props) {
             >
               <img
                 onClick={() => {
-                  logUser._id !==members.user._id && setSingleChat(members.user);
+                  logUser._id !== members.user._id &&
+                    setSingleChat(members.user);
                 }}
                 alt=""
                 className="w-11 2xl:w-12 2xl:h-12  rounded-full h-11"
@@ -497,7 +494,8 @@ function GroupMembers(props) {
               ></img>
               <p
                 onClick={() => {
-                  logUser._id !==members.user._id && setSingleChat(members.user);
+                  logUser._id !== members.user._id &&
+                    setSingleChat(members.user);
                 }}
                 className=" text-sm font-semibold"
               >
